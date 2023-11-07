@@ -1,15 +1,19 @@
 #[derive(Copy, Clone)]
 pub struct Point {
-	x: f32,
-	y: f32,
-	z: f32
+	pub x: f32,
+	pub y: f32,
+	pub z: f32
 }
 
 impl Point {
+	pub fn d(self, p: Point) -> f32 {
+		return f32::sqrt(((self.x - p.x)*(self.x - p.x) + (self.y - p.y)*(self.y - p.y) + (self.z - p.z)*(self.z - p.z)));
+	}
+
 	pub fn trans(&mut self, x_: f32, y_: f32, z_: f32) {
-		self.x += x_;
-		self.y += y_;
-		self.z += z_;
+		self.x = self.x + x_;
+		self.y = self.y + y_;
+		self.z = self.z + z_;
 	}
     
 	pub fn rot(&mut self, x_: f32, y_: f32, z_: f32) {
@@ -35,34 +39,30 @@ impl Point {
 	}
 }
 
-struct Camera {
-	v: [Point; 3],
-	zoom: f32,
-	x: Point,
-	rx: f32,
-	ry: f32,
-	rz: f32,
+pub struct Camera {
+	pub v: [Point; 3],
+	pub zoom: f32,
+	pub x: Point,
+	pub rx: f32,
+	pub ry: f32,
+	pub rz: f32,
 }
 
 impl Camera {
 	 pub fn new(p: Point, rx_: f32, ry_: f32, rz_: f32) -> Self {
 		let mut v_ : [Point; 3] = [
-	    		Point{x: 0.0, y: 0.0, z: 0.0},
-	    		Point{x: 0.0, y: 1.0, z: 0.0},
-	    		Point{x: 0.0, y: 0.0, z: 1.0}
+	    		Point{x: 1.0, y: -0.5, z: -0.5},
+	    		Point{x: 1.0, y: 0.5, z: -0.5},
+	    		Point{x: 1.0, y: -0.5, z: 0.5}
 	    	];
 
-		for mut p in v_ {
-			p.rot(rx_, ry_, rz_);
-			p.trans(p.x, p.y, p.z);
+		 for i in 0..3 {
+			v_[i].rot(rx_, ry_, rz_);
+			v_[i].trans(p.x, p.y, p.z);
 		}
     	
         Camera {
-	        v: [
-	    		Point{x: 0.0, y: 0.0, z: 0.0},
-	    		Point{x: 0.0, y: 1.0, z: 0.0},
-	    		Point{x: 0.0, y: 0.0, z: 1.0}
-	    	],
+	        v: v_,
         	x: p,
             rx: rx_,
             ry: ry_,
@@ -75,7 +75,7 @@ impl Camera {
 
 pub struct Cube {
 	x: [Point; 8],
-	m: Point,
+	pub m: Point,
 	rx: f32,
 	ry: f32,
 	rz: f32,
@@ -104,7 +104,9 @@ impl Cube {
     }
     
     pub fn rot(&mut self, x_: f32, y_: f32, z_: f32) {
-    	self.trans(Point{x: -self.m.x, y: -self.m.y, z: -self.m.z});
+    	let cm : Point = self.m.clone();
+    	
+    	self.trans(Point{x: -cm.x, y: -cm.y, z: -cm.z});
     
     	self.rx += x_;
     	self.ry += y_;
@@ -117,24 +119,26 @@ impl Cube {
     	let sin_y : f32 = f32::sin(y_);
     	let sin_z : f32 = f32::sin(z_);
 
-	    for p in &mut self.x {
-	        let mut tp = Point { x: p.x, y: p.y, z: p.z };
+	    for i in 0..8 {
+	        let mut tp = self.x[i].clone();
 	
-	        p.x = tp.x * (cos_y * cos_z)
+	        self.x[i].x = tp.x * (cos_y * cos_z)
 	            + tp.y * (sin_x * sin_y * cos_z - cos_x * sin_z)
 	            + tp.z * (cos_x * sin_y * cos_z + sin_x * sin_z);
-	        p.y = tp.x * (cos_y * sin_z)
+	        self.x[i].y = tp.x * (cos_y * sin_z)
 	            + tp.y * (sin_x * sin_y * sin_z + cos_x * cos_z)
 	            + tp.z * (cos_x * sin_y * sin_z - sin_x * cos_z);
-	        p.z = tp.x * (-sin_y) + tp.y * (sin_x * cos_y) + tp.z * (cos_x * cos_y);
+	        self.x[i].z = tp.x * (-sin_y) + tp.y * (sin_x * cos_y) + tp.z * (cos_x * cos_y);
 	    }
 	    
-	    self.trans(Point{x: self.m.x, y: self.m.y, z: self.m.z});
+	    self.trans(Point{x: cm.x, y: cm.y, z: cm.z});
     }
     
     pub fn trans(&mut self, p: Point) {
-    	for p in &mut self.x {
-    		p.trans(p.x, p.y, p.z);
+    	self.m.trans(p.x, p.y, p.z);
+      	
+    	for i in 0..8 {
+    		self.x[i].trans(p.x, p.y, p.z);
     	}
     }
     
@@ -150,12 +154,18 @@ impl Cube {
     	cp.trans(-self.m.x, -self.m.y, -self.m.z);
     	cp.rot(crx, cry, crz);
     	cp.trans(self.m.x, self.m.y, self.m.z);
+
+		/*for i in 0..8 {
+	    	println!("{}", self.x[3].x.to_string());
+			println!("{}", self.x[3].y.to_string());
+			println!("{}", self.x[3].z.to_string());
+		}*/
     	
     	let res : bool = (self.x[3].x <= cp.x && self.x[3].y <= cp.y && self.x[3].z <= cp.z && self.x[5].x >= cp.x && self.x[5].y >= cp.y && self.x[5].z >= cp.z);
 
     	self.rot(crx, crx, crx);
     	
-    	return res;
+    	return res;//p.d(self.m) < 3.0;
     }
 }
 
