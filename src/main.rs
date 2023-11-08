@@ -18,7 +18,7 @@ pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
-    let window = video_subsystem.window("rust-sdl2 demo", 800, 600)
+    let window = video_subsystem.window("rust-sdl2 demo", 400, 400)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
@@ -27,6 +27,7 @@ pub fn main() -> Result<(), String>{
         .expect("could not make a canvas");
 
 	let mut c : u8 = 0;
+	let mut r : u32 = 0;
 	
 	let mut rng = rand::thread_rng();
 
@@ -37,8 +38,8 @@ pub fn main() -> Result<(), String>{
 	
 	let mut camera : Camera = Camera::new(V3{x: 0.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
 
-	let mut cube : Cube = Cube::new(V3{x:10.0, y: 0.0, z: 0.0}, 2.0);
-
+	let mut cube : Cube = Cube::new(V3{x:5.0, y: 0.0, z: 0.0}, 2.0);
+	
     let (w, h) = canvas.output_size().unwrap();
     
     'running: loop {
@@ -53,16 +54,16 @@ pub fn main() -> Result<(), String>{
             }
         }
 
-		//break;
-
+		
         canvas.clear();
      
         for i in 0..h {
         	for j in 0..w {
+        		
         		//let p : Point = Point::new(w as i32, h as i32);
         		
-        		let vxp : f32 = j as f32 / w as f32;
-        		let vyp : f32 = i as f32 / h as f32;
+        		let vxp : f64 = j as f64 / w as f64;
+        		let vyp : f64 = i as f64 / h as f64;
         		
         		let v0 : V3 = camera.x;
         		let v : V3 = V3{
@@ -71,20 +72,19 @@ pub fn main() -> Result<(), String>{
 	        		z: -0.5 + vyp//camera.v[0].z + (camera.v[0].z - camera.v[1].z) * vyp + (camera.v[0].z - camera.v[2].z) * vyp
         		};
         		let mut p : V3 = v0;
-        		let mut d : f32 = 0.0;
-        		let mut last_d : f32 = v0.d(cube.m);
+        		let mut d : f64 = 0.0;
+        		let mut last_d : f64 = v0.d(cube.m);
         		
         		loop {
 		            d = p.d(cube.m);
+					r = cube.has_point(p);
 					
-		            if (cube.has_point(p)) {
-		            	c = 100 as u8;
-		            	
+		            if (r != 0) {
+		            	c = 100 + r as u8 * 10;
 		            	break;
 		            }
 		            else if (d > last_d) {
-		            	c = 200 as u8;
-		            	
+		            	c = 50;
 		            	break;
 		            }
 		            else {
@@ -104,9 +104,9 @@ pub fn main() -> Result<(), String>{
         
         canvas.present();
         
-        cube.rot(0.01, 0.0, 0.0);
-        
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
+        cube.rot(0.01, 0.01, 0.0);
+
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
 
     }
     Ok(())
