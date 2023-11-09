@@ -1,10 +1,9 @@
 #![allow(unused)]
 
-mod engine_structure;
-
-use engine_structure::Camera;
-use engine_structure::Cube;
-use engine_structure::Point as V3;
+mod engine;
+use engine::Camera;
+use engine::cube::Cube;
+use engine::point::Point as V3;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::event::Event;
@@ -28,6 +27,7 @@ pub fn main() -> Result<(), String>{
 
 	let mut c : u8 = 0;
 	let mut r : u32 = 0;
+	let mut i : f64 = 0.0;
 	
 	let mut rng = rand::thread_rng();
 
@@ -36,13 +36,21 @@ pub fn main() -> Result<(), String>{
     let mut event_pump = sdl_context.event_pump()?;
 
 	
-	let mut camera : Camera = Camera::new(V3{x: 0.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
+	let mut camera : Camera = Camera::new(V3{x: 0.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
 
-	let mut cube : Cube = Cube::new(V3{x:5.0, y: 0.0, z: 0.0}, 2.0);
+	let mut cube : Cube = Cube::new(V3{x:15.0, y: 0.0, z: 0.0}, 4.0);
 	
     let (w, h) = canvas.output_size().unwrap();
     
+    let mut p : V3 = V3{x: 10.0, y: 10.0, z: 10.0};
+    
+    //println!("{}", cube.d(V3{x: 0.0, y: 0.0, z: 0.0}).to_string());
+    
     'running: loop {
+   		//break;
+    	cube.rot(V3{x: 0.2, y: 0.1, z: -0.1});
+    	//i = i + 0.2;
+    
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. }
@@ -73,14 +81,14 @@ pub fn main() -> Result<(), String>{
         		};
         		let mut p : V3 = v0;
         		let mut d : f64 = 0.0;
-        		let mut last_d : f64 = v0.d(cube.m);
+        		let mut last_d : f64 = cube.d(v0) + 1.0;
         		
         		loop {
-		            d = p.d(cube.m);
-					r = cube.has_point(p);
+		            d = cube.d(p);
 					
-		            if (r != 0) {
-		            	c = 100 + r as u8 * 10;
+					//println!("{}", d.to_string());
+		            if (d < 0.2) {
+		            	c = 100 + (cube.find_s_index(p) as u8) * 10;
 		            	break;
 		            }
 		            else if (d > last_d) {
@@ -93,19 +101,17 @@ pub fn main() -> Result<(), String>{
 		            }
 		            
         		}
-        		
+        		//println!("->{}", d.to_string());
         		canvas.set_draw_color(Color::RGB(c, 100, 255));
         		
         		canvas.draw_point(Point::new(j as i32, i as i32));
         	}
         	
         }
-        //break;
+       
         
         canvas.present();
-        
-        cube.rot(0.01, 0.01, 0.0);
-
+		
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
 
     }
