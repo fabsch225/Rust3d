@@ -87,7 +87,7 @@ pub fn main() -> Result<(), String>{
 		            d = cube.d(p);
 					
 					//println!("{}", d.to_string());
-		            if (d < 2.0) {
+		            if (d < 0.1) {
 		            	c = 100;// + (cube.find_s_index(p) as u8) * 10;
 		            	break;
 		            }
