@@ -27,7 +27,7 @@ pub fn main() -> Result<(), String>{
 
 	let mut c : u8 = 0;
 	let mut r : u32 = 0;
-	let mut i : f64 = 0.0;
+	let mut corners : i32 = 0;
 	
 	let mut rng = rand::thread_rng();
 
@@ -38,7 +38,7 @@ pub fn main() -> Result<(), String>{
 	
 	let mut camera : Camera = Camera::new(V3{x: 0.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
 
-	let mut cube : Cube = Cube::new(V3{x:15.0, y: 0.0, z: 0.0}, 4.0);
+	let mut cube : Cube = Cube::new(V3{x:15.0, y: 0.0, z: 0.0}, 2.0);
 	
     let (w, h) = canvas.output_size().unwrap();
     
@@ -49,7 +49,7 @@ pub fn main() -> Result<(), String>{
     'running: loop {
    		//break;
     	cube.rot(V3{x: 0.2, y: 0.1, z: -0.1});
-    	//i = i + 0.2;
+    	corners += 1;
     
         for event in event_pump.poll_iter() {
             match event {
@@ -87,8 +87,8 @@ pub fn main() -> Result<(), String>{
 		            d = cube.d(p);
 					
 					//println!("{}", d.to_string());
-		            if (d < 0.2) {
-		            	c = 100 + (cube.find_s_index(p) as u8) * 10;
+		            if (d < 2.0) {
+		            	c = 100;// + (cube.find_s_index(p) as u8) * 10;
 		            	break;
 		            }
 		            else if (d > last_d) {

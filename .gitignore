@@ -1,2 +1,5 @@
 /target
 /*.dll
+/gnu-mingw
+/msvc
+/.vs
