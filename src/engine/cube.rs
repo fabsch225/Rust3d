@@ -2,7 +2,6 @@ use crate::engine::point::Point;
 
 pub struct Cube {
 	x: [Point; 8],
-	xc: [Point; 8],
 	s: [Point; 6],
 	pub r: f64,
 	pub m: Point,
@@ -17,16 +16,6 @@ impl Cube {
     
         Cube {
         	x: [
-		    	Point{x: p.x - half_a, y: p.y + half_a, z: p.z - half_a},
-		    	Point{x: p.x + half_a, y: p.y + half_a, z: p.z - half_a},
-		 		Point{x: p.x + half_a, y: p.y - half_a, z: p.z - half_a},
-		    	Point{x: p.x - half_a, y: p.y - half_a, z: p.z - half_a},
-		    	Point{x: p.x - half_a, y: p.y + half_a, z: p.z + half_a},
-		    	Point{x: p.x + half_a, y: p.y + half_a, z: p.z + half_a},
-		 		Point{x: p.x + half_a, y: p.y - half_a, z: p.z + half_a},
-		    	Point{x: p.x - half_a, y: p.y - half_a, z: p.z + half_a}
-        	],
-        	xc : [
 		    	Point{x: p.x - half_a, y: p.y + half_a, z: p.z - half_a},
 		    	Point{x: p.x + half_a, y: p.y + half_a, z: p.z - half_a},
 		 		Point{x: p.x + half_a, y: p.y - half_a, z: p.z - half_a},
@@ -99,7 +88,6 @@ impl Cube {
       	
     	for i in 0..8 {
     		self.x[i].trans(p.x, p.y, p.z);
-    		self.xc[i].trans(p.x, p.y, p.z);
     	}
     	for i in 0..6 {
     		self.s[i].trans(p.x, p.y, p.z);
@@ -115,9 +103,6 @@ impl Cube {
 		else {
 			return 0;
 		}
-		
-    	
-
     }
     
     pub fn print_points(&mut self) {
@@ -141,7 +126,7 @@ impl Cube {
     }
     
     fn mins(&mut self) -> [f64; 6] {
-    	let mut result : [f64; 6] = [self.xc[3].x, self.xc[3].y, self.xc[3].z, self.xc[5].x, self.xc[5].y, self.xc[5].z];
+    	let mut result : [f64; 6] = [self.x[3].x, self.x[3].y, self.x[3].z, self.x[5].x, self.x[5].y, self.x[5].z];
  		for i in 1..8 {
  			if (self.x[i].x < result[0]) {
  				result[0] = self.x[i].x;
@@ -174,16 +159,7 @@ impl Cube {
     	let mut x : Point = self.x[2];
     	let mut y : Point = self.x[0];
     	let mut z : Point = self.x[7];
-    	
-    	/*println!("{},  {},  {}", pc.x, pc.y, pc.z);
-    	
-    	println!("start");
-    	
-    	println!("{},  {},  {}", o.x, o.y, o.z);
-    	println!("{},  {},  {}", x.x, x.y, x.z);
-    	println!("{},  {},  {}", y.x, y.y, y.z);
-    	println!("{},  {},  {}", z.x, z.y, z.z);*/
-    	
+
     	pc.subtr(o);
     	
     	x.subtr(o);
@@ -193,38 +169,18 @@ impl Cube {
     	let mut tx : f64 = pc.dt(x) / x.norm();
     	let mut ty : f64 = pc.dt(y) / y.norm();
     	let mut tz : f64 = pc.dt(z) / z.norm();
-    	
-    	//println!("{},  {},  {}", tx, ty, tz);
-    	
+
     	tx = if tx < 0.0 { 0.0 } else if tx > 1.0 { 1.0 } else { tx };
 		ty = if ty < 0.0 { 0.0 } else if ty > 1.0 { 1.0 } else { ty };
 		tz = if tz < 0.0 { 0.0 } else if tz > 1.0 { 1.0 } else { tz };
-    	
-    	/*println!("dirs before mult");
-    	
-    	println!("{},  {},  {}", o.x, o.y, o.z);
-    	println!("{},  {},  {}", x.x, x.y, x.z);
-    	println!("{},  {},  {}", y.x, y.y, y.z);
-    	println!("{},  {},  {}", z.x, z.y, z.z);*/
-    	
+
     	x.mult(tx);
     	y.mult(ty);
     	z.mult(tz);
     	
-    	/*println!("dirs after mult");
-    	
-    	println!("{},  {},  {}", x.x, x.y, x.z);
-    	println!("{},  {},  {}", y.x, y.y, y.z);
-    	println!("{},  {},  {}", z.x, z.y, z.z);
-    	
-    	println!("origin before addition");
-    	
-    	println!("{},  {},  {}", o.x, o.y, o.z);*/
-    	
     	o.add(x);
     	o.add(y);
     	o.add(z);
-    	//o.print();
     	
     	return o.d(p);
     }

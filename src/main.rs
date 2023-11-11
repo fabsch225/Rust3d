@@ -3,6 +3,7 @@
 mod engine;
 use engine::Camera;
 use engine::cube::Cube;
+use engine::face::Face;
 use engine::point::Point as V3;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
@@ -17,7 +18,7 @@ pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
-    let window = video_subsystem.window("rust-sdl2 demo", 400, 400)
+    let window = video_subsystem.window("rust-sdl2 demo", 650, 650)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
@@ -38,7 +39,7 @@ pub fn main() -> Result<(), String>{
 	
 	let mut camera : Camera = Camera::new(V3{x: 0.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
 
-	let mut cube : Cube = Cube::new(V3{x:15.0, y: 0.0, z: 0.0}, 2.0);
+	let mut cube : Cube = Cube::new(V3{x:15.0, y: 0.0, z: 0.0}, 6.0);
 	
     let (w, h) = canvas.output_size().unwrap();
     
@@ -88,7 +89,7 @@ pub fn main() -> Result<(), String>{
 					
 					//println!("{}", d.to_string());
 		            if (d < 0.1) {
-		            	c = 100;// + (cube.find_s_index(p) as u8) * 10;
+		            	c = 100 + (cube.find_s_index(p) as u8) * 10;
 		            	break;
 		            }
 		            else if (d > last_d) {
