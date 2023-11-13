@@ -1,5 +1,9 @@
-use crate::engine::point::Point;
+use sdl2::pixels::Color;
 
+use crate::engine::point::Point;
+use crate::engine::RayMarchingObject;
+
+#[derive(Copy, Clone)]
 pub struct Cube {
 	x: [Point; 8],
 	s: [Point; 6],
@@ -94,7 +98,7 @@ impl Cube {
     	}
     }
     
-    pub fn has_point(&mut self, p: Point) -> u32 {
+    pub fn has_point(self, p: Point) -> u32 {
     	
     	
     	if (true) {
@@ -113,7 +117,7 @@ impl Cube {
     	}
     }
     
-    pub fn find_s_index(&mut self, p: Point) -> u32 {
+    pub fn find_s_index(self, p: Point) -> u32 {
     	let mut min_d : Point = self.s[0];
     	let mut result : u32 = 1;
     	for i in 0..6 {
@@ -125,7 +129,7 @@ impl Cube {
     	return result;
     }
     
-    fn mins(&mut self) -> [f64; 6] {
+    fn mins(self) -> [f64; 6] {
     	let mut result : [f64; 6] = [self.x[3].x, self.x[3].y, self.x[3].z, self.x[5].x, self.x[5].y, self.x[5].z];
  		for i in 1..8 {
  			if (self.x[i].x < result[0]) {
@@ -152,7 +156,7 @@ impl Cube {
     }
     
     
-    pub fn d(&mut self, p : Point) -> f64 {
+    pub fn d_(self, p : Point) -> f64 {
     	let mut pc : Point = p.clone();
 
     	let mut o : Point = self.x[3];
@@ -184,4 +188,18 @@ impl Cube {
     	
     	return o.d(p);
     }
+}
+
+impl RayMarchingObject for Cube {
+	fn d(&self, p : Point) -> f64 {
+		return self.d_(p);
+	}
+
+	fn color(&self, p : Point) -> Color {
+		return Color::RGB((100) as u8, 100, 255); // + self.find_s_index(p) * 10
+	}
+
+	fn rot(&mut self, p : Point) {
+		return self.rot(p);
+	}
 }
