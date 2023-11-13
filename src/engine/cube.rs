@@ -12,10 +12,11 @@ pub struct Cube {
 	rx: f64,
 	ry: f64,
 	rz: f64,
+	base_color: Color
 }
 
 impl Cube {
-    pub fn new(p: Point, a: f64) -> Self {
+    pub fn new(p: Point, a: f64, c: Color) -> Self {
     	let half_a : f64 = a / 2.0;
     
         Cube {
@@ -41,7 +42,8 @@ impl Cube {
             r: a,
             rx: 0.0,
             ry: 0.0,
-            rz: 0.0
+            rz: 0.0,
+			base_color: c
         }
     }
      
@@ -155,7 +157,6 @@ impl Cube {
     	return result;
     }
     
-    
     pub fn d_(self, p : Point) -> f64 {
     	let mut pc : Point = p.clone();
 
@@ -196,7 +197,10 @@ impl RayMarchingObject for Cube {
 	}
 
 	fn color(&self, p : Point) -> Color {
-		return Color::RGB((100) as u8, 100, 255); // + self.find_s_index(p) * 10
+        //let mut color : Point = Point{x: self.base_color.r as f64, y: self.base_color.g as f64, z: self.base_color.b as f64};
+        //color.add(Point { x: self.find_s_index(p) as f64 * 10.0, y: (self.find_s_index(p) as f64 * 10.0), z: (self.find_s_index(p) as f64 * 10.0) });
+
+		return self.base_color;//Color::RGB(color.x as u8,  color.y as u8, color.z as u8); // + self.find_s_index(p) * 10
 	}
 
 	fn rot(&mut self, p : Point) {
