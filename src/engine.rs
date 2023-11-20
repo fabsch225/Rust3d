@@ -39,23 +39,18 @@ impl RayMarchingObjects {
 		self.objects.push(Box::new(obj));
 	}
 
-	pub fn nearest_distance_rounded(&self, p : V3, epsilon: f64) -> f64{ // generell dumme idee
+	pub fn nearest_distance_smoothed(&self, p : V3, epsilon: f64) -> f64{ // generell dumme idee
 		let mut bd : f64 = f64::MAX;
 		let mut d = 0.0;
 		let mut l: f64 = 0.0;
 
         for component in self.objects.iter() {
 			let cd = component.d(p);
-			if (cd < bd || f64::abs(cd - bd) < epsilon) {
-				if (cd < bd) {
-					bd = cd;
-				}
-				d = d + cd;
-				l = l + 1.0;
-			}
+			d = d + cd;
+			l = l + 1f64;
         }
 
-		return bd;
+		return d / l;
     }
 
     pub fn nearest_distance(&self, p : V3) -> f64{
@@ -160,7 +155,7 @@ impl RayMarchingCamera {
             ry: ry_,
             rz: rz_,
             zoom: 1.0,
-			epsilon: 1f64,
+			epsilon: 0.4f64,
 			view_distance: 100.0,
         }
     }
@@ -198,12 +193,12 @@ impl RayMarchingCamera {
         		let mut c = Color::RGB(51, 51, 51); //TODO Base-Color as Attribute of RMC
 
         		loop {
-		            //d = objs.nearest_distance_rounded(p, self.epsilon);
+		            //d = objs.nearest_distance_smoothed(p, self.epsilon);
 					d = objs.nearest_distance(p);
 					
 		            if (d < self.epsilon) {
 		            	//c = objs.current_color(p); // need delta function that exaddertes the edges WRONG!
-						c = objs.current_color_gradient(p, self.epsilon * 10.1);
+						c = objs.current_color_gradient(p, 10f64);
 		            	break;
 		            }
 		            else if (p.d(v0) > self.view_distance) {

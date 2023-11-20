@@ -43,7 +43,7 @@ pub fn main() -> Result<(), String>{
 
 	let mut cube : Cube = Cube::new(V3{x:20.0, y: 1.5, z: 0.0}, 6.0, Color::RGB(255, 0, 0));
     let mut cube2 : Cube = Cube::new(V3{x:20.0, y: -1.5, z: 0.0}, 6.0, Color::RGB(0, 0, 255));
-    let mut sphere : Sphere = Sphere::new(V3{x:25.0, y: 0.0, z: 0.0}, 3.0, Color::RGB(0, 255, 0));
+    let mut sphere : Sphere = Sphere::new(V3{x:25.0, y: 0.0, z: 5.0}, 3.0, Color::RGB(0, 255, 0));
 	
     let mut objs : RayMarchingObjects = RayMarchingObjects::new();
 
@@ -59,6 +59,7 @@ pub fn main() -> Result<(), String>{
     'running: loop {
    		//break;
     	objs.get(0).rot(V3{x: 0.1, y: 0.1, z: 0.0});
+        objs.get(1).rot(V3{x: 0.0, y: -0.1, z: 0.0});
         //camera.rot(V3{x: 0.0, y: 0.01, z: 0.0});
 
         for event in event_pump.poll_iter() {
