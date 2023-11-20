@@ -15,6 +15,7 @@ use face::Face;
 
 pub trait RayMarchingObject {
     fn d(&self, p: V3) -> f64;
+	fn d_r(&self, p: V3) -> f64;
 	fn color(&self, p: V3) -> Color;
 	fn rot(&mut self, p: V3);
 }
@@ -62,7 +63,7 @@ impl RayMarchingObjects {
 		//let mut cd : f64 = 0.0;
 
         for component in self.objects.iter() {
-			let cd = component.d(p);
+			let cd = component.d_r(p);
 			if (cd < result) {
 				result = cd;
 			}
@@ -156,7 +157,7 @@ impl RayMarchingCamera {
             ry: ry_,
             rz: rz_,
             zoom: 1.0,
-			epsilon: 0.8,
+			epsilon: 0.05,
 			view_distance: 100.0,
         }
     }
@@ -199,7 +200,7 @@ impl RayMarchingCamera {
 					
 		            if (d < self.epsilon) {
 		            	c = objs.current_color(p); // need delta function that exaddertes the edges
-						//c = objs.current_color_gradient(p, self.epsilon);
+						c = objs.current_color_gradient(p, self.epsilon);
 		            	break;
 		            }
 		            else if (p.d(v0) > self.view_distance) {

@@ -37,6 +37,10 @@ impl RayMarchingObject for Sphere {
 		return self.d_(p);
 	}
 
+    fn d_r(&self, p : Point) -> f64 {
+		return self.d_(p);
+	}
+
 	fn color(&self, p : Point) -> Color {
 		return self.base_color; // + self.find_s_index(p) * 10
 	}

@@ -189,11 +189,59 @@ impl Cube {
     	
     	return o.d(p);
     }
+
+	pub fn d_rounded(self, p : Point) -> f64 {
+    	let mut pc : Point = p.clone();
+
+    	let mut o : Point = self.x[3];
+    	let mut x : Point = self.x[2];
+    	let mut y : Point = self.x[0];
+    	let mut z : Point = self.x[7];
+
+    	pc.subtr(o);
+    	
+    	x.subtr(o);
+    	y.subtr(o);
+    	z.subtr(o);
+    	
+    	let mut tx : f64 = pc.dt(x) / x.norm();
+    	let mut ty : f64 = pc.dt(y) / y.norm();
+    	let mut tz : f64 = pc.dt(z) / z.norm();
+
+    	tx = if tx < 0.0 { 0.0 } else if tx > 1.0 { 1.0 } else { tx };
+		ty = if ty < 0.0 { 0.0 } else if ty > 1.0 { 1.0 } else { ty };
+		tz = if tz < 0.0 { 0.0 } else if tz > 1.0 { 1.0 } else { tz };
+
+		fn overhead(x: f64) -> f64 {
+			return x;
+		}
+
+		let mut ox = overhead(tx);
+		let mut oy = overhead(ty);
+		let mut oz = overhead(tz);
+
+    	x.mult(ox);
+    	y.mult(oy);
+    	z.mult(oz);
+    	
+    	o.add(x);
+    	o.add(y);
+    	o.add(z);
+    	
+		let mut d_to_m = o.d(self.m);
+		let d_m_r = f64::abs(d_to_m) / 300f64;
+
+    	return o.d(p) - d_m_r;
+    }
 }
 
 impl RayMarchingObject for Cube {
 	fn d(&self, p : Point) -> f64 {
 		return self.d_(p);
+	}
+
+	fn d_r(&self, p : Point) -> f64 {
+		return self.d_rounded(p);
 	}
 
 	fn color(&self, p : Point) -> Color {
