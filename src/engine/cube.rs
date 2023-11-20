@@ -212,26 +212,15 @@ impl Cube {
 		ty = if ty < 0.0 { 0.0 } else if ty > 1.0 { 1.0 } else { ty };
 		tz = if tz < 0.0 { 0.0 } else if tz > 1.0 { 1.0 } else { tz };
 
-		fn overhead(x: f64) -> f64 {
-			return x;
-		}
-
-		let mut ox = overhead(tx);
-		let mut oy = overhead(ty);
-		let mut oz = overhead(tz);
-
-    	x.mult(ox);
-    	y.mult(oy);
-    	z.mult(oz);
+    	x.mult(tx);
+    	y.mult(ty);
+    	z.mult(tz);
     	
     	o.add(x);
     	o.add(y);
     	o.add(z);
     	
-		let mut d_to_m = o.d(self.m);
-		let d_m_r = f64::abs(d_to_m) / 300f64;
-
-    	return o.d(p) - d_m_r;
+    	return o.d(p);
     }
 }
 

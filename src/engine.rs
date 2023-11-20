@@ -105,7 +105,7 @@ impl RayMarchingObjects {
             cd = component.d(p);
 			if (f64::abs(cd) < epsilon) {
 				candidates.push(component.color(p));
-				vals.push(component.d(p));
+				vals.push(cd);
 				ad = ad + cd;
 			}
         }
@@ -114,9 +114,12 @@ impl RayMarchingObjects {
 
 		ad = ad / l as f64;
 
-		for color in candidates.iter() {
-			let mut vc: V3 = V3{x: color.r as f64, y: color.g as f64, z: color.b as f64};
-			vc.mult(cd / ad);
+		for i in 0..vals.len() {
+			let c = candidates[i];
+			let v = vals[i];
+
+			let mut vc: V3 = V3{x: c.r as f64, y: c.g as f64, z: c.b as f64};
+			vc.mult(v / ad);
             result.add(vc);
         }
 
@@ -157,7 +160,7 @@ impl RayMarchingCamera {
             ry: ry_,
             rz: rz_,
             zoom: 1.0,
-			epsilon: 0.05,
+			epsilon: 1f64,
 			view_distance: 100.0,
         }
     }
@@ -199,12 +202,12 @@ impl RayMarchingCamera {
 					d = objs.nearest_distance(p);
 					
 		            if (d < self.epsilon) {
-		            	c = objs.current_color(p); // need delta function that exaddertes the edges
-						c = objs.current_color_gradient(p, self.epsilon);
+		            	//c = objs.current_color(p); // need delta function that exaddertes the edges WRONG!
+						c = objs.current_color_gradient(p, self.epsilon * 10.1);
 		            	break;
 		            }
 		            else if (p.d(v0) > self.view_distance) {
-		            	c = Color::RGB(0, 0, 0);
+		            	c = Color::RGB(51, 51, 51);
 		            	break;
 		            }
 		            else {
