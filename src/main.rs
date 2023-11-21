@@ -22,7 +22,7 @@ pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
-    let window = video_subsystem.window("rust-sdl2 demo", 300, 300)
+    let window = video_subsystem.window("rust-sdl2 demo", 500, 500)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
@@ -39,7 +39,7 @@ pub fn main() -> Result<(), String>{
     
     let mut event_pump = sdl_context.event_pump()?;
 
-	let mut camera : Camera = Camera::new(V3{x: 0.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
+	let mut camera : Camera = Camera::new(V3{x: -1.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
 
 	let mut cube : Cube = Cube::new(V3{x:20.0, y: 1.5, z: 0.0}, 6.0, Color::RGB(255, 0, 0));
     let mut cube2 : Cube = Cube::new(V3{x:20.0, y: -1.5, z: 0.0}, 6.0, Color::RGB(0, 0, 255));

@@ -17,6 +17,7 @@ pub trait RayMarchingObject {
     fn d(&self, p: V3) -> f64;
 	fn d_r(&self, p: V3) -> f64;
 	fn color(&self, p: V3) -> Color;
+	fn nearest_point(&self, p: V3) -> V3;
 	fn rot(&mut self, p: V3);
 }
 
@@ -40,17 +41,30 @@ impl RayMarchingObjects {
 	}
 
 	pub fn nearest_distance_smoothed(&self, p : V3, epsilon: f64) -> f64{ // generell dumme idee
+		let trad_d = self.nearest_distance(p);
+		
+		
 		let mut bd : f64 = f64::MAX;
+		let mut avg : V3 = V3{x: 0f64, y: 0f64, z: 0f64};
 		let mut d = 0.0;
 		let mut l: f64 = 0.0;
 
-        for component in self.objects.iter() {
-			let cd = component.d(p);
-			d = d + cd;
-			l = l + 1f64;
-        }
+		for component in self.objects.iter() {
+			let cp = component.nearest_point(p);
+			avg.add(cp);
+			l = l + 1f64; 
+		}
 
-		return d / l;
+		avg.mult(1f64 / l);
+		let new_d = p.d(avg);
+
+		if (trad_d < new_d * 0.5) {
+			return(trad_d);
+		}
+		else {
+			return(new_d * 1.1);
+		}
+		
     }
 
     pub fn nearest_distance(&self, p : V3) -> f64{
@@ -155,7 +169,7 @@ impl RayMarchingCamera {
             ry: ry_,
             rz: rz_,
             zoom: 1.0,
-			epsilon: 0.4f64,
+			epsilon: 0.1f64,
 			view_distance: 100.0,
         }
     }
@@ -193,7 +207,7 @@ impl RayMarchingCamera {
         		let mut c = Color::RGB(51, 51, 51); //TODO Base-Color as Attribute of RMC
 
         		loop {
-		            //d = objs.nearest_distance_smoothed(p, self.epsilon);
+		            //d = objs.nearest_distance_smoothed(p, self.epsilon * 0.5f64);
 					d = objs.nearest_distance(p);
 					
 		            if (d < self.epsilon) {

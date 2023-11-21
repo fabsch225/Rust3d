@@ -8,6 +8,7 @@ pub struct Cube {
 	x: [Point; 8],
 	s: [Point; 6],
 	pub r: f64,
+	pub r_outer: f64,
 	pub m: Point,
 	rx: f64,
 	ry: f64,
@@ -40,6 +41,7 @@ impl Cube {
         	],
             m: p,
             r: a,
+			r_outer: f64::sqrt(a*a*a*3f64),
             rx: 0.0,
             ry: 0.0,
             rz: 0.0,
@@ -157,37 +159,49 @@ impl Cube {
     	return result;
     }
     
-    pub fn d_(self, p : Point) -> f64 {
-    	let mut pc : Point = p.clone();
+	pub fn nearest_point_to(self, p : Point) -> Point {
+		let mut pc : Point = p.clone();
 
-    	let mut o : Point = self.x[3];
-    	let mut x : Point = self.x[2];
-    	let mut y : Point = self.x[0];
-    	let mut z : Point = self.x[7];
+		let mut o : Point = self.x[3];
+		let mut x : Point = self.x[2];
+		let mut y : Point = self.x[0];
+		let mut z : Point = self.x[7];
 
-    	pc.subtr(o);
-    	
-    	x.subtr(o);
-    	y.subtr(o);
-    	z.subtr(o);
-    	
-    	let mut tx : f64 = pc.dt(x) / x.norm();
-    	let mut ty : f64 = pc.dt(y) / y.norm();
-    	let mut tz : f64 = pc.dt(z) / z.norm();
+		pc.subtr(o);
+		
+		x.subtr(o);
+		y.subtr(o);
+		z.subtr(o);
+		
+		let mut tx : f64 = pc.dt(x) / x.norm();
+		let mut ty : f64 = pc.dt(y) / y.norm();
+		let mut tz : f64 = pc.dt(z) / z.norm();
 
-    	tx = if tx < 0.0 { 0.0 } else if tx > 1.0 { 1.0 } else { tx };
+		tx = if tx < 0.0 { 0.0 } else if tx > 1.0 { 1.0 } else { tx };
 		ty = if ty < 0.0 { 0.0 } else if ty > 1.0 { 1.0 } else { ty };
 		tz = if tz < 0.0 { 0.0 } else if tz > 1.0 { 1.0 } else { tz };
 
-    	x.mult(tx);
-    	y.mult(ty);
-    	z.mult(tz);
-    	
-    	o.add(x);
-    	o.add(y);
-    	o.add(z);
-    	
-    	return o.d(p);
+		x.mult(tx);
+		y.mult(ty);
+		z.mult(tz);
+		
+		o.add(x);
+		o.add(y);
+		o.add(z);
+
+		return o;
+	}
+
+
+    pub fn d_(self, p : Point) -> f64 {
+		
+		if (p.d(self.m) > self.r_outer) {
+			println!("{}", self.r_outer);
+			return p.d(self.m);
+		}
+		else {
+			return self.nearest_point_to(p).d(p);
+		}
     }
 
 	pub fn d_rounded(self, p : Point) -> f64 {
@@ -242,5 +256,9 @@ impl RayMarchingObject for Cube {
 
 	fn rot(&mut self, p : Point) {
 		return self.rot(p);
+	}
+
+	fn nearest_point(&self, p: Point) -> Point {
+		return self.nearest_point_to(p);
 	}
 }

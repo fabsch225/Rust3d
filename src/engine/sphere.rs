@@ -30,6 +30,17 @@ impl Sphere {
     pub fn d_(self, p : Point) -> f64 {
         return self.m.d(p) - self.r;
     }
+
+    pub fn nearest_point_to(self, p : Point) -> Point {
+        let mut v : Point = self.m.clone();
+        let mut res : Point = self.m.clone();
+        v.subtr(p);
+        v.normalize();
+        v.mult(self.r);
+        res.add(v);
+
+        return res;
+    }
 }
 
 impl RayMarchingObject for Sphere {
@@ -48,4 +59,8 @@ impl RayMarchingObject for Sphere {
 	fn rot(&mut self, p : Point) {
 		return self.rot(p);
 	}
+
+    fn nearest_point(&self, p: Point) -> Point {
+        return self.nearest_point_to(p)
+    }
 }

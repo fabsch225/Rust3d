@@ -8,6 +8,12 @@ pub struct Point {
 }
 
 impl Point {
+
+	pub fn normalize(&mut self) {
+		let len : f64 = f64::sqrt(self.x * self.x + self.y * self.y + self.z * self.z);
+		self.mult( 1f64 / len);
+	}
+
 	pub fn norm(self) -> f64 {
 		return self.dt(self);
 	}
