@@ -232,7 +232,46 @@ impl RayMarchingCamera {
 
 		//return canvas;
 	}
-}
 
+	pub fn render_pixel_at(&self, j: usize, i : usize, canvas : &mut Canvas<Window>, objs: &RayMarchingObjects, w: usize, h : usize,) {
+		let vxp : f64 = j as f64 / w as f64;
+        		let vyp : f64 = i as f64 / h as f64;
+        		
+        		let v0 : V3 = self.x;
+				let b : V3 = V3{x: self.v[0].x - v0.x, y: self.v[0].y - v0.y, z: self.v[0].z - v0.z};
+
+        		let v : V3 = V3{
+	        		x: b.x,
+	        		y: b.y + (self.v[1].y - self.v[0].y) * vyp + (self.v[2].y - self.v[0].y) * vxp,
+	        		z: b.z + (self.v[1].z - self.v[0].z) * vyp + (self.v[2].z - self.v[0].z) * vxp
+        		};
+
+        		let mut p : V3 = v0;
+        		let mut d : f64 = 0.0;
+        		let mut c = Color::RGB(51, 51, 51); //TODO Base-Color as Attribute of RMC
+
+        		loop {
+		            //d = objs.nearest_distance_smoothed(p, self.epsilon * 0.5f64);
+					d = objs.nearest_distance(p);
+					
+		            if (d < self.epsilon) {
+		            	//c = objs.current_color(p); // need delta function that exaddertes the edges WRONG!
+						c = objs.current_color_gradient(p, 10f64);
+		            	break;
+		            }
+		            else if (p.d(v0) > self.view_distance) {
+		            	c = Color::RGB(51, 51, 51);
+		            	break;
+		            }
+		            else {
+		            	p.trans(v.x * d / 2.0, v.y * d / 2.0, v.z * d / 2.0);
+		            }
+        		}
+
+        		canvas.set_draw_color(c);
+        		
+        		canvas.draw_point(Point::new(j as i32, i as i32));
+	}
+}
 
 
