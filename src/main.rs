@@ -1,13 +1,17 @@
 #![allow(unused)]
 
 mod engine_rm;
+mod point; 
+mod face;
+mod cube; 
+mod sphere;
 
 use engine_rm::{RayMarchingCamera as Camera, RayMarchingObjects, RayMarchingObject};
 
-use engine_rm::sphere::Sphere;
-use engine_rm::cube::Cube;
-use engine_rm::face::Face;
-use engine_rm::point::Point as V3;
+use sphere::Sphere;
+use cube::Cube;
+use face::Face;
+use point::Point as V3;
 
 use sdl2::pixels::Color;
 use sdl2::rect::Point;

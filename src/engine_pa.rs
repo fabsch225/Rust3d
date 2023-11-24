@@ -1,17 +1,14 @@
-pub mod cube;
-pub mod point;
-pub mod face;
-pub mod sphere;
 
 use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::rect::Point;
 
-use sphere::Sphere;
-use cube::Cube;
-use point::Point as V3;
-use face::Face;
+use crate::sphere::Sphere;
+use crate::cube::Cube;
+use crate::point::Point as V3;
+use crate::face::Face;
+
 
 pub trait PathtracingObject {
     fn d(&self, p: V3) -> f64;
