@@ -27,21 +27,21 @@ pub struct PathtracingObjects {
 
 impl PathtracingObjects {
 	pub fn new() -> Self {
-		RayMarchingObjects {
+		PathtracingObjects {
 			objects: Vec::new()
 		}
 	}
 
-	pub fn get(&mut self, i: usize) -> &mut Box<dyn RayMarchingObject + 'static>{
+	pub fn get(&mut self, i: usize) -> &mut Box<dyn PathtracingObject + 'static>{
 		return &mut self.objects[i];
 	}
 
-	pub fn add(&mut self, obj: impl RayMarchingObject + 'static) {
+	pub fn add(&mut self, obj: impl PathtracingObject + 'static) {
 		self.objects.push(Box::new(obj));
 	}
 }
 
-pub struct RayMarchingCamera {
+pub struct PathtracingCamera {
 	pub v: [V3; 3],
 	pub zoom: f64,
 	pub x: V3,
