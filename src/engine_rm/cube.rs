@@ -1,7 +1,7 @@
 use sdl2::pixels::Color;
 
-use crate::engine::point::Point;
-use crate::engine::RayMarchingObject;
+use crate::engine_rm::point::Point;
+use crate::engine_rm::RayMarchingObject;
 
 #[derive(Copy, Clone)]
 pub struct Cube {

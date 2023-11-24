@@ -169,7 +169,7 @@ impl RayMarchingCamera {
             ry: ry_,
             rz: rz_,
             zoom: 1.0,
-			epsilon: 0.1f64,
+			epsilon: 0.8f64,
 			view_distance: 100.0,
         }
     }
@@ -256,7 +256,7 @@ impl RayMarchingCamera {
 					
 		            if (d < self.epsilon) {
 		            	//c = objs.current_color(p); // need delta function that exaddertes the edges WRONG!
-						c = objs.current_color_gradient(p, 10f64);
+						c = objs.current_color_gradient(p, 7f64);
 		            	break;
 		            }
 		            else if (p.d(v0) > self.view_distance) {
