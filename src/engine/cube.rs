@@ -173,9 +173,9 @@ impl Cube {
 		y.subtr(o);
 		z.subtr(o);
 		
-		let mut tx : f64 = pc.dt(x) / x.norm();
-		let mut ty : f64 = pc.dt(y) / y.norm();
-		let mut tz : f64 = pc.dt(z) / z.norm();
+		let mut tx : f64 = pc.dt(x) / x.norm_sq();
+		let mut ty : f64 = pc.dt(y) / y.norm_sq();
+		let mut tz : f64 = pc.dt(z) / z.norm_sq();
 
 		tx = if tx < 0.0 { 0.0 } else if tx > 1.0 { 1.0 } else { tx };
 		ty = if ty < 0.0 { 0.0 } else if ty > 1.0 { 1.0 } else { ty };
@@ -218,9 +218,9 @@ impl Cube {
     	y.subtr(o);
     	z.subtr(o);
     	
-    	let mut tx : f64 = pc.dt(x) / x.norm();
-    	let mut ty : f64 = pc.dt(y) / y.norm();
-    	let mut tz : f64 = pc.dt(z) / z.norm();
+    	let mut tx : f64 = pc.dt(x) / x.norm_sq();
+    	let mut ty : f64 = pc.dt(y) / y.norm_sq();
+    	let mut tz : f64 = pc.dt(z) / z.norm_sq();
 
     	tx = if tx < 0.0 { 0.0 } else if tx > 1.0 { 1.0 } else { tx };
 		ty = if ty < 0.0 { 0.0 } else if ty > 1.0 { 1.0 } else { ty };

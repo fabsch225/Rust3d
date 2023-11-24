@@ -14,7 +14,7 @@ impl Point {
 		self.mult( 1f64 / len);
 	}
 
-	pub fn norm(self) -> f64 {
+	pub fn norm_sq(self) -> f64 {
 		return self.dt(self);
 	}
 

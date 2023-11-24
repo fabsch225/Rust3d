@@ -34,6 +34,7 @@ pub fn main() -> Result<(), String>{
     let ppx : usize = 50 * 500;
     let mut pixel_progress: usize = 0;
 
+    let mut f1 : Face = Face::new(V3{x: 10.0, y: 0.0, z: 0.0}, V3{x: 10.0, y: 0.0, z: 5.0}, V3{x: 10.0, y: 5.0, z: 0.0});
 
 	let mut camera : Camera = Camera::new(V3{x: -1.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
 
