@@ -195,8 +195,8 @@ impl Cube {
 
     pub fn d_(self, p : Point) -> f64 {
 		
-		if (p.d(self.m) > self.r_outer) {
-			println!("{}", self.r_outer);
+		if (p.d(self.m) > self.r_outer) { //doesnt work i think
+			//println!("{}", self.r_outer);
 			return p.d(self.m);
 		}
 		else {
@@ -204,7 +204,7 @@ impl Cube {
 		}
     }
 
-	pub fn d_rounded(self, p : Point) -> f64 {
+	pub fn d_rounded(self, p : Point) -> f64 {//trash
     	let mut pc : Point = p.clone();
 
     	let mut o : Point = self.x[3];

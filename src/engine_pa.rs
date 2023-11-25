@@ -8,14 +8,15 @@ use crate::sphere::Sphere;
 use crate::cube::Cube;
 use crate::point::Point as V3;
 use crate::face::Face;
-
+use crate::poly_shape::Poly;
+use crate::poly_shape::Collision;
 
 pub trait PathtracingObject {
     fn d(&self, p: V3) -> f64;
-	fn d_r(&self, p: V3) -> f64;
 	fn color(&self, p: V3) -> Color;
-	fn nearest_point(&self, p: V3) -> V3;
-	fn rot(&mut self, p: V3);
+	fn rot(&mut self, p: V3); 
+	fn is_colliding(&mut self, p0: V3, p: V3) -> bool; //Todo
+	fn get_collision(&self, p0: V3, p: V3) -> Collision;
 }
 
 pub struct PathtracingObjects {
@@ -35,6 +36,18 @@ impl PathtracingObjects {
 
 	pub fn add(&mut self, obj: impl PathtracingObject + 'static) {
 		self.objects.push(Box::new(obj));
+	}  
+
+	pub fn get_color(&self, p0: V3, p: V3) -> Color {
+		for po in self.objects.iter() {
+			let c = po.get_collision(p0, p);
+			if (c.hit) {
+				return Color::BLUE;
+			}
+		}
+
+
+		return Color::RED;
 	}
 }
 
@@ -62,7 +75,7 @@ impl PathtracingCamera {
 			v_[i].trans(p.x, p.y, p.z);
 		}
     	
-        Camera {
+        PathtracingCamera {
 	        v: v_,
         	x: p,
             rx: rx_,
@@ -83,7 +96,7 @@ impl PathtracingCamera {
 	}
 
 
-	pub fn render_pixel_at(&self, j: usize, i : usize, canvas : &mut Canvas<Window>, objs: &RayMarchingObjects, w: usize, h : usize,) {
+	pub fn render_pixel_at(&self, j: usize, i : usize, canvas : &mut Canvas<Window>, objs: &PathtracingObjects, w: usize, h : usize,) {
 		let vxp : f64 = j as f64 / w as f64;
         let vyp : f64 = i as f64 / h as f64;
         
@@ -96,9 +109,8 @@ impl PathtracingCamera {
             z: b.z + (self.v[1].z - self.v[0].z) * vyp + (self.v[2].z - self.v[0].z) * vxp
         };
 
-        let mut p : V3 = v0;
-
-        let mut c = Color::RGB(51, 51, 51); //TODO Base-Color as Attribute of RMC
+        
+        let mut c = objs.get_color(v0, v);
 
     
         canvas.set_draw_color(c);

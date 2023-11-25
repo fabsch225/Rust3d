@@ -1,10 +1,10 @@
 use crate::point::Point as V3;
+use crate::poly_shape::Collision;
 
 pub struct Face {
     pub r: V3,
     pub a: V3, 
     pub b: V3,
-    pub c: V3  //Last Point of collision
 }
 
 impl Face {
@@ -12,8 +12,7 @@ impl Face {
         Face {
             r : r_,
             a : a_,
-            b : b_,
-            c : V3{x: 0.0, y: 0.0, z: 0.0}
+            b : b_
         }
     }
 
@@ -21,14 +20,14 @@ impl Face {
 
     }
 
-    pub fn collides(&mut self, p0: V3, p: V3) -> bool { 
+    pub fn collides(&self, p0: V3, p: V3) -> Collision { 
         let a : f64 = p0.x;
         let b : f64 = p0.y;
         let c : f64 = p0.z;
 
-        let d : f64 = p.x - p0.x;
-        let e : f64 = p.y - p0.y;
-        let f : f64 = p.z - p0.z;
+        let d : f64 = p.x;// - p0.x;
+        let e : f64 = p.y;// - p0.y;
+        let f : f64 = p.z;// - p0.z;
 
         
         let x : f64 = self.r.x; 
@@ -55,9 +54,40 @@ impl Face {
         let beta : f64 = (o1 * n4 - o2 * n3) / (n1 * n4 - n2 * n3); 
         let gamma : f64 = (o1 - beta * n1) / n3;
  
-        println!("{}", beta);
-        println!("{}", gamma);
+        let c = V3{x: x + beta * x1 + gamma * x2, y: y + beta * y1 + gamma * y2, z: z + beta * z1 + gamma * z2};
+        let hit_ : bool = beta <= 1.0 && beta >= 0.0 && gamma <= 1.0 && gamma >= 0.0  && gamma + beta <= 1.0;  
+        //f64::sqrt(beta * beta + gamma * gamma) < 1.0
+        //println!("{}", beta);
+        //println!("{}", gamma);
 
-        return true;    
+        return Collision{p: c, hit: hit_};    
+    } 
+
+    pub fn rot_reverse(&mut self, p: V3) {
+        self.a.subtr(self.r);
+        self.b.subtr(self.r);
+
+        self.a.rot_reverse(p);
+        self.b.rot_reverse(p);
+
+        self.a.add(self.r);
+        self.b.add(self.r);
+ 	}
+    
+    pub fn rot(&mut self, p:V3) {
+        self.a.subtr(self.r);
+        self.b.subtr(self.r);
+
+        self.a.rot(p);
+        self.b.rot(p);
+
+        self.a.add(self.r);
+        self.b.add(self.r);
+ 	}
+    
+    pub fn trans(&mut self, p: V3) {
+    	self.r.trans(p.x, p.y, p.z);
+        self.a.trans(p.x, p.y, p.z);
+        self.b.trans(p.x, p.y, p.z);
     }
 }
