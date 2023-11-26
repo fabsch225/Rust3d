@@ -46,7 +46,7 @@ pub fn main() -> Result<(), String>{
 
     let mut f1 : Face = Face::new(V3{x:20.0, y: -5.0, z: -5.0}, V3{x:20.0, y: -5.0, z: 5.0}, V3{x: 20.0, y: 5.0, z: -5.0});
     let mut pl : P = P::new(V3{x: 10.0, y: 0.0, z: 0.0}, vec![f1]);
-    let mut p2 : P = P::parse_wavefront(String::from("data/default_cube.obj"));
+    let mut p2 : P = P::parse_wavefront(String::from("data/cube2.obj"));
     
 
 	let mut camera : PTC = PTC::new(V3{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
@@ -103,7 +103,7 @@ pub fn main() -> Result<(), String>{
             }
         }
 
-        objs.get(0).rot(V3{x: 0.1, y: 0.05, z: -0.05});
+        objs.get(0).rot(V3{x: 0.1, y: 0.15, z: -0.05});
 
         for i in 0..500 {
             for j in 0..500 {
