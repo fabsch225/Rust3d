@@ -20,7 +20,7 @@ impl Face {
 
     }
 
-    pub fn collides(&self, p0: V3, p: V3) -> Collision { 
+    pub fn collides(&self, p0: V3, p: V3) -> (f64, f64) { 
         let a : f64 = p0.x;
         let b : f64 = p0.y;
         let c : f64 = p0.z;
@@ -54,35 +54,41 @@ impl Face {
         let beta : f64 = (o1 * n4 - o2 * n3) / (n1 * n4 - n2 * n3); 
         let gamma : f64 = (o1 - beta * n1) / n3;
  
-        let c = V3{x: x + beta * x1 + gamma * x2, y: y + beta * y1 + gamma * y2, z: z + beta * z1 + gamma * z2};
-        let hit_ : bool = beta <= 1.0 && beta >= 0.0 && gamma <= 1.0 && gamma >= 0.0  && gamma + beta <= 1.0;  
+        //let c = V3{x: x + beta * x1 + gamma * x2, y: y + beta * y1 + gamma * y2, z: z + beta * z1 + gamma * z2};
+        //let hit_ : bool = beta <= 1.0 && beta >= 0.0 && gamma <= 1.0 && gamma >= 0.0  && gamma + beta <= 1.0;  
         //f64::sqrt(beta * beta + gamma * gamma) < 1.0
         //println!("{}", beta);
         //println!("{}", gamma);
 
-        return Collision{p: c, hit: hit_};    
+        return (beta, gamma);    
     } 
 
-    pub fn rot_reverse(&mut self, p: V3) {
-        self.a.subtr(self.r);
-        self.b.subtr(self.r);
+    pub fn rot_reverse(&mut self, r_: V3, p: V3) {
+        self.r.subtr(p);
+        self.a.subtr(p);
+        self.b.subtr(p);
 
-        self.a.rot_reverse(p);
-        self.b.rot_reverse(p);
+        self.r.rot_reverse(r_);
+        self.a.rot_reverse(r_);
+        self.b.rot_reverse(r_);
 
-        self.a.add(self.r);
-        self.b.add(self.r);
+        self.r.add(p);
+        self.a.add(p);
+        self.b.add(p);
  	}
     
-    pub fn rot(&mut self, p:V3) {
-        self.a.subtr(self.r);
-        self.b.subtr(self.r);
+    pub fn rot(&mut self, r_: V3, p: V3) {
+        self.r.subtr(p);
+        self.a.subtr(p);
+        self.b.subtr(p);
 
-        self.a.rot(p);
-        self.b.rot(p);
+        self.r.rot(r_);
+        self.a.rot(r_);
+        self.b.rot(r_);
 
-        self.a.add(self.r);
-        self.b.add(self.r);
+        self.r.add(p);
+        self.a.add(p);
+        self.b.add(p);
  	}
     
     pub fn trans(&mut self, p: V3) {

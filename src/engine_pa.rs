@@ -14,7 +14,7 @@ use crate::poly_shape::Collision;
 pub trait PathtracingObject {
     fn d(&self, p: V3) -> f64;
 	fn color(&self, p: V3) -> Color;
-	fn rot(&mut self, p: V3); 
+	fn rot(&mut self, r: V3); 
 	fn is_colliding(&mut self, p0: V3, p: V3) -> bool; //Todo
 	fn get_collision(&self, p0: V3, p: V3) -> Collision;
 }
@@ -42,10 +42,9 @@ impl PathtracingObjects {
 		for po in self.objects.iter() {
 			let c = po.get_collision(p0, p);
 			if (c.hit) {
-				return Color::BLUE;
+				return c.c;
 			}
 		}
-
 
 		return Color::RED;
 	}
