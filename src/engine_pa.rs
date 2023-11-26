@@ -15,6 +15,7 @@ pub trait PathtracingObject {
     fn d(&self, p: V3) -> f64;
 	fn color(&self, p: V3) -> Color;
 	fn rot(&mut self, r: V3); 
+	fn trans(&mut self, p: V3); 
 	fn is_colliding(&mut self, p0: V3, p: V3) -> bool; //Todo
 	fn get_collision(&self, p0: V3, p: V3) -> Collision;
 }

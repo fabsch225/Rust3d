@@ -46,8 +46,10 @@ pub fn main() -> Result<(), String>{
 
     let mut f1 : Face = Face::new(V3{x:20.0, y: -5.0, z: -5.0}, V3{x:20.0, y: -5.0, z: 5.0}, V3{x: 20.0, y: 5.0, z: -5.0});
     let mut pl : P = P::new(V3{x: 10.0, y: 0.0, z: 0.0}, vec![f1]);
-    let mut p2 : P = P::parse_wavefront(String::from("data/cube2.obj"));
-    
+
+    let mut p2 : P = P::parse_wavefront(String::from("data/horse.obj"));
+    p2.rot(V3{x: 3.14, y: 0.0, z: 0.0});
+    p2.trans(V3{x: 0.0, y: -1.0, z: -1.0});
 
 	let mut camera : PTC = PTC::new(V3{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
     
@@ -102,7 +104,7 @@ pub fn main() -> Result<(), String>{
                 _ => {}
             }
         }
-
+        /*
         objs.get(0).rot(V3{x: 0.1, y: 0.15, z: -0.05});
 
         for i in 0..500 {
@@ -113,7 +115,7 @@ pub fn main() -> Result<(), String>{
         }
 
         canvas.present();
-
+        */
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 
