@@ -97,3 +97,10 @@ impl Face {
         self.b.trans(p.x, p.y, p.z);
     }
 }
+
+#[derive(Copy, Clone)]
+pub struct UV {
+    pub r: (f64, f64),
+    pub a: (f64, f64), 
+    pub b: (f64, f64)
+}

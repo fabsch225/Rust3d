@@ -9,6 +9,7 @@ build = "build.rs"
 [dependencies]
 sdl2 = "*"
 rand = "*"
+image = "0.24.7"
 
 # `bundled` causes us to automatically compile and link in an up to date
 # version of SQLite for you. This avoids many common build issues, and
