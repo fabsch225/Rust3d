@@ -1,0 +1,12 @@
+# Blender 4.0.1 MTL File: 'whale.blend'
+# www.blender.org
+
+newmtl 10054_Whale_v2
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd C:/Users/fschuller/Downloads/Whale_v4_L3.123cb9dd4f9d-9836-4719-b662-d1bdcf57992e/Whale_v4_L3.123cb9dd4f9d-9836-4719-b662-d1bdcf57992e/10054_Whale_Diffuse_v2.jpg

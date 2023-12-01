@@ -178,17 +178,17 @@ impl PathtracingObject for Poly {
 
         if (c.hit) {   
             let uv = self.tm[i];
-            let x = 1.0 - (uv.r.0 + bg.0 * (uv.a.0 - uv.r.0) + bg.1 * (uv.b.0 - uv.r.0));
-            let y = (uv.r.1 + bg.0 * (uv.a.1 - uv.r.1) + bg.1 * (uv.b.1 - uv.r.1));
+            let y = (uv.r.0 + bg.0 * (uv.a.0 - uv.r.0) + bg.1 * (uv.b.0 - uv.r.0));
+            let x = 1.0 - (uv.r.1 + bg.0 * (uv.a.1 - uv.r.1) + bg.1 * (uv.b.1 - uv.r.1));
 
-            //println!("{}, {}, {}, {}, {}", uv.r.1, (uv.a.1 - uv.r.1), (uv.b.1 - uv.r.1), bg.0, bg.1);
+            //println!("{}, {}, {}, {}, {}, {}, {}", uv.r.1, (uv.a.1 - uv.r.1), (uv.b.1 - uv.r.1), bg.0, bg.1, x, y);
 
             let ty = (x * self.tw as f64) as u32;
             let tx = (y * self.th as f64) as u32;
-            
+
             let pos = ((tx + ty * self.th) * 3) as usize;
 
-            if (pos < 0 || pos >= self.tf.len()) {
+            if pos >= self.tf.len() {
                 c.c = Color::RED;
             }
             else {
@@ -197,6 +197,8 @@ impl PathtracingObject for Poly {
                 let b = self.tf[pos + 2];
 
                 c.c = Color::RGB(r, g, b);
+
+                //println!("{}, {}, {}, {}, {}", tx, ty, r, g, b);
             }
         }
 
