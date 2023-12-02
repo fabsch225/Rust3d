@@ -183,8 +183,8 @@ impl PathtracingObject for Poly {
 
             //println!("{}, {}, {}, {}, {}, {}, {}", uv.r.1, (uv.a.1 - uv.r.1), (uv.b.1 - uv.r.1), bg.0, bg.1, x, y);
 
-            let ty = (x * self.tw as f64) as u32;
-            let tx = (y * self.th as f64) as u32;
+            let ty = (x * self.th as f64) as u32;
+            let tx = (y * self.tw as f64) as u32;
 
             let pos = ((tx + ty * self.th) * 3) as usize;
 
