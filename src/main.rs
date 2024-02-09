@@ -8,34 +8,25 @@ mod face;
 mod cube; 
 mod sphere;
 
-use engine_rm::{RayMarchingCamera as Camera, RayMarchingObjects, RayMarchingObject};
 
 use engine_pa::{PathtracingCamera as PTC, PathtracingObject as PO, PathtracingObjects as POs};
 
-use sphere::Sphere;
-use cube::Cube;
 use face::Face;
 use point::Point as V3;
 use poly_shape::Poly as P;
-use poly_shape::Collision as Collision;
 
-use sdl2::pixels::Color;
-use sdl2::rect::Point;
+
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
-use std::borrow::Borrow;
-use std::borrow::BorrowMut;
+
 use std::ops::Deref;
-use std::path::Path;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex, RwLock};
-use std::sync::mpsc;
+use std::sync::{mpsc, Arc, RwLock};
 use std::thread;
 use std::time::Duration;
 
-use rand::Rng;
 
 pub fn main() -> Result<(), String>{
 
@@ -76,7 +67,7 @@ pub fn main() -> Result<(), String>{
     
     let mut p : V3 = V3{x: 10.0, y: 10.0, z: 10.0};
 
-    let mut objs_arc = Arc::new(RwLock::new(objs));
+    let objs_arc = Arc::new(RwLock::new(objs));
 
     'running: loop {
         for event in event_pump.poll_iter() {

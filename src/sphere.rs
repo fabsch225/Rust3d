@@ -1,6 +1,6 @@
 use sdl2::pixels::Color;
 
-use crate::RayMarchingObject;
+use crate::engine_rm::RayMarchingObject;
 
 use crate::point::Point;
 

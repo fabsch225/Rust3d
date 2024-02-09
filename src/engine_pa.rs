@@ -1,17 +1,11 @@
 
 use std::rc::Rc;
-use std::sync::Arc;
-
 use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::rect::Point;
 
-use crate::sphere::Sphere;
-use crate::cube::Cube;
 use crate::point::Point as V3;
-use crate::face::Face;
-use crate::poly_shape::Poly;
 use crate::poly_shape::Collision;
 
 

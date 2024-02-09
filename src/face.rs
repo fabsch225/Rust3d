@@ -1,5 +1,4 @@
 use crate::point::Point as V3;
-use crate::poly_shape::Collision;
 
 pub struct Face {
     pub r: V3,

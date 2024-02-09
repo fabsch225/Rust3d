@@ -1,7 +1,7 @@
 use sdl2::pixels::Color;
 
 use crate::point::Point;
-use crate::RayMarchingObject;
+use crate::engine_rm::RayMarchingObject;
 
 #[derive(Copy, Clone)]
 pub struct Cube {
@@ -105,7 +105,7 @@ impl Cube {
     pub fn has_point(self, p: Point) -> u32 {
     	
     	
-    	if (true) {
+    	if true {
 			return 5;//return self.find_s_index(cp);//
     	}
 		else {
@@ -195,7 +195,7 @@ impl Cube {
 
     pub fn d_(self, p : Point) -> f64 {
 		
-		if (p.d(self.m) > self.r_outer) { //doesnt work i think
+		if p.d(self.m) > self.r_outer { //doesnt work i think
 			//println!("{}", self.r_outer);
 			return p.d(self.m);
 		}
