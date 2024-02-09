@@ -146,6 +146,13 @@ impl PathtracingObject for Poly {
         self.m.trans(p.x, p.y, p.z);
     }
 
+    fn scale(&mut self, p: V3) { 
+        for f in self.x.iter_mut() {
+            f.scale_by(p, self.m);
+        }
+        self.m.trans(p.x, p.y, p.z);
+    }
+
 	fn is_colliding(&mut self, p0: V3, p: V3) -> bool {
         return true;
     }

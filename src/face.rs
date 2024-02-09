@@ -96,6 +96,32 @@ impl Face {
         self.a.trans(p.x, p.y, p.z);
         self.b.trans(p.x, p.y, p.z);
     }
+
+    pub fn scale_by(&mut self, p: V3, m: V3) {
+        let ax = (self.a.x - m.x) * p.x;
+        let ay = (self.a.y - m.y) * p.y;
+        let az = (self.a.z - m.z) * p.z;
+
+        self.a.x = m.x + ax;
+        self.a.y = m.y + ay;
+        self.a.z = m.z + az;
+
+        let bx = (self.b.x - m.x) * p.x;
+        let by = (self.b.y - m.y) * p.y;
+        let bz = (self.b.z - m.z) * p.z;
+
+        self.b.x = m.x + bx;
+        self.b.y = m.y + by;
+        self.b.z = m.z + bz;
+
+        let rx = (self.r.x - m.x) * p.x;
+        let ry = (self.r.y - m.y) * p.y;
+        let rz = (self.r.z - m.z) * p.z;
+
+        self.r.x = m.x + rx;
+        self.r.y = m.y + ry;
+        self.r.z = m.z + rz;
+    }
 }
 
 #[derive(Copy, Clone)]

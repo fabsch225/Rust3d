@@ -23,7 +23,14 @@ use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use std::sync::Arc;
+use sdl2::render::Canvas;
+use sdl2::video::Window;
+use std::borrow::Borrow;
+use std::borrow::BorrowMut;
+use std::ops::Deref;
+use std::path::Path;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex, RwLock};
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
@@ -51,27 +58,54 @@ pub fn main() -> Result<(), String>{
     let mut pl : P = P::new(V3{x: 10.0, y: 0.0, z: 0.0}, vec![f1]);
 
     let mut p2 : P = P::parse_wavefront(String::from("data/horse.obj"), String::from("data/horse_tex.png"));
-    //let mut p2 : P = P::parse_wavefront(String::from("data/ref_cube.obj"), String::from("data/standart_text.jpg"));
+    let mut p3 : P = P::parse_wavefront(String::from("data/ref_cube.obj"), String::from("data/standart_text.jpg"));
     //let mut p2 : P = P::parse_wavefront(String::from("data/whale.obj"), String::from("data/whale.jpg"));
 
     p2.rot(V3{x: 3.14*1.5, y: 0.0, z: 0.0});
     p2.trans(V3{x: 0.0, y: -1.0, z: -1.0});
+
+    p3.trans(V3{x: 0.0, y: 0.0, z: 0.0});
+    p3.scale(V3{x: 3.0, y: 3.0, z: 3.0});
 
 	let mut camera : PTC = PTC::new(V3{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
     
     let mut objs : POs = POs::new();
 
     objs.add(p2);
+    objs.add(p3);
     
     let mut p : V3 = V3{x: 10.0, y: 10.0, z: 10.0};
 
-    //let objs_arc = Arc::new(objs);
+    let mut objs_arc = Arc::new(RwLock::new(objs));
 
+    'running: loop {
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => break 'running,
+                _ => {}
+            }
+        }
+        
+        objs_arc.write().unwrap().get(0).rot(V3{x: 0.4, y: 0.0, z: 0.0});
+        
+        canvas = render(canvas, Arc::clone(&objs_arc), camera);
+
+        ::std::thread::sleep(Duration::new(0, 1_000_000_00u32 / 60));
+    }
+
+    Ok(())
+}
+
+pub fn render(mut canvas: Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: PTC) -> Canvas<Window> {
+    
     canvas.clear();
     
     let (tx, rx) = mpsc::channel::<(usize, Vec<Color>)>();
 
-    let objs_arc = Arc::new(objs);
     let camera_arc = Arc::new(camera);
 
     for i in 0..10 {
@@ -80,7 +114,8 @@ pub fn main() -> Result<(), String>{
         let tx = tx.clone();
 
         thread::spawn(move || {
-            let section = camera_arc.render_section(0, i.to_owned() * 50, 500, (i.to_owned() + 1) * 50, objs_arc, 500, 500);
+            let objs = objs_arc.read().unwrap();
+            let section = camera_arc.render_section(0, i.to_owned() * 50, 500, (i.to_owned() + 1) * 50, objs.deref(), 500, 500);
             tx.send((i.to_owned(), section));
         });
     }
@@ -98,32 +133,6 @@ pub fn main() -> Result<(), String>{
 
     canvas.present();
 
-    'running: loop {
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => break 'running,
-                _ => {}
-            }
-        }
-        
-        /*
-        objs.get(0).rot(V3{x: 0.1, y: 0.15, z: -0.05});
-
-        for i in 0..500 {
-            for j in 0..500 {
-               
-                camera.render_pixel_at(j, i, &mut canvas, &objs, 500, 500);
-            }  
-        }
-
-        canvas.present();
-        */
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
-    }
-
-    Ok(())
+   
+    return canvas;
 }

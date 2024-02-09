@@ -1,4 +1,5 @@
 
+use std::rc::Rc;
 use std::sync::Arc;
 
 use sdl2::pixels::Color;
@@ -19,6 +20,7 @@ pub trait PathtracingObject {
 	fn color(&self, p: V3) -> Color;
 	fn rot(&mut self, r: V3); 
 	fn trans(&mut self, p: V3); 
+	fn scale(&mut self, p: V3);
 	fn is_colliding(&mut self, p0: V3, p: V3) -> bool; //Todo
 	fn get_collision(&self, p0: V3, p: V3) -> Collision;
 }
@@ -136,7 +138,7 @@ impl PathtracingCamera {
         canvas.draw_point(Point::new(j as i32, i as i32));
 	}
 
-	pub fn render_section(&self, j1: usize, i1 : usize, j2: usize, i2 : usize, objs: Arc<PathtracingObjects>, w: usize, h : usize) -> Vec<Color> {
+	pub fn render_section(&self, j1: usize, i1 : usize, j2: usize, i2 : usize, objs: &PathtracingObjects, w: usize, h : usize) -> Vec<Color> {
 		let mut section: Vec<Color> = Vec::new();
 
 		for i in i1..i2 {
