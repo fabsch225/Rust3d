@@ -54,6 +54,15 @@ impl Point {
 		self.z = self.z * x;
 	}
     
+	pub fn cross(&mut self, p : Point) {
+		let x : f64 = self.y * p.z - self.z * p.y;
+		let y : f64 = self.z * p.x - self.x * p.z;
+		let z : f64 = self.x * p.y - self.y * p.x;
+		self.x = x;
+		self.y = y;
+		self.z = z;
+	}
+
 	pub fn rot(&mut self, p : Point) {
 		
 		let cos_x : f64 = f64::cos(p.x);

@@ -95,7 +95,7 @@ impl Poly {
                 let tai : usize = _2.next().expect("").parse::<usize>().unwrap() - 1;
                 let tbi : usize = _3.next().expect("").parse::<usize>().unwrap() - 1;
 
-                faces.push(F{r: vertices[ri], a: vertices[ai], b: vertices[bi]});
+                faces.push(F::new(vertices[ri], vertices[ai], vertices[bi]));
                 texture_map.push(UV{r: uvs[tri], a: uvs[tai], b: uvs[tbi]});
             }
         }
