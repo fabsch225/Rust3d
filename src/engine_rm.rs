@@ -173,9 +173,7 @@ impl RayMarchingCamera {
 
 	pub fn rot(&mut self, p : V3) {
 		for i in 0..3 {
-			self.v[i].subtr(self.x);
-			self.v[i].rot(p);
-			self.v[i].add(self.x);
+			self.v[i].rot(V3{x: p.x, y: p.y, z: p.z});
 		}
 	}
 

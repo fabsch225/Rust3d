@@ -57,28 +57,24 @@ impl Face {
 
     pub fn collides(&self, p0: V3, p: V3) -> (f64, f64) { 
 
-        // optimization. slows it down
-        
-        let mut to_middle = self.m.clone();
-        to_middle.subtr(p0);
-        let mut p_ = p.clone();
-        
-        p_.mult(self.radius / p_.norm());
-        // let mut m_ = self.m.clone();
+        // optimization
 
-        let delta : f64 = to_middle.dt(p_) / p_.norm();
-
-        //p_.mult(to_middle.dt(p_) / p_.norm_sq());
-        //p_.add(p0);
-        //m_.subtr(p_);
-        //let delta : f64 = m_.norm();
-        //(no) somehow, this solves objects beeing behind the camera
-
-        if (delta < self.radius) {
-            //println!("works here");
+        //is it behind me?
+        let mut to_m = self.m.clone();
+        to_m.subtr(p0);
+        let proj = to_m.dt(p);
+        if (proj < 0.0) {
             return (-1.0, -1.0);
         }
+
+        //is it too far away from the ray?
+        let mut m_ = self.m.clone();
+        m_.subtr(p0);
+        m_.cross(p); 
         
+        if (m_.norm() > self.radius) {
+            return (-1.0, -1.0);
+        }
 
         //gauss
 
