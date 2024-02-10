@@ -63,7 +63,7 @@ pub fn main() -> Result<(), String>{
     let mut objs : POs = POs::new();
 
     objs.add(p2);
-    objs.add(p3);
+    //objs.add(p3);
     
     let mut p : V3 = V3{x: 10.0, y: 10.0, z: 10.0};
 
@@ -81,11 +81,11 @@ pub fn main() -> Result<(), String>{
             }
         }
         
-        objs_arc.write().unwrap().get(0).rot(V3{x: 0.4, y: 0.0, z: 0.0});
+        objs_arc.write().unwrap().get(0).trans(V3{x: -0.3, y: 0.0, z: 0.0});
         
         canvas = render(canvas, Arc::clone(&objs_arc), camera);
 
-        ::std::thread::sleep(Duration::new(0, 1_000_000_00u32 / 60));
+        ::std::thread::sleep(Duration::new(0, 1_000_000u32 / 60));
     }
 
     Ok(())

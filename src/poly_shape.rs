@@ -181,6 +181,10 @@ impl PathtracingObject for Poly {
                     c = Collision{p: pc, hit: true, c: cv[i_ % 5]};
                 }
             }
+            else if (bg_ == (-1.0, -1.0)) {
+                c = Collision{p: p0, hit: true, c: Color::RGB(100, 0, 0)};
+                return c;
+            }
         }
 
         if (c.hit) {   

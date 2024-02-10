@@ -14,6 +14,10 @@ impl Point {
 		self.mult( 1f64 / len);
 	}
 
+	pub fn norm(self) -> f64 {
+		return f64::sqrt(self.x * self.x + self.y * self.y + self.z * self.z);
+	}
+
 	pub fn norm_sq(self) -> f64 {
 		return self.dt(self);
 	}
