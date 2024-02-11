@@ -7,7 +7,7 @@ use image::{Pixels, GenericImageView};
 use rand::seq::SliceRandom;
 
 use crate::point::Point as V3;
-use crate::face::{Face as F, UV};
+use crate::face::{Face as F, UV, CollisionCheckable};
 use crate::engine_pa::PathtracingObject;
 
 use sdl2::pixels::Color;
@@ -21,6 +21,13 @@ pub struct Poly {
     pub th: u32,
     pub base_color: Color, 
     pub has_t: bool
+}
+
+pub trait Textured {
+    fn get_texture(&self) -> Vec<u8>;
+    fn get_uv_map(&self) -> Vec<UV>;
+
+
 }
 
 impl Poly {
@@ -162,26 +169,26 @@ impl PathtracingObject for Poly {
         let mut bd : f64 = f64::MAX; 
         let mut i : usize = 0;
         let mut bg : (f64, f64) = (0.0, 0.0);
-        let cv = vec![Color::CYAN, Color::BLUE, Color::GREEN, Color::GRAY, Color::YELLOW];  
-
+        
         for (i_, f) in self.x.iter().enumerate() {
-            let bg_ = f.collides(p0, p); 
-            if (bg_.0 <= 1.0 && bg_.0 >= 0.0 && bg_.1 <= 1.0 && bg_.1 >= 0.0  && bg_.0 + bg_.1 <= 1.0) {
-                let pc: V3 = V3{
-                    x: f.r.x + bg_.0 * (f.a.x - f.r.x) + bg_.1 * (f.b.x - f.r.x), 
-                    y: f.r.y + bg_.0 * (f.a.y - f.r.y) + bg_.1 * (f.b.y - f.r.y), 
-                    z: f.r.z + bg_.0 * (f.a.z - f.r.z) + bg_.1 * (f.b.z - f.r.z)  
-                }; 
-                let d : f64 = pc.d(p0); 
-                
-                if (d < bd) {
-                    bg = bg_;
-                    bd = d; 
-                    i = i_;
-                    c = Collision{p: pc, hit: true, c: cv[i_ % 5]};
+            if (f.is_colliding(p0, p)) {
+                let bg_ = f.get_beta_gamma(p0, p); 
+                if (bg_.0 <= 1.0 && bg_.0 >= 0.0 && bg_.1 <= 1.0 && bg_.1 >= 0.0  && bg_.0 + bg_.1 <= 1.0) {
+                    let pc: V3 = V3{
+                        x: f.r.x + bg_.0 * (f.a.x - f.r.x) + bg_.1 * (f.b.x - f.r.x), 
+                        y: f.r.y + bg_.0 * (f.a.y - f.r.y) + bg_.1 * (f.b.y - f.r.y), 
+                        z: f.r.z + bg_.0 * (f.a.z - f.r.z) + bg_.1 * (f.b.z - f.r.z)  
+                    }; 
+                    let d : f64 = pc.d(p0); 
+                    
+                    if (d < bd) {
+                        bg = bg_;
+                        bd = d; 
+                        i = i_;
+                        c = Collision{p: pc, hit: true, c: Color::RED};
+                    }
                 }
             }
-           
         }
 
         if (c.hit) {   
@@ -205,8 +212,6 @@ impl PathtracingObject for Poly {
                 let b = self.tf[pos + 2];
 
                 c.c = Color::RGB(r, g, b);
-
-                //println!("{}, {}, {}, {}, {}", tx, ty, r, g, b);
             }
         }
 

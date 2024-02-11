@@ -9,6 +9,44 @@ pub struct Face {
     pub radius: f64
 }
 
+pub trait CollisionCheckable {
+    fn get_radius(&self) -> f64;
+    fn get_middle(&self) -> V3;
+
+    fn is_colliding(&self, p0: V3, p: V3) -> bool {
+        //is it behind me?
+        let mut to_m = self.get_middle().clone();
+        to_m.subtr(p0);
+        let proj = to_m.dt(p);
+        if (proj < 0.0) {
+            return false
+        }
+        else {
+            //is it too far away from the ray?
+            let mut m_ = self.get_middle().clone();
+            m_.subtr(p0);
+            m_.cross(p); 
+            
+            if (m_.norm() > self.get_radius()) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+    }
+}
+
+impl CollisionCheckable for Face {
+    fn get_radius(&self) -> f64 {
+        return self.radius;
+    }
+
+    fn get_middle(&self) -> V3 {
+        return self.m;
+    }
+}
+
 impl Face {
     pub fn new(r_  : V3, a_ : V3, b_ : V3) -> Self {
         Face {
@@ -55,27 +93,8 @@ impl Face {
         return v1;
     }
 
-    pub fn collides(&self, p0: V3, p: V3) -> (f64, f64) { 
-
-        // optimization
-
-        //is it behind me?
-        let mut to_m = self.m.clone();
-        to_m.subtr(p0);
-        let proj = to_m.dt(p);
-        if (proj < 0.0) {
-            return (-1.0, -1.0);
-        }
-
-        //is it too far away from the ray?
-        let mut m_ = self.m.clone();
-        m_.subtr(p0);
-        m_.cross(p); 
-        
-        if (m_.norm() > self.radius) {
-            return (-1.0, -1.0);
-        }
-
+    
+    pub fn get_beta_gamma(&self, p0: V3, p: V3) -> (f64, f64) {        
         //gauss
 
         let (a, b, c) = (p0.x, p0.y, p0.z);

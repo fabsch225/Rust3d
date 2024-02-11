@@ -8,13 +8,19 @@ mod face;
 mod cube; 
 mod sphere;
 
+mod polytree {
+    pub mod poly_tree;
+    pub mod poly_tree_element;
+    pub mod poly_tree_utils;
+}
 
 use engine_pa::{PathtracingCamera as PTC, PathtracingObject as PO, PathtracingObjects as POs};
 
 use face::Face;
 use point::Point as V3;
 use poly_shape::Poly as P;
-
+use polytree::poly_tree::PolyTree as PT;
+use polytree::poly_tree_element::PolyTreeElement as PTE;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -83,7 +89,7 @@ pub fn main() -> Result<(), String>{
         
         //camera.rot(V3{x: 0.0, y: 0.0, z: 0.1});
 
-        //objs_arc.write().unwrap().get(1).trans(V3{x: -0.3, y: 0.0, z: 0.0});
+        objs_arc.write().unwrap().get(0).rot(V3{x: -0.3, y: 0.0, z: 0.3});
         
         canvas = render(canvas, Arc::clone(&objs_arc), camera);
 
