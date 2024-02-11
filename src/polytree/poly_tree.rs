@@ -1,4 +1,5 @@
 use std::borrow::Borrow;
+use std::cell::Cell;
 use std::rc::Rc;
 
 use sdl2::pixels::Color;
@@ -9,13 +10,13 @@ use crate::point::Point as V3;
 use crate::poly_shape::{Collision, Poly};
 use crate::polytree::poly_tree_element::PolyTreeElement;
 
-pub struct PolyTree<'pd> {
+pub struct PolyTree<'pt> {
     pub m : V3,
-    pub root : PolyTreeElement<'pd>,
-    pub source : &'pd Poly,
+    pub root : PolyTreeElement<'pt>,
+    pub source : &'pt Poly,
 }
 
-impl PathtracingObject for PolyTree<'_> {
+impl<'pt> PathtracingObject for PolyTree<'pt> {
     fn d(&self, p: V3) -> f64 {
         return 0.0; //todo
     }
@@ -23,11 +24,13 @@ impl PathtracingObject for PolyTree<'_> {
         return self.source.base_color;
     }
     fn rot(&mut self, r_: V3) {
-        self.root.rot(r_, self.m);
+        //self.source.rot(r_);
     }
     fn trans(&mut self, p: V3) { 
+        //self.source.trans(p);
     }
     fn scale(&mut self, p: V3) { 
+        //self.source.scale(p);
     }
     fn is_colliding(&mut self, p0: V3, p: V3) -> bool {
         return self.root.get_collision(p0, p).hit;
@@ -65,42 +68,62 @@ impl PathtracingObject for PolyTree<'_> {
     }
 }
 
-impl PolyTree<'_> {
-    pub fn new<'pd>(p: Poly) -> Self {
-        
-        let face_refs: Vec<&F> = p.x.iter().collect();
-        let uv_refs: Vec<&UV> = p.tm.iter().collect();
-
-        PolyTree { 
+impl<'pt> PolyTree<'pt> {
+    pub fn new(p: &'pt Poly) -> Self {
+        PolyTree {
             m: p.m,
-            root: PolyTree::make_polytree_element( &face_refs, &uv_refs),
-            source: &p
+            source: p,
+            root: PolyTree::make_polytree_element(&p.x, &p.tm)
         }
     }
 
-    pub fn make_polytree_element<'pd>(fs: &'pd  Vec<&F>, uvs: &'pd  Vec<&UV>) -> PolyTreeElement<'pd> {
+    pub fn make_polytree_element<'pd>(fs: &'pd [F], uvs: &'pd [UV]) -> PolyTreeElement<'pd> {
+
+        let mut fsvec = Vec::new();
+        let mut uvvec = Vec::new();
+        for i in 0..fs.len() {
+            fsvec.push(&fs[i]);
+            uvvec.push(&uvs[i]);
+        }
+
+
         if fs.len() < 8 {
+            let m_ = PolyTree::get_middle(&fsvec);
+            let r_ = PolyTree::get_radius(&fsvec);
+
             return PolyTreeElement {
                 children: Vec::new(),
-                faces: fs,
-                uvs: uvs,
-                m: PolyTree::get_middle(fs),
-                radius: PolyTree::get_radius(fs),
+                faces: fsvec,
+                uvs: uvvec,
+                m: m_,
+                radius: r_,
                 leaf: true
             }
         }
         else {
-            let mut children : Vec<PolyTreeElement> = Vec::new();
-            let (dfsc, duvs) = PolyTree::divide_faces(fs, uvs);
+            let m_ = PolyTree::get_middle(&fsvec);
+            let r_ = PolyTree::get_radius(&fsvec);
+
+            let mut children : Vec<Option<Box<PolyTreeElement<'pd>>>> = Vec::new();
+            let (dfsc, duvs) = PolyTree::divide_faces(&fsvec, &uvvec);
             for i in 0..8 {
-                children.push(PolyTree::make_polytree_element(&dfsc[i], &duvs[i]));
+
+                let mut dfsc_ = Vec::new();
+                let mut duvs_ = Vec::new();
+                for j in 0..dfsc[i].len() {
+                    dfsc_.push(dfsc[i][j]);
+                    duvs_.push(duvs[i][j]);
+                }
+
+                children.push(Option::Some(Box::new(PolyTree::make_polytree_element(fs, uvs))));
             }
+
             return PolyTreeElement {
                 children: children,
-                faces: &Vec::new(),
-                uvs: &Vec::new(),
-                m: PolyTree::get_middle(fs),
-                radius: PolyTree::get_radius(fs),
+                faces: Vec::new(),
+                uvs: Vec::new(),
+                m: m_,
+                radius: r_,
                 leaf: false
             }
         }
@@ -130,13 +153,22 @@ impl PolyTree<'_> {
     }
 
     pub fn get_radius(x : &Vec<&F>) -> f64 {
-        return 0.0;
+        let mut r : f64 = 0.0;
+        for i in 0..x.len() {
+            let d = x[i].m.d(PolyTree::get_middle(x));
+            let r_ = x[i].get_radius();
+            if (d + r_ > r) {
+                r = d + r_;
+            }
+        }
+
+        r
     }
 
-    pub fn divide_faces<'f, 'u>(fs : &'f Vec<&F>, uvs: &'u Vec<&UV>) -> (Vec<Vec<&'f F>>, Vec<Vec<&'u UV>>) {
-        let mut dfsc : Vec<Vec<&'f F>> = Vec::new();
-        let mut duvs : Vec<Vec<&'u UV>> = Vec::new();
-        for i in 0..8 {
+    pub fn divide_faces<'p>(fs : &'p Vec<&'p F>, uvs: &'p Vec<&'p UV>) -> (Vec<Vec<&'p F>>, Vec<Vec<&'p UV>>) {
+        let mut dfsc : Vec<Vec<&F>> = Vec::new();
+        let mut duvs : Vec<Vec<&UV>> = Vec::new();
+        for _ in 0..8 {
             dfsc.push(Vec::new());
             duvs.push(Vec::new());
         }
@@ -144,53 +176,55 @@ impl PolyTree<'_> {
         let mut middle : V3 = PolyTree::get_middle(fs);
         
         for i in 0..fs.len() {
-            let f = fs[i];
-            let uv = uvs[i];
+            let f = &fs[i];
+            let uv = &uvs[i];
             if f.m.x < middle.x {
                 if f.m.y < middle.y {
                     if f.m.z < middle.z {
-                        dfsc[0].push(&f);
-                        duvs[0].push(&uv);
+                        dfsc[0].push(f);
+                        duvs[0].push(uv);
                     }
                     else {
-                        dfsc[1].push(&f);
-                        duvs[1].push(&uv);
+                        dfsc[1].push(f);
+                        duvs[1].push(uv);
                     }
                 }
                 else {
                     if f.m.z < middle.z {
-                        dfsc[2].push(&f);
-                        duvs[2].push(&uv);
+                        dfsc[2].push(f);
+                        duvs[2].push(uv);
                     }
                     else {
-                        dfsc[3].push(&f);
-                        duvs[3].push(&uv);
+                        dfsc[3].push(f);
+                        duvs[3].push(uv);
                     }
                 }
             }   
             else {
                 if f.m.y < middle.y {
                     if f.m.z < middle.z {
-                        dfsc[4].push(&f);
-                        duvs[4].push(&uv);
+                        dfsc[4].push(f);
+                        duvs[4].push(uv);
                     }
                     else {
-                        dfsc[5].push(&f);
-                        duvs[5].push(&uv);
+                        dfsc[5].push(f);
+                        duvs[5].push(uv);
                     }
                 }
                 else {
                     if f.m.z < middle.z {
-                        dfsc[6].push(&f);
-                        duvs[6].push(&uv);
+                        dfsc[6].push(f);
+                        duvs[6].push(uv);
                     }
                     else {
-                        dfsc[7].push(&f);
-                        duvs[7].push(&uv);
+                        dfsc[7].push(f);
+                        duvs[7].push(uv);
                     }
                 }
             }
         }
+
+        
         return (dfsc, duvs);
     }
 }

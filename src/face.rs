@@ -1,5 +1,6 @@
 use crate::point::Point as V3;
 
+#[derive(Clone, Copy)]
 pub struct Face {
     pub r: V3,
     pub a: V3, 

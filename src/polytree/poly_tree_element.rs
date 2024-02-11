@@ -9,9 +9,9 @@ use crate::poly_shape::{Collision, Poly};
 use crate::polytree::poly_tree_utils::PolyTreeCollisionFeedback;
 
 pub struct PolyTreeElement<'p> {
-    pub children: Vec<PolyTreeElement<'p>>,
-    pub faces: &'p Vec<&'p F>,
-    pub uvs: &'p Vec<&'p UV>,
+    pub children: Vec<Option<Box<PolyTreeElement<'p>>>>,
+    pub faces: Vec<&'p F>,
+    pub uvs:  Vec<&'p UV>,
     pub m: V3,
     pub radius: f64,
     pub leaf: bool
@@ -27,7 +27,18 @@ impl CollisionCheckable for PolyTreeElement<'_> {
     }
 }
 
-impl PolyTreeElement<'_> {
+impl<'p> PolyTreeElement<'p> {
+    pub fn empty() -> Self {
+        PolyTreeElement {
+            children: Vec::new(),
+            faces: Vec::new(),
+            uvs: Vec::new(),
+            m: V3{x: 0.0, y: 0.0, z: 0.0},
+            radius: 0.0,
+            leaf: false
+        }
+    }
+
     pub fn get_collision(&self, p0: V3, p: V3) -> PolyTreeCollisionFeedback {
         if (self.leaf) {
             let mut bd : f64 = f64::MAX; 
@@ -56,16 +67,16 @@ impl PolyTreeElement<'_> {
                 }
             }
 
-            return PolyTreeCollisionFeedback{hit: true, p, uv: self.uvs[i_], bg};
+            return PolyTreeCollisionFeedback{hit: true, p, uv: &self.uvs[i_], bg};
         }   
         else {
             let mut ptcf : PolyTreeCollisionFeedback = PolyTreeCollisionFeedback::empty();
             let mut bd : f64 = f64::MAX;
 
             for i in 0..8 {
-                let pt = self.children[i];
-                if pt.is_colliding(p0,p) {
-                    let ptcf_ = pt.get_collision(p0, p);
+                let pt = &self.children[i];
+                if pt.is_some() && (pt.as_ref().unwrap().is_colliding(p0,p)) {
+                    let ptcf_ = pt.as_ref().unwrap().get_collision(p0, p);
                     if (ptcf_.hit) {
                         let d : f64 = ptcf_.p.d(p0);
                         if (d < bd) {
@@ -77,43 +88,6 @@ impl PolyTreeElement<'_> {
             }
 
             return ptcf;
-        }
-    }
-
-    pub fn rot(&mut self, r_: V3, p: V3) {
-        if (self.leaf) {
-            for i in 0..self.faces.len() {
-                self.faces[i].rot(r_, p);
-            }
-        }
-        else {
-            for i in 0..self.children.len() {
-                self.children[i].rot(r_, p);
-            }
-        }   
-    }
-    pub fn rot_reverse(&mut self, r_: V3, p: V3) {
-        if (self.leaf) {
-            for i in 0..self.faces.len() {
-                self.faces[i].rot_reverse(r_, p);
-            }
-        }
-        else {
-            for i in 0..self.children.len() {
-                self.children[i].rot_reverse(r_, p);
-            }
-        }   
-    }
-    pub fn trans(&mut self, p: V3) { 
-        if (self.leaf) {
-            for i in 0..self.faces.len() {
-                self.faces[i].trans(p);
-            }
-        }
-        else {
-            for i in 0..self.children.len() {
-                self.children[i].trans(p);
-            }
         }
     }
 }

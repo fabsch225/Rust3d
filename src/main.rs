@@ -35,7 +35,6 @@ use std::time::Duration;
 
 
 pub fn main() -> Result<(), String>{
-
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("rust3d", 500, 500)
@@ -46,30 +45,31 @@ pub fn main() -> Result<(), String>{
         .expect("could not make a canvas");
     let mut event_pump = sdl_context.event_pump()?;
 
-
     let pixel_total : usize = 500 * 500;
     let ppx : usize = 50 * 500;
     let mut pixel_progress: usize = 0;
 
     let mut f1 : Face = Face::new(V3{x:20.0, y: -5.0, z: -5.0}, V3{x:20.0, y: -5.0, z: 5.0}, V3{x: 20.0, y: 5.0, z: -5.0});
-    let mut pl : P = P::new(V3{x: 10.0, y: 0.0, z: 0.0}, vec![f1]);
+    
 
-    let mut p2 : P = P::parse_wavefront(String::from("data/horse.obj"), String::from("data/horse_tex.png"));
-    let mut p3 : P = P::parse_wavefront(String::from("data/ref_cube.obj"), String::from("data/standart_text.jpg"));
-    //let mut p2 : P = P::parse_wavefront(String::from("data/whale.obj"), String::from("data/whale.jpg"));
+    let mut poly1 = P::parse_wavefront(&String::from("data/horse.obj"), &String::from("data/horse_tex.png"));
+    let mut poly2 = P::parse_wavefront(&String::from("data/ref_cube.obj"), &String::from("data/standart_text.jpg"));
 
-    p2.rot(V3{x: 3.14*1.5, y: 0.0, z: 0.0});
-    p2.trans(V3{x: 0.0, y: -1.0, z: -1.0});
+    let mut p1 : PT = PT::new(&poly1);
+    let mut p2 : PT = PT::new(&poly2);
+   
+    p1.rot(V3{x: 3.14*1.5, y: 0.0, z: 0.0});
+    p1.trans(V3{x: 0.0, y: -1.0, z: -1.0});
 
-    p3.trans(V3{x: -3.0, y: 0.0, z: 0.0});
-    p3.scale(V3{x: 3.0, y: 3.0, z: 3.0});
+    p2.trans(V3{x: -3.0, y: 0.0, z: 0.0});
+    p2.scale(V3{x: 3.0, y: 3.0, z: 3.0});
 
 	let mut camera : PTC = PTC::new(V3{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
     
     let mut objs : POs = POs::new();
 
+    objs.add(p1);
     objs.add(p2);
-    objs.add(p3);
     
     let mut p : V3 = V3{x: 10.0, y: 10.0, z: 10.0};
 
@@ -95,7 +95,6 @@ pub fn main() -> Result<(), String>{
 
         ::std::thread::sleep(Duration::new(0, 1_000_000u32 / 60));
     }
-
     Ok(())
 }
 

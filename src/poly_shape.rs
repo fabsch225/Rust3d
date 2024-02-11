@@ -12,6 +12,7 @@ use crate::engine_pa::PathtracingObject;
 
 use sdl2::pixels::Color;
 
+#[derive(Clone)]
 pub struct Poly {
     pub m : V3,
     pub x : Vec<F>,
@@ -26,8 +27,6 @@ pub struct Poly {
 pub trait Textured {
     fn get_texture(&self) -> Vec<u8>;
     fn get_uv_map(&self) -> Vec<UV>;
-
-
 }
 
 impl Poly {
@@ -57,7 +56,7 @@ impl Poly {
         }
     }  
 
-    pub fn parse_wavefront(f: String, tf: String) -> Self { 
+    pub fn parse_wavefront(f: &String, tf: &String) -> Self { 
         let mut vertices : Vec<V3> = Vec::new(); 
         let mut middle : V3 = V3{x: 0.0, y: 0.0, z: 0.0};
 
