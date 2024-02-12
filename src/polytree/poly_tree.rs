@@ -21,14 +21,24 @@ impl PathtracingObject for PolyTree {
     fn color(&self, p: V3) -> Color {
         return self.source.base_color;
     }
+    
     fn rot(&mut self, r_: V3) {
-       self.root.rot(r_, self.m);
+        self.source.rot(r_);
+        self.root = PolyTree::make_polytree_root(self.source.clone());
     }
     fn trans(&mut self, p: V3) { 
-        self.root.trans(p);
+        //a
+        self.source.trans(p);
+        self.root = PolyTree::make_polytree_root(self.source.clone());
+
+        //b; much slower
+        //self.root.trans(p);
+        //self.update();
+
     }
     fn scale(&mut self, p: V3) { 
-        self.root.scale_by(p, self.m);
+        self.source.scale(p);
+        self.root = PolyTree::make_polytree_root(self.source.clone());
     }
     fn is_colliding(&mut self, p0: V3, p: V3) -> bool {
         return true;
@@ -41,13 +51,15 @@ impl PathtracingObject for PolyTree {
                 if ptcf.hit {
                     let mut c : Collision = Collision { p: ptcf.p, hit: true, c: self.source.base_color };
                     let uv = ptcf.uv;
-                    let y = ptcf.p.y;
-                    let x = ptcf.p.x;
+                    let y = (uv.r.0 + ptcf.bg.0 * (uv.a.0 - uv.r.0) + ptcf.bg.1 * (uv.b.0 - uv.r.0));
+                    let x = 1.0 - (uv.r.1 + ptcf.bg.0 * (uv.a.1 - uv.r.1) + ptcf.bg.1 * (uv.b.1 - uv.r.1));
 
                     let ty = (x * self.source.th as f64) as u32;
                     let tx = (y * self.source.tw as f64) as u32;
 
                     let pos = ((tx + ty * self.source.th) * 3) as usize;
+
+                    //print!("{} -- ", pos);
 
                     if pos >= self.source.tf.len() {
                         c.c = Color::RED;
@@ -75,11 +87,16 @@ impl PolyTree {
         Box::new(PolyTree {
             m: p.m,
             source: p.clone(),
-            root: PolyTree::make_polytree_element(p)
+            root: PolyTree::make_polytree_root(p)
         })
     }
 
-    pub fn make_polytree_element<'pd>(p: Poly) -> PolyTreeElement {
+    pub fn update(&mut self) {
+        self.root.calulate_middle();
+        self.root.calculate_radius();
+    }
+
+    pub fn make_polytree_root<'pd>(p: Poly) -> PolyTreeElement {
         return Self::construct_tree(p.x, p.tm);
     }
 
@@ -87,8 +104,7 @@ impl PolyTree {
         let m_ = PolyTree::get_middle(&fs);
         let r_ = PolyTree::get_radius(&fs);
 
-        if fs.len() < 8 {
-            
+        if fs.len() < 40 {
 
             return PolyTreeElement {
                 children: Vec::new(),
@@ -100,7 +116,6 @@ impl PolyTree {
             }
         }
         else {
-           
             let mut children : Vec<PolyTreeElement> = Vec::new();
             let (dfsc, duvs) = PolyTree::divide_faces(fs, uvs);
             for i in 0..8 {
@@ -133,11 +148,11 @@ impl PolyTree {
             middle.add(p.x[i].m);
         }
         middle.mult(1.0 / p.x.len() as f64);
-        return middle;
+        middle
     }
 
     pub fn get_radius_from_poly(p : &Poly) -> f64 {  
-        return 0.0;
+        0.0
     }
 
     pub fn get_middle(x : &Vec<F>) -> V3 {
@@ -146,7 +161,7 @@ impl PolyTree {
             middle.add(x[i].m);
         }
         middle.mult(1.0 / x.len() as f64);
-        return middle;
+        middle
     }
 
     pub fn get_radius(x : &Vec<F>) -> f64 {
