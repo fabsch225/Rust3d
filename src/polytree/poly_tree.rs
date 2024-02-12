@@ -8,6 +8,8 @@ use crate::point::Point as V3;
 use crate::poly_shape::{Collision, Poly};
 use crate::polytree::poly_tree_element::PolyTreeElement;
 
+use super::poly_tree_utils::PolyTreeCollisionFeedback;
+
 pub struct PolyTree {
     pub m : V3,
     pub root : PolyTreeElement,
@@ -44,37 +46,43 @@ impl PathtracingObject for PolyTree {
         return true;
     }
     fn get_collision(&self, p0: V3, p: V3) -> Collision {
-        
+        let mut ptcf_closest = PolyTreeCollisionFeedback::empty();
+        let mut bd : f64 = f64::MAX;
         let ptcf_vec = self.root.get_collision(p0, p);
         if (ptcf_vec.len() > 0) {
             for ptcf in ptcf_vec {
                 if ptcf.hit {
-                    let mut c : Collision = Collision { p: ptcf.p, hit: true, c: self.source.base_color };
-                    let uv = ptcf.uv;
-                    let y = (uv.r.0 + ptcf.bg.0 * (uv.a.0 - uv.r.0) + ptcf.bg.1 * (uv.b.0 - uv.r.0));
-                    let x = 1.0 - (uv.r.1 + ptcf.bg.0 * (uv.a.1 - uv.r.1) + ptcf.bg.1 * (uv.b.1 - uv.r.1));
-
-                    let ty = (x * self.source.th as f64) as u32;
-                    let tx = (y * self.source.tw as f64) as u32;
-
-                    let pos = ((tx + ty * self.source.th) * 3) as usize;
-
-                    //print!("{} -- ", pos);
-
-                    if pos >= self.source.tf.len() {
-                        c.c = Color::RED;
+                    let d : f64 = ptcf.p.d(p0);
+                    if (d < bd) {
+                        bd = d;
+                        ptcf_closest = ptcf;
                     }
-                    else {
-                        let r = self.source.tf[pos]; 
-                        let g = self.source.tf[pos + 1];
-                        let b = self.source.tf[pos + 2];
-
-                        c.c = Color::RGB(r, g, b);
-                    }
-
-                    return c;
                 }
             }
+            let mut c : Collision = Collision { p: ptcf_closest.p, hit: true, c: self.source.base_color };
+            let uv = ptcf_closest.uv;
+            let y = (uv.r.0 + ptcf_closest.bg.0 * (uv.a.0 - uv.r.0) + ptcf_closest.bg.1 * (uv.b.0 - uv.r.0));
+            let x = 1.0 - (uv.r.1 + ptcf_closest.bg.0 * (uv.a.1 - uv.r.1) + ptcf_closest.bg.1 * (uv.b.1 - uv.r.1));
+
+            let ty = (x * self.source.th as f64) as u32;
+            let tx = (y * self.source.tw as f64) as u32;
+
+            let pos = ((tx + ty * self.source.th) * 3) as usize;
+
+            //print!("{} -- ", pos);
+
+            if pos >= self.source.tf.len() {
+                c.c = Color::RED;
+            }
+            else {
+                let r = self.source.tf[pos]; 
+                let g = self.source.tf[pos + 1];
+                let b = self.source.tf[pos + 2];
+
+                c.c = Color::RGB(r, g, b);
+            }
+
+            return c;
         }
         
         return Collision{p: p0, hit: false, c: Color::RED};
