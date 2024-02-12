@@ -1,6 +1,6 @@
 use crate::point::Point as V3;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Face {
     pub r: V3,
     pub a: V3, 
@@ -95,7 +95,10 @@ impl Face {
     }
 
     
-    pub fn get_beta_gamma(&self, p0: V3, p: V3) -> (f64, f64) {        
+    pub fn get_beta_gamma(&self, p0: V3, p: V3) -> (f64, f64) {   
+
+        //print!("{} {} {} {} {} {} ", p0.x, p0.y, p0.z, p.x, p.y, p.z);
+
         //gauss
 
         let (a, b, c) = (p0.x, p0.y, p0.z);
@@ -191,7 +194,7 @@ impl Face {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct UV {
     pub r: (f64, f64),
     pub a: (f64, f64), 

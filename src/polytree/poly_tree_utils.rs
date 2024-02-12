@@ -3,6 +3,7 @@ use crate::face::UV;
 
 use std::rc::Rc;
 
+#[derive(Debug, Clone, Copy)]
 pub struct PolyTreeCollisionFeedback<'a> {
     pub hit: bool,
     pub p: V3,

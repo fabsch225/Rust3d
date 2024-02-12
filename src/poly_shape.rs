@@ -12,7 +12,7 @@ use crate::engine_pa::PathtracingObject;
 
 use sdl2::pixels::Color;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Poly {
     pub m : V3,
     pub x : Vec<F>,

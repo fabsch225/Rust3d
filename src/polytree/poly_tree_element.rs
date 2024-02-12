@@ -8,16 +8,18 @@ use crate::point::Point as V3;
 use crate::poly_shape::{Collision, Poly};
 use crate::polytree::poly_tree_utils::PolyTreeCollisionFeedback;
 
-pub struct PolyTreeElement<'p> {
-    pub children: Vec<Option<Box<PolyTreeElement<'p>>>>,
-    pub faces: Vec<&'p F>,
-    pub uvs:  Vec<&'p UV>,
+use super::poly_tree::PolyTree;
+
+pub struct PolyTreeElement {
+    pub children: Vec<PolyTreeElement>,
+    pub faces: Vec<F>,
+    pub uvs:  Vec<UV>,
     pub m: V3,
     pub radius: f64,
     pub leaf: bool
 }
 
-impl CollisionCheckable for PolyTreeElement<'_> {
+impl CollisionCheckable for PolyTreeElement {
     fn get_radius(&self) -> f64 {
         return self.radius;
     }
@@ -27,7 +29,7 @@ impl CollisionCheckable for PolyTreeElement<'_> {
     }
 }
 
-impl<'p> PolyTreeElement<'p> {
+impl PolyTreeElement {
     pub fn empty() -> Self {
         PolyTreeElement {
             children: Vec::new(),
@@ -39,55 +41,115 @@ impl<'p> PolyTreeElement<'p> {
         }
     }
 
-    pub fn get_collision(&self, p0: V3, p: V3) -> PolyTreeCollisionFeedback {
+    pub fn scale_by(&mut self, p: V3, p0: V3) {
+        if (self.leaf) {
+            for i in 0..self.faces.len() {
+                self.faces[i].scale_by(p, p0);
+            }
+            self.m = PolyTree::get_middle(&self.faces);
+            self.radius = PolyTree::get_radius(&self.faces);
+        }
+        else {
+            for i in 0..self.children.len() {
+                self.children[i].scale_by(p, p0);
+            }
+            //todo: get radius from chidlren
+        }
+    }
+
+    pub fn rot(&mut self, r_: V3, p0: V3) {
+        if (self.leaf) {
+            for i in 0..self.faces.len() {
+                self.faces[i].rot(r_, p0);
+            }
+        }
+        else {
+            for i in 0..self.children.len() {
+                self.children[i].rot(r_, p0);
+            }
+        }
+    }
+
+    pub fn rot_reverse(&mut self, r_: V3, p0: V3) {
+        if (self.leaf) {
+            for i in 0..self.faces.len() {
+                self.faces[i].rot_reverse(r_, p0);
+            }
+        }
+        else {
+            for i in 0..self.children.len() {
+                self.children[i].rot_reverse(r_, p0);
+            }
+        }
+    }
+
+    pub fn trans(&mut self, p: V3) {
+        if (self.leaf) {
+            for i in 0..self.faces.len() {
+                self.faces[i].trans(p);
+            }
+        }
+        else {
+            for i in 0..self.children.len() {
+                self.children[i].trans(p);
+            }
+        }
+    }
+
+    pub fn get_collision(&self, p0: V3, p: V3) -> Vec<PolyTreeCollisionFeedback> {
         if (self.leaf) {
             let mut bd : f64 = f64::MAX; 
             let mut i_ : usize = 0;
-            let mut p : V3 = V3{x: 0.0, y: 0.0, z: 0.0};
+            let mut pc : V3 = V3{x: 0.0, y: 0.0, z: 0.0};
             let mut bg : (f64, f64) = (0.0, 0.0);
+            let mut did_hit = false;
 
             for i in 0..self.faces.len() {
                 if (self.faces[i].is_colliding(p0, p)) {
                     let bg_ = self.faces[i].get_beta_gamma(p0, p); 
+                    //print!("hit it {} {}", bg_.0, bg_.1);
                     if (bg_.0 <= 1.0 && bg_.0 >= 0.0 && bg_.1 <= 1.0 && bg_.1 >= 0.0  && bg_.0 + bg_.1 <= 1.0) {
-                        let pc: V3 = V3{
+                        let pc_: V3 = V3{
                             x: self.faces[i].r.x + bg_.0 * (self.faces[i].a.x - self.faces[i].r.x) + bg_.1 * (self.faces[i].b.x - self.faces[i].r.x), 
                             y: self.faces[i].r.y + bg_.0 * (self.faces[i].a.y - self.faces[i].r.y) + bg_.1 * (self.faces[i].b.y - self.faces[i].r.y), 
                             z: self.faces[i].r.z + bg_.0 * (self.faces[i].a.z - self.faces[i].r.z) + bg_.1 * (self.faces[i].b.z - self.faces[i].r.z)  
                         }; 
-                        let d : f64 = pc.d(p0); 
+                        let d : f64 = pc_.d(p0); 
 
                         if (d < bd) {
-                            p = pc;
+                            pc = pc_;
                             bg = bg_;
                             bd = d; 
                             i_ = i;
+                            did_hit = true;
                         }
                     }
                 }
             }
-
-            return PolyTreeCollisionFeedback{hit: true, p, uv: &self.uvs[i_], bg};
+            if (did_hit) {
+                return vec!(PolyTreeCollisionFeedback{hit: true, p, uv: &self.uvs[i_], bg});
+            }
+            else {
+                return Vec::new();
+            }
         }   
         else {
-            let mut ptcf : PolyTreeCollisionFeedback = PolyTreeCollisionFeedback::empty();
+            let mut ptcf_vec : Vec<PolyTreeCollisionFeedback> = Vec::new();
             let mut bd : f64 = f64::MAX;
 
             for i in 0..8 {
                 let pt = &self.children[i];
-                if pt.is_some() && (pt.as_ref().unwrap().is_colliding(p0,p)) {
-                    let ptcf_ = pt.as_ref().unwrap().get_collision(p0, p);
-                    if (ptcf_.hit) {
-                        let d : f64 = ptcf_.p.d(p0);
-                        if (d < bd) {
-                            bd = d;
-                            ptcf = ptcf_;
+                if pt.is_colliding(p0,p) {
+                    let ptcf_vec1 = pt.get_collision(p0, p);
+                    for j in 0..ptcf_vec1.len() {
+                        if (ptcf_vec1[j].hit) {
+                            ptcf_vec.push(ptcf_vec1[j]);
                         }
                     }
                 }
             }
 
-            return ptcf;
+            return ptcf_vec;
         }
     }
 }
