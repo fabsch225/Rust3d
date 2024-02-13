@@ -7,8 +7,9 @@ use image::{Pixels, GenericImageView};
 use rand::seq::SliceRandom;
 
 use crate::point::Point as V3;
-use crate::face::{Face as F, UV, CollisionCheckable};
+use crate::face::{Face as F, UV};
 use crate::engine_pa::PathtracingObject;
+use crate::engine_utils::{Collision, Sphereable};
 
 use sdl2::pixels::Color;
 
@@ -24,10 +25,7 @@ pub struct Poly {
     pub has_t: bool
 }
 
-pub trait Textured {
-    fn get_texture(&self) -> Vec<u8>;
-    fn get_uv_map(&self) -> Vec<UV>;
-}
+
 
 impl Poly {
     pub fn new(m_ : V3, x_ : Vec<F>) -> Self {
@@ -55,6 +53,19 @@ impl Poly {
             has_t: true
         }
     }  
+
+    pub fn new_from(p: &Poly) -> Poly {
+        Poly { 
+            m: p.m,
+            x: p.x.clone(),
+            tm:  p.tm.clone(),  
+            tf: p.tf.clone(),
+            tw: p.tw, 
+            th: p.th,
+            base_color: p.base_color,
+            has_t: p.has_t
+        }
+    }
 
     pub fn parse_wavefront(f: &String, tf: &String) -> Self { 
         let mut vertices : Vec<V3> = Vec::new(); 
@@ -125,14 +136,10 @@ impl Poly {
     }
 }
 
-#[derive(Copy, Clone)]
-pub struct Collision {
-    pub p : V3,
-    pub hit : bool,
-    pub c : Color,
-}
-
 impl PathtracingObject for Poly {
+    fn clone(&self) -> Box<dyn PathtracingObject + 'static> {
+        return Box::new(Poly::new_from(&self));
+    }
     fn d(&self, p: V3) -> f64 {
         return 0.0; //todo
     }
@@ -164,7 +171,7 @@ impl PathtracingObject for Poly {
     }
 
 	fn get_collision(&self, p0: V3, p: V3) -> Collision {
-        let mut c : Collision = Collision { p: (p0), hit: (false), c: (self.base_color) };
+        let mut c : Collision = Collision::empty();
         let mut bd : f64 = f64::MAX; 
         let mut i : usize = 0;
         let mut bg : (f64, f64) = (0.0, 0.0);
@@ -184,7 +191,7 @@ impl PathtracingObject for Poly {
                         bg = bg_;
                         bd = d; 
                         i = i_;
-                        c = Collision{p: pc, hit: true, c: Color::RED};
+                        c = Collision{d, p: pc, hit: true, c: Color::RED};
                     }
                 }
             }

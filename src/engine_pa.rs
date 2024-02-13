@@ -1,4 +1,5 @@
 
+use std::path::Path;
 use std::rc::Rc;
 use sdl2::pixels::Color;
 use sdl2::render::Canvas;
@@ -6,7 +7,7 @@ use sdl2::video::Window;
 use sdl2::rect::Point;
 
 use crate::point::Point as V3;
-use crate::poly_shape::Collision;
+use crate::engine_utils::Collision;
 
 
 pub trait PathtracingObject {
@@ -17,6 +18,7 @@ pub trait PathtracingObject {
 	fn scale(&mut self, p: V3);
 	fn is_colliding(&mut self, p0: V3, p: V3) -> bool; //Todo
 	fn get_collision(&self, p0: V3, p: V3) -> Collision;
+	fn clone(&self) -> Box<dyn PathtracingObject>;
 }
 
 pub struct PathtracingObjects {
@@ -34,6 +36,16 @@ impl PathtracingObjects {
 		return &mut self.objects[i];
 	}
 
+	pub fn remove(&mut self, i: usize) {
+		self.objects.remove(i);
+	}
+
+	pub fn remove_and_clone(&mut self, i: usize) -> Box<dyn PathtracingObject> {
+		let obj = self.objects[i].clone();
+		self.objects.remove(i);
+		obj
+	}
+
 	pub fn add(&mut self, obj: impl PathtracingObject + 'static + Send + Sync) {
 		self.objects.push(Box::new(obj));
 	}  
@@ -49,7 +61,6 @@ impl PathtracingObjects {
 		return Color::RED;
 	}
 }
-
 
 #[derive(Copy, Clone)]
 pub struct PathtracingCamera {

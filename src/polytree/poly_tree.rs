@@ -2,10 +2,12 @@ use std::sync::Arc;
 
 use sdl2::pixels::Color;
 
+use crate::engine_utils::{Collision, Sphereable};
+
 use crate::engine_pa::PathtracingObject;
-use crate::face::{Face as F, UV, CollisionCheckable};
+use crate::face::{Face as F, UV};
 use crate::point::Point as V3;
-use crate::poly_shape::{Collision, Poly};
+use crate::poly_shape::Poly;
 use crate::polytree::poly_tree_element::PolyTreeElement;
 
 use super::poly_tree_utils::PolyTreeCollisionFeedback;
@@ -17,6 +19,13 @@ pub struct PolyTree {
 }
 
 impl PathtracingObject for PolyTree {
+    fn clone(&self) -> Box<dyn PathtracingObject + 'static> {
+        return Box::new(PolyTree {
+            m: self.m,
+            root: PolyTree::make_polytree_root(Clone::clone(&self.source)),
+            source: Clone::clone(&self.source)
+        })
+    }
     fn d(&self, p: V3) -> f64 {
         return 0.0; //todo
     }
@@ -26,12 +35,12 @@ impl PathtracingObject for PolyTree {
     
     fn rot(&mut self, r_: V3) {
         self.source.rot(r_);
-        self.root = PolyTree::make_polytree_root(self.source.clone());
+        self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
     }
     fn trans(&mut self, p: V3) { 
         //a
         self.source.trans(p);
-        self.root = PolyTree::make_polytree_root(self.source.clone());
+        self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
 
         //b; much slower
         //self.root.trans(p);
@@ -40,7 +49,7 @@ impl PathtracingObject for PolyTree {
     }
     fn scale(&mut self, p: V3) { 
         self.source.scale(p);
-        self.root = PolyTree::make_polytree_root(self.source.clone());
+        self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
     }
     fn is_colliding(&mut self, p0: V3, p: V3) -> bool {
         return true;
@@ -59,7 +68,7 @@ impl PathtracingObject for PolyTree {
                     }
                 }
             }
-            let mut c : Collision = Collision { p: ptcf_closest.p, hit: true, c: self.source.base_color };
+            let mut c : Collision = Collision {d: bd, p: ptcf_closest.p, hit: true, c: self.source.base_color };
             let uv = ptcf_closest.uv;
             let y = (uv.r.0 + ptcf_closest.bg.0 * (uv.a.0 - uv.r.0) + ptcf_closest.bg.1 * (uv.b.0 - uv.r.0));
             let x = 1.0 - (uv.r.1 + ptcf_closest.bg.0 * (uv.a.1 - uv.r.1) + ptcf_closest.bg.1 * (uv.b.1 - uv.r.1));
@@ -85,7 +94,7 @@ impl PathtracingObject for PolyTree {
             return c;
         }
         
-        return Collision{p: p0, hit: false, c: Color::RED};
+        return Collision{d: bd, p: p0, hit: false, c: Color::RED};
         
     }
 }
@@ -94,7 +103,7 @@ impl PolyTree {
     pub fn new(p: Poly) -> Box<PolyTree> {
         Box::new(PolyTree {
             m: p.m,
-            source: p.clone(),
+            source: Clone::clone(&p),
             root: PolyTree::make_polytree_root(p)
         })
     }

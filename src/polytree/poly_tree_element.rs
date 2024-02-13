@@ -1,11 +1,10 @@
 use sdl2::pixels::Color;
 
-use std::rc::Rc;
-
 use crate::engine_pa::PathtracingObject;
-use crate::face::{CollisionCheckable, Face as F, UV};
+use crate::engine_utils::Sphereable;
+use crate::face::{Face as F, UV};
 use crate::point::Point as V3;
-use crate::poly_shape::{Collision, Poly};
+use crate::poly_shape::Poly;
 use crate::polytree::poly_tree_utils::PolyTreeCollisionFeedback;
 
 use super::poly_tree::PolyTree;
@@ -18,7 +17,8 @@ pub struct PolyTreeElement {
     pub radius: f64,
     pub leaf: bool,
 }
-impl CollisionCheckable for PolyTreeElement {
+
+impl Sphereable for PolyTreeElement {
     fn get_radius(&self) -> f64 {
         return self.radius;
     }
@@ -27,6 +27,7 @@ impl CollisionCheckable for PolyTreeElement {
         return self.m;
     }
 }
+
 impl PolyTreeElement {
     pub fn empty() -> Self {
         PolyTreeElement {

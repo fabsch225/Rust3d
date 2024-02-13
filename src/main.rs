@@ -7,6 +7,7 @@ mod point;
 mod face;
 mod cube; 
 mod sphere;
+mod engine_utils;
 
 mod polytree {
     pub mod poly_tree;
@@ -32,7 +33,7 @@ use std::ops::Deref;
 use std::sync::{mpsc, Arc, RwLock};
 use std::thread;
 use std::time::Duration;
-
+use std::time::Instant;
 
 pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;
@@ -53,7 +54,7 @@ pub fn main() -> Result<(), String>{
     
     let mut p1 = P::parse_wavefront(&String::from("data/horse.obj"), &String::from("data/horse_tex.png"));
     let mut p2 = P::parse_wavefront(&String::from("data/ref_cube.obj"), &String::from("data/standart_text.jpg"));
-    //let mut p1 = P::parse_wavefront(&String::from("data/whale.obj"), &String::from("data/whale.jpg"));
+    let mut p1 = P::parse_wavefront(&String::from("data/whale.obj"), &String::from("data/whale.jpg"));
 
 
     p1.rot(V3{x: 3.14*1.5, y: 0.0, z: 3.14*1.6});
@@ -90,10 +91,14 @@ pub fn main() -> Result<(), String>{
                 } => break 'running,
                 _ => {}
             }
-        }
+        } 
+        println!("Starting transformation");
+        let now = Instant::now();
+       
+        //objs_arc.write().unwrap().get(0).rot(V3{x: 0.3, y: 0.1, z: -0.1});
         
-        objs_arc.write().unwrap().get(0).rot(V3{x: 0.3, y: 0.1, z: -0.1});
-        
+        println!("transformation took {}ms", now.elapsed().as_millis());
+
         render(&mut canvas, Arc::clone(&objs_arc), camera);
 
         ::std::thread::sleep(Duration::new(0, 1_000_000u32 / 60));
@@ -104,7 +109,9 @@ pub fn main() -> Result<(), String>{
 pub fn render(canvas: &mut Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: PTC) {
     
     canvas.clear();
-    
+    println!("Setting up threads...");
+    let now = Instant::now();
+
     let (tx, rx) = mpsc::channel::<(usize, Vec<Color>)>();
 
     let camera_arc = Arc::new(camera);
@@ -120,7 +127,7 @@ pub fn render(canvas: &mut Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: P
             tx.send((i.to_owned(), section));
         });
     }
-
+    println!("Setup took {}ms", now.elapsed().as_millis());
     println!("Started rendering without issues");
 
     for i in 0..10 {
@@ -130,5 +137,9 @@ pub fn render(canvas: &mut Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: P
         camera.draw_section(&section.1, canvas, section.0 * 50, 0, (section.0 + 1) * 50, 500);
 
         canvas.present();
+
+        println!("Thread {} finished rendering", section.0);
     }
+
+    
 }

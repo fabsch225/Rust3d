@@ -1,4 +1,4 @@
-use crate::point::Point as V3;
+use crate::{engine_utils::Sphereable, point::Point as V3};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Face {
@@ -10,35 +10,8 @@ pub struct Face {
     pub radius: f64
 }
 
-pub trait CollisionCheckable {
-    fn get_radius(&self) -> f64;
-    fn get_middle(&self) -> V3;
 
-    fn is_colliding(&self, p0: V3, p: V3) -> bool {
-        //is it behind me?
-        let mut to_m = self.get_middle().clone();
-        to_m.subtr(p0);
-        let proj = to_m.dt(p);
-        if (proj < 0.0) {
-            return false
-        }
-        else {
-            //is it too far away from the ray?
-            let mut m_ = self.get_middle().clone();
-            m_.subtr(p0);
-            m_.cross(p); 
-            
-            if (m_.norm() > self.get_radius()) {
-                return false;
-            }
-            else {
-                return true;
-            }
-        }
-    }
-}
-
-impl CollisionCheckable for Face {
+impl Sphereable for Face {
     fn get_radius(&self) -> f64 {
         return self.radius;
     }
