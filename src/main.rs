@@ -93,17 +93,15 @@ pub fn main() -> Result<(), String>{
         }
         
         objs_arc.write().unwrap().get(0).rot(V3{x: 0.3, y: 0.1, z: -0.1});
-        //objs_arc.write().unwrap().get(0).rot(V3{x: 0.0, y: 0.0, z: 0.1});
-        objs_arc.write().unwrap().get(0).trans(V3{x: -0.1, y: 0.0, z: 0.0});
         
-        canvas = render(canvas, Arc::clone(&objs_arc), camera);
+        render(&mut canvas, Arc::clone(&objs_arc), camera);
 
         ::std::thread::sleep(Duration::new(0, 1_000_000u32 / 60));
     }
     Ok(())
 }
 
-pub fn render(mut canvas: Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: PTC) -> Canvas<Window> {
+pub fn render(canvas: &mut Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: PTC) {
     
     canvas.clear();
     
@@ -129,13 +127,8 @@ pub fn render(mut canvas: Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: PT
 
         let section = rx.recv().unwrap();
 
-        camera.draw_section(&section.1, &mut canvas, section.0 * 50, 0, (section.0 + 1) * 50, 500);
+        camera.draw_section(&section.1, canvas, section.0 * 50, 0, (section.0 + 1) * 50, 500);
+
+        canvas.present();
     }
-
-    println!("Done rendering");
-
-    canvas.present();
-
-   
-    return canvas;
 }
