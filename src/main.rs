@@ -129,6 +129,7 @@ pub fn render(canvas: &mut Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: P
     }
     println!("Setup took {}ms", now.elapsed().as_millis());
     println!("Started rendering without issues");
+    let now = Instant::now();
 
     for i in 0..10 {
 
@@ -141,5 +142,5 @@ pub fn render(canvas: &mut Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: P
         println!("Thread {} finished rendering", section.0);
     }
 
-    
+    println!("Render took {}ms", now.elapsed().as_millis());
 }
