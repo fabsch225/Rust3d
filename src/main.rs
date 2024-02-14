@@ -99,7 +99,7 @@ pub fn main() -> Result<(), String>{
         println!("Starting transformation");
         let now = Instant::now();
        
-        objs_arc.write().unwrap().get(0).rot(V3{x: 0.0, y: 0.0, z: 0.1});
+        objs_arc.write().unwrap().get(0).rot(V3{x: 0.2, y: -0.1, z: 0.1});
         
         println!("transformation took {}ms", now.elapsed().as_millis());
 
@@ -117,17 +117,17 @@ pub fn render(canvas: &mut Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: P
     let now = Instant::now();
 
     let (tx, rx) = mpsc::channel::<(usize, Vec<Color>)>();
-
+    let n = 16;
     let camera_arc = Arc::new(camera);
 
-    for i in 0..10 {
+    for i in 0..n {
         let objs_arc = Arc::clone(&objs_arc);
         let camera_arc = Arc::clone(&camera_arc);
         let tx = tx.clone();
 
         thread::spawn(move || {
             let objs = objs_arc.read().unwrap();
-            let section = camera_arc.render_section(0, i.to_owned() * 50, 500, (i.to_owned() + 1) * 50, objs.deref(), 500, 500);
+            let section = camera_arc.render_modulus(objs.deref(), 500, 500, i, n);
             tx.send((i.to_owned(), section));
         });
     }
@@ -135,13 +135,14 @@ pub fn render(canvas: &mut Canvas<Window>, objs_arc: Arc<RwLock<POs>>, camera: P
     println!("Started rendering without issues");
     let now = Instant::now();
 
-    for i in 0..10 {
+    for i in 0..n {
 
         let section = rx.recv().unwrap();
 
-        camera.draw_section(&section.1, canvas, section.0 * 50, 0, (section.0 + 1) * 50, 500);
+        camera.draw_modulus(&section.1, canvas, section.0, n, 500, 500);
 
         println!("Thread {} finished rendering", section.0);
+       
     }
 
     println!("Render took {}ms", now.elapsed().as_millis());

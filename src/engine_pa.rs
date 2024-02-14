@@ -107,6 +107,52 @@ impl PathtracingCamera {
 		}
 	}
 
+	pub fn draw_modulus(&self, p: &Vec<Color>, canvas : &mut Canvas<Window>, index: usize, n : usize, w: usize, h : usize) {
+		let mut pos : usize = 0;
+
+		for j in 0..w {
+			if (j % n == index) {
+				for i in 0..h {
+					let c = p[pos];
+					pos = pos + 1;
+					canvas.set_draw_color(c);
+			
+					canvas.draw_point(Point::new((j) as i32, (i) as i32));
+				}
+			}
+		}
+	}
+
+	pub fn render_modulus(&self, objs: &PathtracingObjects, w: usize, h : usize, index : usize, n : usize) -> Vec<Color> {
+		let mut pos : usize = 0;
+		let mut section: Vec<Color> = Vec::new();
+
+		for j in 0..w {
+			if (j % n == index) {
+				for i in 0..h {
+					let vxp : f64 = j as f64 / w as f64;
+					let vyp : f64 = i as f64 / h as f64;
+					
+					let v0 : V3 = self.x;
+					let b : V3 = V3{x: self.v[0].x - v0.x, y: self.v[0].y - v0.y, z: self.v[0].z - v0.z};
+
+					let v : V3 = V3{
+						x: b.x,
+						y: b.y + (self.v[1].y - self.v[0].y) * vyp + (self.v[2].y - self.v[0].y) * vxp,
+						z: b.z + (self.v[1].z - self.v[0].z) * vyp + (self.v[2].z - self.v[0].z) * vxp
+					};
+
+					
+					let c = objs.get_color(v0, v);
+					section.push(c);
+				}
+			}
+		}
+
+		section
+	}	
+
+
 	pub fn draw_section(&self, p: &Vec<Color>, canvas : &mut Canvas<Window>, i1: usize, j1 : usize, i2: usize, j2 : usize) {
 		let mut pos : usize = 0;
 
