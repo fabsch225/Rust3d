@@ -1,6 +1,6 @@
 Ray-Marching and Pathtracing Engine on the Cpu. <br>
 Using SDL2 for Media-Context <br>
-Supports wavefront files with a few caviats :) br>
+Supports wavefront files with a few caviats :) <br>
 <br>
 For Windows SDL2 is Included <br>
 <br>
