@@ -1,6 +1,6 @@
 use std::cmp;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Point {
 	pub x: f64,
 	pub y: f64,
@@ -69,6 +69,18 @@ impl Point {
 		self.x = x;
 		self.y = y;
 		self.z = z;
+	}
+
+	pub fn rot_by(&mut self, p0 : Point, r: Point)  {
+		self.subtr(p0);
+		self.rot(r);
+		self.add(p0);
+	}
+
+	pub fn rot_reverse_by(&mut self, p0 : Point, r: Point)  {
+		self.subtr(p0);
+		self.rot_reverse(r);
+		self.add(p0);
 	}
 
 	pub fn rot(&mut self, p : Point) {

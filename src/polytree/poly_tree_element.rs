@@ -9,6 +9,7 @@ use crate::polytree::poly_tree_utils::PolyTreeCollisionFeedback;
 
 use super::poly_tree::PolyTree;
 
+#[derive(Debug, Clone)]
 pub struct PolyTreeElement {
     pub children: Vec<PolyTreeElement>,
     pub faces: Vec<F>,
@@ -56,7 +57,9 @@ impl PolyTreeElement {
         }
     }
     pub fn rot(&mut self, r_: V3, p0: V3) {
+        self.m.rot_by(p0, r_);
         if (self.leaf) {
+           
             for i in 0..self.faces.len() {
                 self.faces[i].rot(r_, p0);
             }
@@ -71,10 +74,12 @@ impl PolyTreeElement {
             for i in 0..self.faces.len() {
                 self.faces[i].rot_reverse(r_, p0);
             }
+            self.m.rot_reverse_by(r_, p0);
         } else {
             for i in 0..self.children.len() {
                 self.children[i].rot_reverse(r_, p0);
             }
+            self.m.rot_reverse_by(r_, p0);
         }
     }
     pub fn trans(&mut self, p: V3) {
@@ -82,10 +87,12 @@ impl PolyTreeElement {
             for i in 0..self.faces.len() {
                 self.faces[i].trans(p);
             }
+            self.m.trans(p.x, p.y, p.z);
         } else {
             for i in 0..self.children.len() {
                 self.children[i].trans(p);
             }
+            self.m.trans(p.x, p.y, p.z);
         }
     }
     pub fn calulate_middle(&mut self) -> V3 {

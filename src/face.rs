@@ -115,19 +115,11 @@ impl Face {
     }
     
     pub fn rot(&mut self, r_: V3, p: V3) {
-        self.r.subtr(p);
-        self.a.subtr(p);
-        self.b.subtr(p);
-
-        self.r.rot(r_);
-        self.a.rot(r_);
-        self.b.rot(r_);
-
-        self.r.add(p);
-        self.a.add(p);
-        self.b.add(p);
-
-        self.update();
+        self.r.rot_by(p, r_);
+        self.a.rot_by(p, r_);
+        self.b.rot_by(p, r_);
+        self.m.rot_by(p, r_);
+        //self.update();
  	}
     
     pub fn trans(&mut self, p: V3) {

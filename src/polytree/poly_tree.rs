@@ -12,6 +12,7 @@ use crate::polytree::poly_tree_element::PolyTreeElement;
 
 use super::poly_tree_utils::PolyTreeCollisionFeedback;
 
+#[derive(Debug, Clone)]
 pub struct PolyTree {
     pub m : V3,
     pub root : PolyTreeElement,
@@ -34,17 +35,17 @@ impl PathtracingObject for PolyTree {
     }
     
     fn rot(&mut self, r_: V3) {
+        self.root.rot(r_, self.source.m);
         self.source.rot(r_);
-        self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
     }
     fn trans(&mut self, p: V3) { 
-        //a
+        
         self.source.trans(p);
-        self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
+        //self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
 
-        //b; much slower
-        //self.root.trans(p);
-        //self.update();
+       
+        self.root.trans(p);
+        
 
     }
     fn scale(&mut self, p: V3) { 
