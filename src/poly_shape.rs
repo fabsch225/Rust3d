@@ -3,8 +3,6 @@ use std::io::{BufReader, BufRead};
 
 use image::io::Reader as ImageReader;
 use image::{Pixels, GenericImageView};
- 
-use rand::seq::SliceRandom;
 
 use crate::point::Point as V3;
 use crate::face::{Face as F, UV};
@@ -130,10 +128,6 @@ impl Poly {
         return Self::new_textured(middle, faces, texture_map, rgb, img_width, img_height);
     }
 
-    pub fn random_color() -> Color {
-        let cv = vec![Color::CYAN, Color::BLUE, Color::GREEN, Color::GRAY, Color::YELLOW]; 
-        return *cv.choose(&mut rand::thread_rng()).unwrap();
-    }
 }
 
 impl PathtracingObject for Poly {

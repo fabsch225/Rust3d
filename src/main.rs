@@ -53,7 +53,8 @@ pub fn main() -> Result<(), String>{
 
     //let mut p1 = P::parse_wavefront(&String::from("samples/eagle.obj"), &String::from("samples/orzel-mat_Diffuse.jpg"));
     let mut p2 = P::parse_wavefront(&String::from("samples/ref_cube.obj"), &String::from("samples/standart_text.jpg"));
-    let mut p1 = P::parse_wavefront(&String::from("samples/whale.obj"), &String::from("samples/whale.jpg"));
+    //let mut p1 = P::parse_wavefront(&String::from("samples/whale.obj"), &String::from("samples/whale.jpg"));
+    let mut p1 = P::parse_wavefront(&String::from("samples/horse.obj"), &String::from("samples/horse_tex.png"));
 
     println!("Parsing took {}ms", t.elapsed().as_millis());
 
@@ -68,12 +69,12 @@ pub fn main() -> Result<(), String>{
     println!("Creating polytree took {}ms", t.elapsed().as_millis());
 
     p1.trans(V3{x: 0.0, y: -1.0, z: 0.0});
-    //p2.trans(V3{x: -5.0, y: 0.0, z: 0.0});
-    //p2.scale(V3{x: 3.0, y: 3.0, z: 3.0});
+    p2.trans(V3{x: 7.0, y: 0.0, z: 2.0});
+    p2.scale(V3{x: 15.0, y: 15.0, z: 15.0});
 
     let mut objs : POs = POs::new();
     objs.add(p1);
-    //objs.add(p2);
+    objs.add(p2);
     
 	let mut camera : PTC = PTC::new(V3{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
     let objs_arc = Arc::new(RwLock::new(objs));
@@ -93,7 +94,8 @@ pub fn main() -> Result<(), String>{
         println!("Starting transformation");
         let now = Instant::now();
        
-        objs_arc.write().unwrap().get(0).rot(V3{x: 0.2, y: -0.1, z: 0.1});
+        camera.rot(V3{x: 0.0, y: 0.1, z: 0.0});
+        objs_arc.write().unwrap().get(0).rot(V3{x: -0.1, y: 0.0, z: 0.0});
         
         println!("transformation took {}ms", now.elapsed().as_millis());
 
@@ -137,6 +139,7 @@ pub fn render(canvas : &mut Canvas<Window>, objs_arc : Arc<RwLock<POs>>, camera 
         camera.draw_modulus(&section.1, canvas, section.0, n, *w, *h);
 
         println!("Thread {} finished rendering", section.0);
+       
     }
 
     println!("Render took {}ms", now.elapsed().as_millis());
