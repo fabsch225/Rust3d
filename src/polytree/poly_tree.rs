@@ -122,7 +122,7 @@ impl PolyTree {
         let m_ = PolyTree::get_middle(&fs);
         let r_ = PolyTree::get_radius(&fs);
 
-        if fs.len() < 30 {
+        if fs.len() < 200 {
 
             return PolyTreeElement {
                 children: Vec::new(),
