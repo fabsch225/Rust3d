@@ -8,6 +8,7 @@ mod face;
 mod cube; 
 mod sphere;
 mod engine_utils;
+mod tests;
 
 mod polytree {
     pub mod poly_tree;
@@ -94,7 +95,7 @@ pub fn main() -> Result<(), String>{
         println!("Starting transformation");
         let now = Instant::now();
        
-        camera.rot(V3{x: 0.0, y: 0.1, z: 0.0});
+        //camera.rot(V3{x: 0.0, y: 0.1, z: 0.0});
         objs_arc.write().unwrap().get(0).rot(V3{x: -0.1, y: 0.0, z: 0.0});
         
         println!("transformation took {}ms", now.elapsed().as_millis());
@@ -145,3 +146,5 @@ pub fn render(canvas : &mut Canvas<Window>, objs_arc : Arc<RwLock<POs>>, camera 
     println!("Render took {}ms", now.elapsed().as_millis());
     canvas.present();
 }
+
+    
