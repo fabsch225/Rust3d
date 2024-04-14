@@ -8,14 +8,11 @@ use std::rc::Rc;
 use crate::engine::utils::Collision;
 use crate::geometry::point::Point as V3;
 
-use super::utils::Renderable;
+use super::utils::{Renderable, Transformable};
 
-pub trait PathtracingObject {
+pub trait PathtracingObject : Transformable {
     fn d(&self, p: V3) -> f64;
     fn color(&self, p : V3) -> Color;
-    fn rot(&mut self, r : V3);
-    fn trans(&mut self, p : V3);
-    fn scale(&mut self, p : V3);
     fn is_colliding(&mut self, p0 : V3, p : V3) -> bool; //Todo
     fn get_collision(&self, p0 : V3, p : V3) -> Collision;
     fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync>;

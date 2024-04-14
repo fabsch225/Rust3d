@@ -1,6 +1,7 @@
 use sdl2::pixels::Color;
 
 use crate::engine::raymarching::RayMarchingObject;
+use crate::engine::utils::Transformable;
 use crate::geometry::point::Point;
 
 #[derive(Copy, Clone)]
@@ -102,57 +103,6 @@ impl Cube {
             ry: 0.0,
             rz: 0.0,
             base_color: c,
-        }
-    }
-
-    pub fn rot_reverse(&mut self, p: Point) {
-        let cm: Point = self.m.clone();
-
-        self.rx -= p.x;
-        self.ry -= p.y;
-        self.rz -= p.z;
-
-        for i in 0..8 {
-            self.x[i].subtr(self.m);
-            self.x[i].rot_reverse(p);
-            self.x[i].add(self.m);
-        }
-
-        for i in 0..6 {
-            self.s[i].subtr(self.m);
-            self.s[i].rot_reverse(p);
-            self.s[i].add(self.m);
-        }
-    }
-
-    pub fn rot(&mut self, p: Point) {
-        let cm: Point = self.m.clone();
-
-        self.rx += p.x;
-        self.ry += p.y;
-        self.rz += p.z;
-
-        for i in 0..8 {
-            self.x[i].subtr(self.m);
-            self.x[i].rot(p);
-            self.x[i].add(self.m);
-        }
-
-        for i in 0..6 {
-            self.s[i].subtr(self.m);
-            self.s[i].rot(p);
-            self.s[i].add(self.m);
-        }
-    }
-
-    pub fn trans(&mut self, p: Point) {
-        self.m.trans(p.x, p.y, p.z);
-
-        for i in 0..8 {
-            self.x[i].trans(p.x, p.y, p.z);
-        }
-        for i in 0..6 {
-            self.s[i].trans(p.x, p.y, p.z);
         }
     }
 
@@ -330,6 +280,80 @@ impl Cube {
     }
 }
 
+impl Transformable for Cube {
+    fn transform(&mut self) -> Box<&mut dyn Transformable> {
+        return Box::new(self);
+    }
+    fn rot_reverse(&mut self, p: Point) {
+        let cm: Point = self.m.clone();
+
+        self.rx -= p.x;
+        self.ry -= p.y;
+        self.rz -= p.z;
+
+        for i in 0..8 {
+            self.x[i].subtr(self.m);
+            self.x[i].rot_reverse(p);
+            self.x[i].add(self.m);
+        }
+
+        for i in 0..6 {
+            self.s[i].subtr(self.m);
+            self.s[i].rot_reverse(p);
+            self.s[i].add(self.m);
+        }
+    }
+
+    fn rot(&mut self, p: Point) {
+        let cm: Point = self.m.clone();
+
+        self.rx += p.x;
+        self.ry += p.y;
+        self.rz += p.z;
+
+        for i in 0..8 {
+            self.x[i].subtr(self.m);
+            self.x[i].rot(p);
+            self.x[i].add(self.m);
+        }
+
+        for i in 0..6 {
+            self.s[i].subtr(self.m);
+            self.s[i].rot(p);
+            self.s[i].add(self.m);
+        }
+    }
+
+    fn translate(&mut self, p: Point) {
+        self.m.trans(p.x, p.y, p.z);
+
+        for i in 0..8 {
+            self.x[i].trans(p.x, p.y, p.z);
+        }
+        for i in 0..6 {
+            self.s[i].trans(p.x, p.y, p.z);
+        }
+    }
+
+    fn scale(&mut self, p: Point) {
+        for i in 0..8 {
+            self.x[i].subtr(self.m);
+            self.x[i].x *= p.x;
+            self.x[i].y *= p.y;
+            self.x[i].z *= p.z;
+            self.x[i].add(self.m);
+        }
+
+        for i in 0..6 {
+            self.s[i].subtr(self.m);
+            self.s[i].x *= p.x;
+            self.s[i].y *= p.y;
+            self.s[i].z *= p.z;
+            self.s[i].add(self.m);
+        }
+    }
+}
+
 impl RayMarchingObject for Cube {
     fn d(&self, p: Point) -> f64 {
         return self.d_(p);
@@ -346,11 +370,21 @@ impl RayMarchingObject for Cube {
         return self.base_color; //Color::RGB(color.x as u8,  color.y as u8, color.z as u8); // + self.find_s_index(p) * 10
     }
 
-    fn rot(&mut self, p: Point) {
-        return self.rot(p);
-    }
-
     fn nearest_point(&self, p: Point) -> Point {
         return self.nearest_point_to(p);
+    }
+
+    fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync> {
+        return Box::new(Cube {
+            x: self.x,
+            s: self.s,
+            r: self.r,
+            r_outer: self.r_outer,
+            m: self.m,
+            rx: self.rx,
+            ry: self.ry,
+            rz: self.rz,
+            base_color: self.base_color,
+        });
     }
 }

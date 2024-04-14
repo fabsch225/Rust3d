@@ -36,7 +36,7 @@ use std::time::Instant;
 
 use crate::engine::polytree::poly_tree::PolyTree;
 use crate::engine::raymarching::RayMarchingObjects;
-use crate::engine::utils::{RenderObjects, Renderable};
+use crate::engine::utils::{RenderObjects, Renderable, Transformable};
 use crate::geometry::cube::Cube;
 use crate::geometry::point::Point as V;
 use crate::engine::camera::Camera;
@@ -60,12 +60,13 @@ pub fn main() -> Result<(), String>{
     let t = Instant::now();
     println!("Starting to parse wavefront file");
 
-    let mut m1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 10.0, Color::RED);
+    let mut m1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::RED);
+    let mut m2 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::BLUE);
 
     //let mut p1 = P::parse_wavefront(&String::from("samples/eagle.obj"), &String::from("samples/orzel-mat_Diffuse.jpg"));
     let mut p2 = Poly::parse_wavefront(&String::from("samples/ref_cube.obj"), &String::from("samples/standart_text.jpg"));
-    let mut p1 = Poly::parse_wavefront(&String::from("samples/whale.obj"), &String::from("samples/whale.jpg"));
-    //let mut p1 = Poly::parse_wavefront(&String::from("samples/horse.obj"), &String::from("samples/horse_tex.png"));
+    //let mut p1 = Poly::parse_wavefront(&String::from("samples/whale.obj"), &String::from("samples/whale.jpg"));
+    let mut p1 = Poly::parse_wavefront(&String::from("samples/horse.obj"), &String::from("samples/horse_tex.png"));
 
     println!("Parsing took {}ms", t.elapsed().as_millis());
 
@@ -79,15 +80,19 @@ pub fn main() -> Result<(), String>{
     
     println!("Creating polytree took {}ms", t.elapsed().as_millis());
 
-    p1.trans(V{x: 0.0, y: -1.0, z: 0.0});
-    p2.trans(V{x: 7.0, y: 0.0, z: 2.0});
+    p1.translate(V{x: 0.0, y: -1.0, z: 0.0});
+    p2.translate(V{x: 7.0, y: 0.0, z: 2.0});
     p2.scale(V{x: 15.0, y: 15.0, z: 15.0});
+
+    m1.translate(V{x: 7.0, y: 0.0, z: 2.0});
+    m2.translate(V{x: 7.0, y: 3.0, z: 2.0});
 
     let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
     pa_objs.add(p1);
     pa_objs.add(p2);
     let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new();
     rm_objs.add(m1);
+    rm_objs.add(m2);
 
     let rm_objs = Arc::new(RwLock::new(rm_objs));
     let pa_objs = Arc::new(RwLock::new(pa_objs));   
@@ -110,13 +115,17 @@ pub fn main() -> Result<(), String>{
         } 
         println!("Starting transformation");
         let now = Instant::now();
-
+       
         pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.0});
-        
+        rm_objs.write().unwrap().get(0).rot(V{x: 0.0, y: 0.1, z: 0.0}); 
+        rm_objs.write().unwrap().get(0).translate(V{x: 1.5, y: 0.0, z: 0.0});
+
         let mut objs: RenderObjects = RenderObjects::new();
         
         objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
-        //camera.rot(V3{x: 0.0, y: 0.1, z: 0.0});
+        objs.wrap(Box::new(RayMarchingObjects::wrapup(&rm_objs.read().unwrap())));
+
+        //camera.rot(V{x: 0.0, y: 0.1, z: 0.0});
         
         println!("transformation took {}ms", now.elapsed().as_millis());
 

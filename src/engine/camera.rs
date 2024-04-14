@@ -57,15 +57,17 @@ impl<'a> Camera {
         
         let b : V3 = V3{x: self.v[0].x - self.x.x, y: self.v[0].y - self.x.y, z: self.v[0].z - self.x.z};
 
-        let v : V3 = V3{
+        let mut v : V3 = V3{
             x: b.x,
             y: b.y + (self.v[1].y - self.v[0].y) * vyp + (self.v[2].y - self.v[0].y) * vxp,
             z: b.z + (self.v[1].z - self.v[0].z) * vyp + (self.v[2].z - self.v[0].z) * vxp
         };
 
-        let mut ray = V3{x: v.x - self.x.x, y: v.y - self.x.y, z: v.z - self.x.z};
-        ray.norm();
-        ray
+        //let mut ray = V3{x: v.x - self.x.x, y: v.y - self.x.y, z: v.z - self.x.z};
+        //ray.norm(); i dont know the purpose of these lines
+        //ray
+		v.norm();
+		v
     }
 
 	pub fn draw_modulus(&self, p: &Vec<Color>, canvas : &mut Canvas<Window>, index: usize, n : usize, w: usize, h : usize) {

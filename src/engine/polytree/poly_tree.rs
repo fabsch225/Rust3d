@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use sdl2::pixels::Color;
 
-use crate::engine::utils::{Collision, Sphereable};
+use crate::engine::utils::{Collision, Sphereable, Transformable};
 use crate::engine::pathtracing::PathtracingObject;
 use crate::geometry::face::{Face as F, UV};
 use crate::geometry::point::Point as V3;
@@ -18,11 +18,36 @@ pub struct PolyTree {
     pub source : Poly,
 }
 
+impl Transformable for PolyTree {
+    fn transform(&mut self) -> Box<&mut dyn Transformable> {
+        return Box::new(self);
+    }
+    fn rot_reverse(&mut self, r_: V3) {
+        self.root.rot_reverse(r_, self.source.m);
+        self.source.rot_reverse(r_);
+    }
+    fn rot(&mut self, r_: V3) {
+        self.root.rot(r_, self.source.m);
+        self.source.rot(r_);
+    }
+    fn translate(&mut self, p: V3) { 
+        
+        self.source.translate(p);
+        //self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
+
+        self.root.trans(p);
+    }
+    fn scale(&mut self, p: V3) { 
+        self.source.scale(p);
+        self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
+    }
+}
+
 impl PathtracingObject for PolyTree {
     fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync + 'static> {
         return Box::new(PolyTree {
             m: self.m,
-            root: PolyTree::make_polytree_root(Clone::clone(&self.source)),
+            root: Clone::clone(&self.root),
             source: Clone::clone(&self.source)
         })
     }
@@ -33,24 +58,6 @@ impl PathtracingObject for PolyTree {
         return self.source.base_color;
     }
     
-    fn rot(&mut self, r_: V3) {
-        self.root.rot(r_, self.source.m);
-        self.source.rot(r_);
-    }
-    fn trans(&mut self, p: V3) { 
-        
-        self.source.trans(p);
-        //self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
-
-       
-        self.root.trans(p);
-        
-
-    }
-    fn scale(&mut self, p: V3) { 
-        self.source.scale(p);
-        self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
-    }
     fn is_colliding(&mut self, p0: V3, p: V3) -> bool {
         return true;
     }

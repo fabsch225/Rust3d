@@ -8,12 +8,16 @@ use sdl2::pixels::Color;
 use super::pathtracing::PathtracingObject;
 use super::raymarching::RayMarchingObject;
 
-pub trait PathtracingObjectMultiThreading: PathtracingObject + Send + Sync + Clone {}
+pub trait PathtracingObjectMultiThreading: PathtracingObject + Send + Sync + Transformable {}
 
-pub trait RayMarchingObjectMultiThreading: RayMarchingObject + Send + Sync + Clone {}
+pub trait RayMarchingObjectMultiThreading: RayMarchingObject + Send + Sync + Transformable {}
 
-pub trait MyClone {
-    fn clone(&self) -> Self;
+pub trait Transformable {
+    fn rot_reverse(&mut self, r : V3);
+    fn rot(&mut self, r : V3);
+    fn translate(&mut self, p : V3);
+    fn scale(&mut self, p : V3);
+    fn transform(&mut self) -> Box<&mut dyn Transformable>;
 }
 
 pub trait Textured {
@@ -105,7 +109,12 @@ impl Renderable for RenderObjects {
         for po in self.objects.iter() {
             let c_ = po.get_collision(p0, p, radius);
             if (c_.hit) {
+                let mut p2 = c_.p.clone();
+                p2.subtr(p0);
+                let d = p2.norm();
+                assert_eq!(d, c_.d);
                 if (c_.d < bd) {
+                    //println!("distance is {}", c_.d);
                     c = c_;
                     bd = c_.d;
                 }

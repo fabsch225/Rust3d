@@ -9,14 +9,14 @@ use crate::geometry::cube::Cube;
 use crate::geometry::point::Point as V3;
 use crate::geometry::face::Face;
 
-use super::utils::Renderable;
+use super::utils::{Renderable, Transformable};
 
-pub trait RayMarchingObject {
+pub trait RayMarchingObject : Transformable {
     fn d(&self, p: V3) -> f64;
 	fn d_r(&self, p: V3) -> f64;
 	fn color(&self, p: V3) -> Color;
 	fn nearest_point(&self, p: V3) -> V3;
-	fn rot(&mut self, p: V3);
+	fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync>;
 }
 
 pub struct RayMarchingObjects {
@@ -32,6 +32,17 @@ impl RayMarchingObjects {
 		}
 	}
 
+	pub fn wrapup(old : &RayMarchingObjects) -> Self {
+        let mut objects_vec: Vec<Box<dyn RayMarchingObject + Send + Sync>> = Vec::new();
+        for i in 0..old.objects.len() {
+            objects_vec.push(old.objects[i].clone());
+        }
+        RayMarchingObjects {
+			epsilon: old.epsilon,
+            objects: objects_vec,
+        }
+    }
+
 	pub fn get(&mut self, i: usize) -> &mut Box<dyn RayMarchingObject + 'static + Send + Sync>{
 		return &mut self.objects[i];
 	}
@@ -42,7 +53,6 @@ impl RayMarchingObjects {
 
 	pub fn nearest_distance_smoothed(&self, p : V3, epsilon: f64) -> f64 { // generell dumme idee
 		let trad_d = self.nearest_distance(p);
-		
 		
 		let mut bd : f64 = f64::MAX;
 		let mut avg : V3 = V3{x: 0f64, y: 0f64, z: 0f64};
@@ -64,7 +74,6 @@ impl RayMarchingObjects {
 		else {
 			return(new_d * 1.1);
 		}
-		
     }
 
     pub fn nearest_distance(&self, p : V3) -> f64{
@@ -145,18 +154,17 @@ impl Renderable for RayMarchingObjects {
 		loop {
 			d = self.nearest_distance(p);
 			if (d < self.epsilon) {
-				
 				c = self.current_color_gradient(p, 10f64);
-				break;
+				let d = p.d(p0);
+				return Collision{d, p, hit: true, c};
 			}
 			else if (p.d(p0) > radius) {
 				c = Color::RGB(51, 51, 51);
-				break;
+				return Collision{d: 0.0, p, hit: false, c};
 			}
 			else {
 				p.trans(v.x * d / 2.0, v.y * d / 2.0, v.z * d / 2.0);
 			}
 		}
-		return Collision{d, p, hit: true, c};
 	}
 }

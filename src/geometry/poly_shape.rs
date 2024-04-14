@@ -5,7 +5,7 @@ use image::io::Reader as ImageReader;
 use image::{Pixels, GenericImageView};
 
 use crate::engine::pathtracing::PathtracingObject;
-use crate::engine::utils::{Collision, Sphereable};
+use crate::engine::utils::{Collision, Sphereable, Transformable};
 use crate::geometry::point::Point as V3;
 use crate::geometry::face::{Face as F, UV};
 
@@ -23,8 +23,6 @@ pub struct Poly {
     pub base_color: Color, 
     pub has_t: bool
 }
-
-
 
 impl Poly {
     pub fn new(m_ : V3, x_ : Vec<F>) -> Self {
@@ -131,23 +129,23 @@ impl Poly {
 
 }
 
-impl PathtracingObject for Poly {
-    fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync + 'static> {
-        return Box::new(Poly::new_from(&self));
+impl Transformable for Poly {
+    fn transform(&mut self) -> Box<&mut dyn Transformable> {
+        return Box::new(self);
     }
-    fn d(&self, p: V3) -> f64 {
-        return 0.0; //todo
+    fn rot_reverse(&mut self, p: V3) {
+        for f in self.x.iter_mut() {
+            f.rot_reverse(p, self.m);
+        }
     }
-	fn color(&self, p: V3) -> Color {
-        return self.base_color;
-    }
-	fn rot(&mut self, p: V3) {
+
+    fn rot(&mut self, p: V3) {
         for f in self.x.iter_mut() {
             f.rot(p, self.m);
         }
     }
 
-    fn trans(&mut self, p: V3) { 
+    fn translate(&mut self, p: V3) { 
         for f in self.x.iter_mut() {
             f.trans(p);
         }
@@ -159,6 +157,18 @@ impl PathtracingObject for Poly {
             f.scale_by(p, self.m);
         }
         self.m.trans(p.x, p.y, p.z);
+    }
+}
+
+impl PathtracingObject for Poly {
+    fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync + 'static> {
+        return Box::new(Poly::new_from(&self));
+    }
+    fn d(&self, p: V3) -> f64 {
+        return 0.0; //todo
+    }
+	fn color(&self, p: V3) -> Color {
+        return self.base_color;
     }
 
 	fn is_colliding(&mut self, p0: V3, p: V3) -> bool {
