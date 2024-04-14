@@ -1,4 +1,5 @@
-use crate::{engine_utils::Sphereable, point::Point as V3};
+use crate::engine::utils::Sphereable;
+use crate::geometry::point::Point as V3;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Face {

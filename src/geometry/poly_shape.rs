@@ -4,10 +4,11 @@ use std::io::{BufReader, BufRead};
 use image::io::Reader as ImageReader;
 use image::{Pixels, GenericImageView};
 
-use crate::point::Point as V3;
-use crate::face::{Face as F, UV};
-use crate::engine_pa::PathtracingObject;
-use crate::engine_utils::{Collision, Sphereable};
+use crate::engine::pathtracing::PathtracingObject;
+use crate::engine::utils::{Collision, Sphereable};
+use crate::geometry::point::Point as V3;
+use crate::geometry::face::{Face as F, UV};
+
 
 use sdl2::pixels::Color;
 
@@ -131,7 +132,7 @@ impl Poly {
 }
 
 impl PathtracingObject for Poly {
-    fn clone(&self) -> Box<dyn PathtracingObject + 'static> {
+    fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync + 'static> {
         return Box::new(Poly::new_from(&self));
     }
     fn d(&self, p: V3) -> f64 {

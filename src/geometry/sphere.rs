@@ -1,8 +1,7 @@
 use sdl2::pixels::Color;
 
-use crate::engine_rm::RayMarchingObject;
-
-use crate::point::Point;
+use crate::engine::raymarching::RayMarchingObject;
+use crate::geometry::point::Point;
 
 #[derive(Copy, Clone)]
 pub struct Sphere {

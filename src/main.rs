@@ -1,40 +1,48 @@
 #![allow(unused)]
 
-mod poly_shape;
-mod engine_pa;
-mod engine_rm;
-mod point; 
-mod face;
-mod cube; 
-mod sphere;
-mod engine_utils;
-mod tests;
-
-mod polytree {
-    pub mod poly_tree;
-    pub mod poly_tree_element;
-    pub mod poly_tree_utils;
+mod engine {
+    pub mod camera;
+    pub mod pathtracing;
+    pub mod raymarching;
+    pub mod utils;
+    
+    pub mod polytree {
+        pub mod poly_tree;
+        pub mod poly_tree_element;
+        pub mod poly_tree_utils;
+    }
 }
 
-use engine_pa::{PathtracingCamera as PTC, PathtracingObject as PO, PathtracingObjects as POs};
-
-use face::Face;
-use point::Point as V3;
-use poly_shape::Poly as P;
-use polytree::poly_tree::PolyTree as PT;
-use polytree::poly_tree_element::PolyTreeElement as PTE;
+mod geometry {
+    pub mod poly_shape;
+    pub mod face;
+    pub mod point;
+    pub mod cube;
+    pub mod sphere;
+}
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
-use sdl2::render::Canvas;
+use sdl2::render::{self, Canvas};
 use sdl2::video::Window;
 
+use std::borrow::Borrow;
 use std::ops::Deref;
-use std::sync::{mpsc, Arc, RwLock};
+use std::sync::{mpsc, Arc, RwLock, Mutex};
 use std::thread;
 use std::time::Duration;
 use std::time::Instant;
+
+use crate::engine::polytree::poly_tree::PolyTree;
+use crate::engine::raymarching::RayMarchingObjects;
+use crate::engine::utils::{RenderObjects, Renderable};
+use crate::geometry::cube::Cube;
+use crate::geometry::point::Point as V;
+use crate::engine::camera::Camera;
+use crate::engine::pathtracing::PathtracingObjects;
+use crate::engine::pathtracing::PathtracingObject;
+use crate::geometry::poly_shape::Poly;
 
 pub fn main() -> Result<(), String>{
     let w : usize = 1000;
@@ -52,33 +60,41 @@ pub fn main() -> Result<(), String>{
     let t = Instant::now();
     println!("Starting to parse wavefront file");
 
+    let mut m1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 10.0, Color::RED);
+
     //let mut p1 = P::parse_wavefront(&String::from("samples/eagle.obj"), &String::from("samples/orzel-mat_Diffuse.jpg"));
-    let mut p2 = P::parse_wavefront(&String::from("samples/ref_cube.obj"), &String::from("samples/standart_text.jpg"));
-    //let mut p1 = P::parse_wavefront(&String::from("samples/whale.obj"), &String::from("samples/whale.jpg"));
-    let mut p1 = P::parse_wavefront(&String::from("samples/horse.obj"), &String::from("samples/horse_tex.png"));
+    let mut p2 = Poly::parse_wavefront(&String::from("samples/ref_cube.obj"), &String::from("samples/standart_text.jpg"));
+    let mut p1 = Poly::parse_wavefront(&String::from("samples/whale.obj"), &String::from("samples/whale.jpg"));
+    //let mut p1 = Poly::parse_wavefront(&String::from("samples/horse.obj"), &String::from("samples/horse_tex.png"));
 
     println!("Parsing took {}ms", t.elapsed().as_millis());
 
-    p1.rot(V3{x: 3.14*1.5, y: 0.0, z: 3.14*1.6});
+    p1.rot(V{x: 3.14*1.5, y: 0.0, z: 3.14*1.6});
 
     let t = Instant::now();
     println!("Starting to create polytree from poly");
 
-    let mut p1 : PT = *PT::new(p1); 
-    let mut p2 : PT = *PT::new(p2);  
+    let mut p1 : PolyTree = *PolyTree::new(p1); 
+    let mut p2 : PolyTree = *PolyTree::new(p2);  
     
     println!("Creating polytree took {}ms", t.elapsed().as_millis());
 
-    p1.trans(V3{x: 0.0, y: -1.0, z: 0.0});
-    p2.trans(V3{x: 7.0, y: 0.0, z: 2.0});
-    p2.scale(V3{x: 15.0, y: 15.0, z: 15.0});
+    p1.trans(V{x: 0.0, y: -1.0, z: 0.0});
+    p2.trans(V{x: 7.0, y: 0.0, z: 2.0});
+    p2.scale(V{x: 15.0, y: 15.0, z: 15.0});
 
-    let mut objs : POs = POs::new();
-    objs.add(p1);
-    objs.add(p2);
+    let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
+    pa_objs.add(p1);
+    pa_objs.add(p2);
+    let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new();
+    rm_objs.add(m1);
+
+    let rm_objs = Arc::new(RwLock::new(rm_objs));
+    let pa_objs = Arc::new(RwLock::new(pa_objs));   
     
-	let mut camera : PTC = PTC::new(V3{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
-    let objs_arc = Arc::new(RwLock::new(objs));
+	let mut camera : Camera = Camera::new(V{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
+    //let pa_objs_arc = Arc::new(RwLock::new(pa_objs));
+    //let rm_objs_arc = Arc::new(RwLock::new(rm_objs));
 
     println!("Starting main Loop");
     'running: loop {
@@ -94,21 +110,26 @@ pub fn main() -> Result<(), String>{
         } 
         println!("Starting transformation");
         let now = Instant::now();
-       
+
+        pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.0});
+        
+        let mut objs: RenderObjects = RenderObjects::new();
+        
+        objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
         //camera.rot(V3{x: 0.0, y: 0.1, z: 0.0});
-        objs_arc.write().unwrap().get(0).rot(V3{x: -0.1, y: 0.0, z: 0.0});
         
         println!("transformation took {}ms", now.elapsed().as_millis());
 
-        render(&mut canvas, Arc::clone(&objs_arc), camera, &w, &h);
+        
+        render(&mut canvas, objs, camera, &w, &h);
+        
 
         ::std::thread::sleep(Duration::new(0, 1_000_000u32 / 60));
     }
     Ok(())
 }
 
-pub fn render(canvas : &mut Canvas<Window>, objs_arc : Arc<RwLock<POs>>, camera : PTC, w : &usize, h : &usize) {
-    
+pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camera, w : &usize, h : &usize) {
     canvas.clear();
     println!("Setting up threads...");
     let now = Instant::now();
@@ -116,17 +137,18 @@ pub fn render(canvas : &mut Canvas<Window>, objs_arc : Arc<RwLock<POs>>, camera 
     let (tx, rx) = mpsc::channel::<(usize, Vec<Color>)>();
     let n = 16;
     let camera_arc = Arc::new(camera);
+    let objs =  Arc::new(objs);
 
     for i in 0..n {
-        let objs_arc = Arc::clone(&objs_arc);
         let camera_arc = Arc::clone(&camera_arc);
+        let objs = Arc::clone(&objs);
         let tx = tx.clone();
         let w_ = w.clone();
         let h_ = h.clone();
 
         thread::spawn(move || {
-            let objs = objs_arc.read().unwrap();
-            let section = camera_arc.render_modulus(objs.deref(), w_, h_, i, n);
+            //let obj_mutex_cloned = Arc::clone(&obj_mutex_cloned);
+            let section = camera_arc.render_modulus_multi(objs, w_, h_, i, n);
             tx.send((i.to_owned(), section));
         });
     }
@@ -144,6 +166,7 @@ pub fn render(canvas : &mut Canvas<Window>, objs_arc : Arc<RwLock<POs>>, camera 
     }
 
     println!("Render took {}ms", now.elapsed().as_millis());
+
     canvas.present();
 }
 

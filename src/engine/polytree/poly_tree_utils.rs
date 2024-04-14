@@ -1,5 +1,5 @@
-use crate::point::Point as V3;
-use crate::face::UV;
+use crate::geometry::point::Point as V3;
+use crate::geometry::face::UV;
 
 use std::rc::Rc;
 

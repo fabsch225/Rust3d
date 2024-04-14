@@ -2,13 +2,12 @@ use std::sync::Arc;
 
 use sdl2::pixels::Color;
 
-use crate::engine_utils::{Collision, Sphereable};
-
-use crate::engine_pa::PathtracingObject;
-use crate::face::{Face as F, UV};
-use crate::point::Point as V3;
-use crate::poly_shape::Poly;
-use crate::polytree::poly_tree_element::PolyTreeElement;
+use crate::engine::utils::{Collision, Sphereable};
+use crate::engine::pathtracing::PathtracingObject;
+use crate::geometry::face::{Face as F, UV};
+use crate::geometry::point::Point as V3;
+use crate::geometry::poly_shape::Poly;
+use crate::engine::polytree::poly_tree_element::PolyTreeElement;
 
 use super::poly_tree_utils::PolyTreeCollisionFeedback;
 
@@ -20,7 +19,7 @@ pub struct PolyTree {
 }
 
 impl PathtracingObject for PolyTree {
-    fn clone(&self) -> Box<dyn PathtracingObject + 'static> {
+    fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync + 'static> {
         return Box::new(PolyTree {
             m: self.m,
             root: PolyTree::make_polytree_root(Clone::clone(&self.source)),
