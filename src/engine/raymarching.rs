@@ -25,10 +25,10 @@ pub struct RayMarchingObjects {
 }
 
 impl RayMarchingObjects {
-	pub fn new() -> Self {
+	pub fn new(epsilon: f64) -> Self {
 		RayMarchingObjects {
 			objects: Vec::new(),
-			epsilon: 0.8f64,
+			epsilon,
 		}
 	}
 

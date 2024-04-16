@@ -21,6 +21,11 @@ mod geometry {
     pub mod sphere;
 }
 
+mod math {
+    pub mod graph;
+    pub mod matrix;
+}
+
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -43,6 +48,8 @@ use crate::engine::camera::Camera;
 use crate::engine::pathtracing::PathtracingObjects;
 use crate::engine::pathtracing::PathtracingObject;
 use crate::geometry::poly_shape::Poly;
+use crate::geometry::sphere::Sphere;
+use crate::math::graph::Line;
 
 pub fn main() -> Result<(), String>{
     let w : usize = 1000;
@@ -58,10 +65,13 @@ pub fn main() -> Result<(), String>{
     let mut event_pump = sdl_context.event_pump()?;
 
     let t = Instant::now();
-    println!("Starting to parse wavefront file");
+    println!("Starting to parse objects");
 
-    let mut m1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::RED);
-    let mut m2 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::BLUE);
+    let mut line1 = Line::new(V{x: 2.0, y: 1.0, z: 1.0}, V{x: 0.0, y: 0.0, z: 0.0}, 0.01);
+    let mut p1 = Sphere::new(V{x: 0.0, y: 0.0, z: 0.0}, 0.01, Color::RED);
+    let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::CYAN);
+    //let mut m1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::RED);
+    /*let mut m2 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::BLUE);
 
     //let mut p1 = P::parse_wavefront(&String::from("samples/eagle.obj"), &String::from("samples/orzel-mat_Diffuse.jpg"));
     let mut p2 = Poly::parse_wavefront(&String::from("samples/ref_cube.obj"), &String::from("samples/standart_text.jpg"));
@@ -86,21 +96,24 @@ pub fn main() -> Result<(), String>{
 
     m1.translate(V{x: 7.0, y: 0.0, z: 2.0});
     m2.translate(V{x: 7.0, y: 3.0, z: 2.0});
-
+    
     let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
     pa_objs.add(p1);
     pa_objs.add(p2);
-    let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new();
-    rm_objs.add(m1);
-    rm_objs.add(m2);
+    */
+    let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.05);
+    rm_objs.add(line1);
+    rm_objs.add(p1);
+    rm_objs.add(p2);
+    //rm_objs.add(m2);
 
     let rm_objs = Arc::new(RwLock::new(rm_objs));
-    let pa_objs = Arc::new(RwLock::new(pa_objs));   
+    //let pa_objs = Arc::new(RwLock::new(pa_objs));   
     
 	let mut camera : Camera = Camera::new(V{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
     //let pa_objs_arc = Arc::new(RwLock::new(pa_objs));
     //let rm_objs_arc = Arc::new(RwLock::new(rm_objs));
-
+    
     println!("Starting main Loop");
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -116,13 +129,14 @@ pub fn main() -> Result<(), String>{
         println!("Starting transformation");
         let now = Instant::now();
        
-        pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.0});
+        //pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.0});
         rm_objs.write().unwrap().get(0).rot(V{x: 0.0, y: 0.1, z: 0.0}); 
-        rm_objs.write().unwrap().get(0).translate(V{x: 1.5, y: 0.0, z: 0.0});
+        //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
+        //rm_objs.write().unwrap().get(1).translate(V{x: 0.0, y: 0.01, z: 0.0});
 
         let mut objs: RenderObjects = RenderObjects::new();
         
-        objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
+        //objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
         objs.wrap(Box::new(RayMarchingObjects::wrapup(&rm_objs.read().unwrap())));
 
         //camera.rot(V{x: 0.0, y: 0.1, z: 0.0});
@@ -144,7 +158,7 @@ pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camer
     let now = Instant::now();
 
     let (tx, rx) = mpsc::channel::<(usize, Vec<Color>)>();
-    let n = 16;
+    let n = 2;
     let camera_arc = Arc::new(camera);
     let objs =  Arc::new(objs);
 
@@ -171,7 +185,6 @@ pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camer
         camera.draw_modulus(&section.1, canvas, section.0, n, *w, *h);
 
         println!("Thread {} finished rendering", section.0);
-       
     }
 
     println!("Render took {}ms", now.elapsed().as_millis());
