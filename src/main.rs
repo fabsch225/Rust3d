@@ -52,8 +52,8 @@ use crate::geometry::sphere::Sphere;
 use crate::math::graph::Line;
 
 pub fn main() -> Result<(), String>{
-    let w : usize = 1000;
-    let h : usize = 1000;
+    let w : usize = 400;
+    let h : usize = 300;
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("rust3d", w as u32, h as u32)
@@ -68,8 +68,14 @@ pub fn main() -> Result<(), String>{
     println!("Starting to parse objects");
 
     let mut line1 = Line::new(V{x: 2.0, y: 1.0, z: 1.0}, V{x: 0.0, y: 0.0, z: 0.0}, 0.01);
-    let mut p1 = Sphere::new(V{x: 0.0, y: 0.0, z: 0.0}, 0.01, Color::RED);
-    let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::CYAN);
+    let mut p1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 0.2, Color::RED);
+    let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
+
+    let mut t1 = Poly::parse_wavefront(&String::from("samples/horse.obj"), &String::from("samples/horse_tex.png"));
+    let mut t1 = Poly::parse_wavefront(&String::from("samples/whale.obj"), &String::from("samples/whale.jpg"));
+    let mut t1 = *PolyTree::new(t1); 
+
+    t1.translate(V{x: 5.0, y: -1.0, z: 0.0});
     //let mut m1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::RED);
     /*let mut m2 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::BLUE);
 
@@ -96,11 +102,10 @@ pub fn main() -> Result<(), String>{
 
     m1.translate(V{x: 7.0, y: 0.0, z: 2.0});
     m2.translate(V{x: 7.0, y: 3.0, z: 2.0});
-    
-    let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
-    pa_objs.add(p1);
-    pa_objs.add(p2);
     */
+    let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
+    pa_objs.add(t1);
+    
     let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.05);
     rm_objs.add(line1);
     rm_objs.add(p1);
@@ -108,7 +113,7 @@ pub fn main() -> Result<(), String>{
     //rm_objs.add(m2);
 
     let rm_objs = Arc::new(RwLock::new(rm_objs));
-    //let pa_objs = Arc::new(RwLock::new(pa_objs));   
+    let pa_objs = Arc::new(RwLock::new(pa_objs));   
     
 	let mut camera : Camera = Camera::new(V{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
     //let pa_objs_arc = Arc::new(RwLock::new(pa_objs));
@@ -129,14 +134,14 @@ pub fn main() -> Result<(), String>{
         println!("Starting transformation");
         let now = Instant::now();
        
-        //pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.0});
+        pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.1});
         rm_objs.write().unwrap().get(0).rot(V{x: 0.0, y: 0.1, z: 0.0}); 
         //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
         //rm_objs.write().unwrap().get(1).translate(V{x: 0.0, y: 0.01, z: 0.0});
 
         let mut objs: RenderObjects = RenderObjects::new();
         
-        //objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
+        objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
         objs.wrap(Box::new(RayMarchingObjects::wrapup(&rm_objs.read().unwrap())));
 
         //camera.rot(V{x: 0.0, y: 0.1, z: 0.0});
@@ -158,7 +163,7 @@ pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camer
     let now = Instant::now();
 
     let (tx, rx) = mpsc::channel::<(usize, Vec<Color>)>();
-    let n = 2;
+    let n = 10;
     let camera_arc = Arc::new(camera);
     let objs =  Arc::new(objs);
 
