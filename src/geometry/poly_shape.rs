@@ -5,7 +5,7 @@ use image::io::Reader as ImageReader;
 use image::{Pixels, GenericImageView};
 
 use crate::engine::pathtracing::PathtracingObject;
-use crate::engine::utils::{Collision, Sphereable, Transformable};
+use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision, Sphereable}, transformation::Transformable};
 use crate::geometry::point::Point as V3;
 use crate::geometry::face::{Face as F, UV};
 

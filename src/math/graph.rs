@@ -1,7 +1,7 @@
 use sdl2::pixels::Color;
 
 use crate::engine::raymarching::RayMarchingObject;
-use crate::engine::utils::{Sphereable, Transformable};
+use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision, Sphereable}, transformation::Transformable};
 use crate::geometry::point::Point as V3;
 
 pub struct Line {

@@ -3,13 +3,11 @@ use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::rect::Point;
 
-use crate::engine::utils::Collision;
+use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision}, transformation::Transformable};
 use crate::geometry::sphere::Sphere;
 use crate::geometry::cube::Cube;
 use crate::geometry::point::Point as V3;
 use crate::geometry::face::Face;
-
-use super::utils::{Renderable, Transformable};
 
 pub trait RayMarchingObject : Transformable {
     fn d(&self, p: V3) -> f64;

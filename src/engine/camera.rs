@@ -4,7 +4,7 @@ use sdl2::{pixels::Color, rect::Point, render::Canvas, video::Window};
 
 use crate::geometry::point::Point as V3;
 
-use super::utils::{RenderObjects, Renderable};
+use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
 
 #[derive(Copy, Clone)]
 pub struct Camera {

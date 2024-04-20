@@ -1,7 +1,7 @@
 use sdl2::pixels::Color;
 
 use crate::engine::raymarching::RayMarchingObject;
-use crate::engine::utils::Transformable;
+use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
 use crate::geometry::point::Point;
 
 #[derive(Copy, Clone)]

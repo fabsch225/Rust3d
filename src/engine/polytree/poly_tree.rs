@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use sdl2::pixels::Color;
 
-use crate::engine::utils::{Collision, Sphereable, Transformable};
+use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision, Sphereable}, transformation::Transformable};
 use crate::engine::pathtracing::PathtracingObject;
 use crate::geometry::face::{Face as F, UV};
 use crate::geometry::point::Point as V3;

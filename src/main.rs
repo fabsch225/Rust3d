@@ -4,7 +4,11 @@ mod engine {
     pub mod camera;
     pub mod pathtracing;
     pub mod raymarching;
-    pub mod utils;
+    pub mod utils {
+        pub mod rendering;
+        pub mod transformation;
+        pub mod renderung_ui;
+    }
     
     pub mod polytree {
         pub mod poly_tree;
@@ -22,6 +26,7 @@ mod geometry {
 }
 
 mod math {
+    pub mod anker_label;
     pub mod graph;
     pub mod matrix;
 }
@@ -41,7 +46,7 @@ use std::time::Instant;
 
 use crate::engine::polytree::poly_tree::PolyTree;
 use crate::engine::raymarching::RayMarchingObjects;
-use crate::engine::utils::{RenderObjects, Renderable, Transformable};
+use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
 use crate::geometry::cube::Cube;
 use crate::geometry::point::Point as V;
 use crate::engine::camera::Camera;
@@ -71,8 +76,8 @@ pub fn main() -> Result<(), String>{
     let mut p1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 0.2, Color::RED);
     let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
 
-    let mut t1 = Poly::parse_wavefront(&String::from("samples/horse.obj"), &String::from("samples/horse_tex.png"));
-    let mut t1 = Poly::parse_wavefront(&String::from("samples/whale.obj"), &String::from("samples/whale.jpg"));
+    let mut t1 = Poly::parse_wavefront(&String::from("assets/models/horse.obj"), &String::from("assets/models/horse_tex.png"));
+    let mut t1 = Poly::parse_wavefront(&String::from("assets/models/whale.obj"), &String::from("assets/models/whale.jpg"));
     let mut t1 = *PolyTree::new(t1); 
 
     t1.translate(V{x: 5.0, y: -1.0, z: 0.0});
@@ -107,9 +112,9 @@ pub fn main() -> Result<(), String>{
     pa_objs.add(t1);
     
     let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.05);
-    rm_objs.add(line1);
-    rm_objs.add(p1);
-    rm_objs.add(p2);
+    //rm_objs.add(line1);
+    //rm_objs.add(p1);
+    //rm_objs.add(p2);
     //rm_objs.add(m2);
 
     let rm_objs = Arc::new(RwLock::new(rm_objs));
@@ -135,7 +140,7 @@ pub fn main() -> Result<(), String>{
         let now = Instant::now();
        
         pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.1});
-        rm_objs.write().unwrap().get(0).rot(V{x: 0.0, y: 0.1, z: 0.0}); 
+        //rm_objs.write().unwrap().get(0).rot(V{x: 0.0, y: 0.1, z: 0.0}); 
         //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
         //rm_objs.write().unwrap().get(1).translate(V{x: 0.0, y: 0.01, z: 0.0});
 

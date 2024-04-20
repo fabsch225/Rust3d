@@ -5,10 +5,9 @@ use sdl2::video::Window;
 use std::path::Path;
 use std::rc::Rc;
 
-use crate::engine::utils::Collision;
+use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision}, transformation::Transformable};
 use crate::geometry::point::Point as V3;
 
-use super::utils::{Renderable, Transformable};
 
 pub trait PathtracingObject : Transformable {
     fn d(&self, p: V3) -> f64;

@@ -4,21 +4,13 @@ use crate::geometry::face::UV;
 use crate::geometry::point::Point as V3;
 
 use sdl2::pixels::Color;
-
-use super::pathtracing::PathtracingObject;
-use super::raymarching::RayMarchingObject;
+use crate::engine::utils::transformation::Transformable;
+use crate::engine::pathtracing::PathtracingObject;
+use crate::engine::raymarching::RayMarchingObject;
 
 pub trait PathtracingObjectMultiThreading: PathtracingObject + Send + Sync + Transformable {}
 
 pub trait RayMarchingObjectMultiThreading: RayMarchingObject + Send + Sync + Transformable {}
-
-pub trait Transformable {
-    fn rot_reverse(&mut self, r : V3);
-    fn rot(&mut self, r : V3);
-    fn translate(&mut self, p : V3);
-    fn scale(&mut self, p : V3);
-    fn transform(&mut self) -> Box<&mut dyn Transformable>;
-}
 
 pub trait Textured {
     fn get_texture(&self) -> Vec<u8>;
