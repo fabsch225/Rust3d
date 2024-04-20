@@ -5,6 +5,7 @@ mod engine {
     pub mod pathtracing;
     pub mod raymarching;
     pub mod utils {
+        pub mod anker_label;
         pub mod rendering;
         pub mod transformation;
         pub mod renderung_ui;
@@ -26,7 +27,6 @@ mod geometry {
 }
 
 mod math {
-    pub mod anker_label;
     pub mod graph;
     pub mod matrix;
 }
@@ -69,6 +69,8 @@ pub fn main() -> Result<(), String>{
         .expect("could not make a canvas");
     let mut event_pump = sdl_context.event_pump()?;
 
+    let label1 = engine::utils::anker_label::AnkerLabel::new(0.0, 0.0, 0.0, String::from("Hello Rust!"), String::from("demo_assets/fonts/Roboto-Regular.ttf"), &canvas);
+
     let t = Instant::now();
     println!("Starting to parse objects");
 
@@ -76,8 +78,8 @@ pub fn main() -> Result<(), String>{
     let mut p1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 0.2, Color::RED);
     let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
 
-    let mut t1 = Poly::parse_wavefront(&String::from("assets/models/horse.obj"), &String::from("assets/models/horse_tex.png"));
-    let mut t1 = Poly::parse_wavefront(&String::from("assets/models/whale.obj"), &String::from("assets/models/whale.jpg"));
+    let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
+    //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/whale.obj"), &String::from("demo_assets/models/whale.jpg"));
     let mut t1 = *PolyTree::new(t1); 
 
     t1.translate(V{x: 5.0, y: -1.0, z: 0.0});
