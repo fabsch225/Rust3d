@@ -7,8 +7,9 @@ build = "build.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sdl2 = { version = "0.34", features = ["ttf"] }
+sdl2 = "0.34"
 image = "0.24.7"
+fontdue = "0.8.0"
 
 
 # `bundled` causes us to automatically compile and link in an up to date

@@ -46,6 +46,7 @@ use std::time::Instant;
 
 use crate::engine::polytree::poly_tree::PolyTree;
 use crate::engine::raymarching::RayMarchingObjects;
+use crate::engine::utils::renderung_ui::UiElement;
 use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
 use crate::geometry::cube::Cube;
 use crate::geometry::point::Point as V;
@@ -69,7 +70,10 @@ pub fn main() -> Result<(), String>{
         .expect("could not make a canvas");
     let mut event_pump = sdl_context.event_pump()?;
 
-    let label1 = engine::utils::anker_label::AnkerLabel::new(0.0, 0.0, 0.0, String::from("Hello Rust!"), String::from("demo_assets/fonts/Roboto-Regular.ttf"), &canvas);
+    let font = include_bytes!("../demo_assets/fonts/Roboto-Regular.ttf") as &[u8];
+    let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
+
+    let label1 = engine::utils::anker_label::AnkerLabel::new(0.0, 0.0, 0.0, String::from("Hello Rust!"), font, Color::RED, Color::WHITE);
 
     let t = Instant::now();
     println!("Starting to parse objects");
@@ -114,7 +118,7 @@ pub fn main() -> Result<(), String>{
     pa_objs.add(t1);
     
     let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.05);
-    //rm_objs.add(line1);
+    rm_objs.add(line1);
     //rm_objs.add(p1);
     //rm_objs.add(p2);
     //rm_objs.add(m2);
@@ -123,8 +127,6 @@ pub fn main() -> Result<(), String>{
     let pa_objs = Arc::new(RwLock::new(pa_objs));   
     
 	let mut camera : Camera = Camera::new(V{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
-    //let pa_objs_arc = Arc::new(RwLock::new(pa_objs));
-    //let rm_objs_arc = Arc::new(RwLock::new(rm_objs));
     
     println!("Starting main Loop");
     'running: loop {
@@ -158,6 +160,8 @@ pub fn main() -> Result<(), String>{
         
         render(&mut canvas, objs, camera, &w, &h);
         
+        label1.render(&mut canvas, 0, 0);
+        canvas.present();
 
         ::std::thread::sleep(Duration::new(0, 1_000_000u32 / 60));
     }
@@ -200,8 +204,6 @@ pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camer
     }
 
     println!("Render took {}ms", now.elapsed().as_millis());
-
-    canvas.present();
 }
 
     
