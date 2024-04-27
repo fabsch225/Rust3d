@@ -70,7 +70,7 @@ pub fn main() -> Result<(), String>{
         .expect("could not make a canvas");
     let mut event_pump = sdl_context.event_pump()?;
 
-    let font = include_bytes!("../demo_assets/fonts/Roboto-Regular.ttf") as &[u8];
+    let font = include_bytes!("../demo_assets/fonts/Roboto-MediumItalic.ttf") as &[u8];
     let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
 
     let label1 = engine::utils::anker_label::AnkerLabel::new(0.0, 0.0, 0.0, String::from("Hello Rust!"), font, Color::RED, Color::WHITE);
