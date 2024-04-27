@@ -1,4 +1,4 @@
-use fontdue::Font;
+use fontdue::{layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle}, Font};
 use sdl2::{pixels::Color, render::{Canvas, Texture}, video::Window};
 
 use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
@@ -14,7 +14,6 @@ pub struct AnkerLabel {
     pub size: f64,
     pub color: Color,
     pub background_color: Color,
-    pub font: Font,
     pub visible: bool,
     pub texture_size: (u32, u32),
     pub texture: Vec<Color>,
@@ -22,22 +21,44 @@ pub struct AnkerLabel {
 
 impl AnkerLabel {
     pub fn new(x_: f64, y_: f64, z_: f64, text_: String, font_ : Font, bg: Color, fg: Color) -> Self {
-        let (metrics, bitmap) = font_.rasterize('A', 500.0);
-        let size = (metrics.bounds.height as u32, metrics.bounds.width as u32);
-
-        let mut texture = Vec::new();
+        let mut layout: Layout<Color> = Layout::new(CoordinateSystem::PositiveYDown);
+        let mut layout_settings = LayoutSettings {
+            x: 10.0,
+            y: 10.0,
+            max_width: Some(780.0),
+            ..LayoutSettings::default()
+        };
+        let fonts = &[font_];
+        layout.reset(&layout_settings);
         
-        for i in 0..bitmap.len() {
-            let r  = (bitmap[i] / 255) * fg.r + (1 - bitmap[i] / 255) * bg.r as u8;
-            let g  = (bitmap[i] / 255) * fg.g + (1 - bitmap[i] / 255) * bg.g as u8;
-            let b  = (bitmap[i] / 255) * fg.b + (1 - bitmap[i] / 255) * bg.b as u8;
-            let c = Color::RGB(r, g, b);
-           
-            texture.push(c);
+        let c = Color::RGB(0, 0, 0);
+        layout.append(fonts, &TextStyle::with_user_data("H", 180.0, 0, c));
+        
+        let mut texture = Vec::new();
+        let glyps = layout.glyphs();
+        let fg = Color::RED;
+        let bg = Color::GREEN;
+        let mut metrics_ = fonts[0].metrics('H', 180.0);
+        for g in glyps {
+            let (metrics, bitmap) = fonts[0].rasterize_config(g.key);
+            metrics_ = metrics;
+            let size = (g.width, g.height);
+          
+            let pos = (g.x, g.y);
+
+            for coverage in bitmap {
+                let r  = (coverage / 255) * fg.r + (1 - coverage / 255) * bg.r as u8;
+                let g  = (coverage / 255) * fg.g + (1 - coverage / 255) * bg.g as u8;
+                let b  = (coverage / 255) * fg.b + (1 - coverage / 255) * bg.b as u8;
+                let c = Color::RGB(r, g, b);
+                texture.push(c);
+            }
+
+            print!("{:?}", g);
         }
         
-        //panic!("{:?}", texture);
-
+        
+        
         AnkerLabel {
             x: x_,
             y: y_,
@@ -46,10 +67,9 @@ impl AnkerLabel {
             size: 1.,
             color: fg,
             background_color: bg,
-            font: font_,
             visible: true,
             texture: texture,
-            texture_size: size,
+            texture_size: (metrics_.width as u32, metrics_.height as u32),
         }
     }
 }
@@ -57,11 +77,12 @@ impl AnkerLabel {
 impl UiElement for AnkerLabel {
     fn render(&self, canvas: &mut Canvas<Window>, x: i32, y: i32) {
         print!("{} {} {}", self.texture.len(), self.texture_size.0, self.texture_size.1);
-
-        for i in 0..self.texture_size.0 {
-            for j in 0..self.texture_size.1 {
-                canvas.set_draw_color(self.texture[(i * self.texture_size.1 + j) as usize]);
-                canvas.draw_point(sdl2::rect::Point::new(i as i32 + x, j as i32 + y)).unwrap();
+        let w = self.texture_size.0;
+        let t: &[Color] = &*self.texture;
+        for i in 0..self.texture_size.1 {
+            for j in 0..self.texture_size.0 {
+                canvas.set_draw_color(self.texture[(i * w + j) as usize]);
+                canvas.draw_point(sdl2::rect::Point::new(j as i32 + x, i as i32 + y)).unwrap();
             }
         }
     }
