@@ -1,6 +1,7 @@
 use sdl2::pixels::Color;
 
 use crate::engine::raymarching::RayMarchingObject;
+use crate::engine::utils::rendering::Sphereable;
 use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
 use crate::geometry::point::Point;
 
@@ -50,6 +51,16 @@ impl Transformable for Sphere {
 
     fn translate(&mut self, p: Point) {
     	self.m.trans(p.x, p.y, p.z);
+    }
+}
+
+impl Sphereable for Sphere {
+    fn get_radius(&self) -> f64 {
+        return self.r;
+    }
+
+    fn get_middle(&self) -> Point {
+        return self.m.clone();
     }
 }
 

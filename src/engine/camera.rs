@@ -6,6 +6,8 @@ use crate::geometry::point::Point as V3;
 
 use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
 
+use super::utils::{anker_label::AnkerLabel, rendering::Sphereable, renderung_ui::UiElement};
+
 #[derive(Copy, Clone)]
 pub struct Camera {
 	pub v: [V3; 3],
@@ -63,9 +65,6 @@ impl<'a> Camera {
             z: b.z + (self.v[1].z - self.v[0].z) * vyp + (self.v[2].z - self.v[0].z) * vxp
         };
 
-        //let mut ray = V3{x: v.x - self.x.x, y: v.y - self.x.y, z: v.z - self.x.z};
-        //ray.norm(); i dont know the purpose of these lines
-        //ray
 		v.norm();
 		v
     }
@@ -155,5 +154,19 @@ impl<'a> Camera {
         canvas.set_draw_color(c.c);
         
         canvas.draw_point(Point::new(j as i32, i as i32));
+	}
+
+	pub fn render_anker_label(&self, a : &AnkerLabel, canvas : &mut Canvas<Window>, w: usize, h : usize) {
+		let mut pos : usize = 0;
+
+		for i in 0..h {
+			for j in 0..w {
+				let v = self.get_ray_vec(j, i, w, h);
+				if (a.is_colliding(self.x, v)) {
+					a.render(canvas, i as i32, j as i32);
+					return;
+				}
+			}
+		}
 	}
 }

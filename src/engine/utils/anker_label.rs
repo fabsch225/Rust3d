@@ -1,21 +1,15 @@
-use std::f32::MAX_EXP;
-
 use fontdue::{layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle}, Font};
 use sdl2::{pixels::Color, render::{Canvas, Texture}, video::Window};
 
-use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
+use crate::{engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable}, geometry::sphere::Sphere};
 use crate::geometry::point::Point as V3;
 
-use super::renderung_ui::UiElement;
+use super::{rendering::Sphereable, renderung_ui::UiElement};
 
 pub struct AnkerLabel {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
     pub text: String,
     pub size: f64,
-    pub color: Color,
-    pub background_color: Color,
+    pub sphere: Sphere,
     pub visible: bool,
     pub texture_size: (u32, u32),
     pub texture: Vec<Color>,
@@ -37,7 +31,8 @@ impl AnkerLabel {
         layout.reset(&layout_settings);
         
         let c = Color::RGB(0, 0, 0);
-        layout.append(fonts, &TextStyle::with_user_data("Hp", 20.0, 0, c));
+        //⅀
+        layout.append(fonts, &TextStyle::with_user_data("Hallo", 20.0, 0, c));
         let glyps = layout.glyphs();
         let mut texture = Vec::new();
         let mut sub_texture: Vec<Vec<Color>> = Vec::with_capacity(glyps.len());
@@ -52,28 +47,26 @@ impl AnkerLabel {
         let mut max_x = 0;
         let mut max_y = 0;
 
-       
-
         for i in 0..glyps.len() {
             let g = glyps[i];
             let (metrics, bitmap) = fonts[0].rasterize_config(g.key);
             //glyph_positions.push((g.x as i32, g.y as i32));
             sub_texture_height.push(metrics.height as i32);
             sub_texture_width.push(metrics.width as i32);
-            sub_texture_x.push(metrics.xmin + g.x as i32);
-            sub_texture_y.push(metrics.ymin + g.y as i32);
+            sub_texture_x.push(g.x as i32);
+            sub_texture_y.push(g.y as i32);
 
-            if (metrics.xmin + g.x as i32) < min_x {
-                min_x = metrics.xmin + g.x as i32;
+            if (g.x as i32) < min_x {
+                min_x = g.x as i32;
             }
-            if (metrics.ymin + g.y as i32) < min_y {
-                min_y = metrics.ymin + g.y as i32;
+            if (g.y as i32) < min_y {
+                min_y = g.y as i32;
             }
-            if (metrics.xmin + g.x as i32 + metrics.width as i32) > max_x {
-                max_x = metrics.xmin + g.x as i32 + metrics.width as i32;
+            if (g.x as i32 + metrics.width as i32) > max_x {
+                max_x = g.x as i32 + metrics.width as i32;
             }
-            if (metrics.ymin + g.y as i32 + metrics.height as i32) > max_y {
-                max_y = metrics.ymin + g.y as i32 + metrics.height  as i32;
+            if (g.y as i32 + metrics.height as i32) > max_y {
+                max_y = g.y as i32 + metrics.height  as i32;
             }
             sub_texture.push(Vec::new());
             for coverage in bitmap {
@@ -110,17 +103,28 @@ impl AnkerLabel {
         }
 
         AnkerLabel {
-            x: x_,
-            y: y_,
-            z: z_,
             text: text_,
             size: 1.,
-            color: fg,
-            background_color: bg,
+            sphere: Sphere::new(V3{x: 0.,y: 0.,z: 0.}, 1., Color::RGB(0, 0, 0)),
             visible: true,
             texture: texture,
             texture_size: ((max_x - min_x) as u32, (max_y - min_y) as u32),
         }
+    }
+}
+
+
+impl Sphereable for AnkerLabel {
+    fn is_colliding(&self, p0: V3, p: V3) -> bool {
+        return self.sphere.is_colliding(p0, p);
+    }
+    
+    fn get_radius(&self) -> f64 {
+        todo!()
+    }
+    
+    fn get_middle(&self) -> V3 {
+        todo!()
     }
 }
 
@@ -139,9 +143,7 @@ impl UiElement for AnkerLabel {
 
 impl Transformable for AnkerLabel {
     fn translate(&mut self, p: V3) {
-        self.x += p.x;
-        self.y += p.y;
-        self.z += p.z;
+        self.sphere.translate(p);
     }
 
     fn scale(&mut self, p: V3) {
