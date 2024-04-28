@@ -5,7 +5,7 @@ use sdl2::rect::Point;
 
 use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision}, transformation::Transformable};
 use crate::geometry::sphere::Sphere;
-use crate::geometry::cube::Cube;
+use crate::geometry::quad::Quad;
 use crate::geometry::point::Point as V3;
 use crate::geometry::face::Face;
 

@@ -22,13 +22,18 @@ mod geometry {
     pub mod poly_shape;
     pub mod face;
     pub mod point;
-    pub mod cube;
+    pub mod quad;
     pub mod sphere;
+    pub mod line;
 }
 
 mod math {
     pub mod graph;
     pub mod matrix;
+    pub mod functions;
+    pub mod utils {
+        pub mod graph_utils;
+    }
 }
 
 use sdl2::event::Event;
@@ -48,18 +53,24 @@ use crate::engine::polytree::poly_tree::PolyTree;
 use crate::engine::raymarching::RayMarchingObjects;
 use crate::engine::utils::renderung_ui::UiElement;
 use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
-use crate::geometry::cube::Cube;
+use crate::geometry::quad::Quad;
 use crate::geometry::point::Point as V;
 use crate::engine::camera::Camera;
 use crate::engine::pathtracing::PathtracingObjects;
 use crate::engine::pathtracing::PathtracingObject;
 use crate::geometry::poly_shape::Poly;
 use crate::geometry::sphere::Sphere;
-use crate::math::graph::Line;
+use crate::geometry::line::Line;
+use crate::math::functions::FunctionR2ToR;
+use crate::math::graph::Graph;
+
+///Todos
+/// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
+/// - [ ] Refactor polytree to be untexured and textured
 
 pub fn main() -> Result<(), String>{
     let w : usize = 400;
-    let h : usize = 300;
+    let h : usize = 400;
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("rust3d", w as u32, h as u32)
@@ -79,7 +90,7 @@ pub fn main() -> Result<(), String>{
     println!("Starting to parse objects");
 
     let mut line1 = Line::new(V{x: 2.0, y: 1.0, z: 1.0}, V{x: 0.0, y: 0.0, z: 0.0}, 0.01);
-    let mut p1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 0.2, Color::RED);
+    let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 1., z: 1.}, Color::RED);
     let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
 
     let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
@@ -118,10 +129,12 @@ pub fn main() -> Result<(), String>{
     pa_objs.add(t1);
     
     let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.05);
-    rm_objs.add(line1);
+    //rm_objs.add(line1);
     //rm_objs.add(p1);
     //rm_objs.add(p2);
     //rm_objs.add(m2);
+
+    let mut g1 = Graph::new(p1, FunctionR2ToR::new(Box::new(|x, y| x*x + y*y)));
 
     let rm_objs = Arc::new(RwLock::new(rm_objs));
     let pa_objs = Arc::new(RwLock::new(pa_objs));   
@@ -144,7 +157,7 @@ pub fn main() -> Result<(), String>{
         let now = Instant::now();
        
         pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.1});
-        //rm_objs.write().unwrap().get(0).rot(V{x: 0.0, y: 0.1, z: 0.0}); 
+        //rm_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.1, z: 0.0}); 
         //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
         //rm_objs.write().unwrap().get(1).translate(V{x: 0.0, y: 0.01, z: 0.0});
 
@@ -161,6 +174,10 @@ pub fn main() -> Result<(), String>{
         render(&mut canvas, objs, camera, &w, &h);
         
         camera.render_anker_label(&label1, &mut canvas, w, h);
+
+        g1.rot(V{x: -0.1, y: 0.0, z: 0.1});
+        let sec = camera.render_section(0, 0, w, h, &g1, w, h);
+        camera.draw_section(&sec, &mut canvas, 0, 0, w, h);
         //label1.render(&mut canvas, 0, 0);
         canvas.present();
 
@@ -170,7 +187,9 @@ pub fn main() -> Result<(), String>{
 }
 
 pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camera, w : &usize, h : &usize) {
-    canvas.clear();
+    //let w = canvas.window().drawable_size().0 as usize;
+    //let h = canvas.window().drawable_size().1 as usize;
+    //canvas.clear();
     println!("Setting up threads...");
     let now = Instant::now();
 

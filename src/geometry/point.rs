@@ -8,6 +8,9 @@ pub struct Point {
 }
 
 impl Point {
+	pub fn new(x_: f64, y_: f64, z_: f64) -> Point {
+		Point{x: x_, y: y_, z: z_}
+	}
 
 	pub fn empty() -> Point {
 		Point{x: 0.0, y: 0.0, z: 0.0}

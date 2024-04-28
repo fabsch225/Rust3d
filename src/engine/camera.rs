@@ -126,9 +126,11 @@ impl<'a> Camera {
 			for j in j1..j2 {
 				let c = p[pos];
 				pos = pos + 1;
+				if (c.a != 0) {
 				canvas.set_draw_color(c);
         
         		canvas.draw_point(Point::new((i) as i32, (j) as i32));
+				}
 			}
 		}	
 	}
@@ -140,7 +142,12 @@ impl<'a> Camera {
 			for j in j1..j2 {
 				let v = self.get_ray_vec(j, i, w, h);
 				let c = obj.get_collision(self.x, v, 100.0);
-				section.push(c.c);
+				if (c.hit) {
+					section.push(c.c);
+				}
+				else {
+					section.push(Color::RGBA(0, 0, 0, 0));
+				}
 			}
 		}
 

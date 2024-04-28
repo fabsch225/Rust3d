@@ -166,3 +166,13 @@ pub struct UV {
     pub a: (f64, f64), 
     pub b: (f64, f64)
 }
+
+impl UV {
+    pub fn empty() -> Self {
+        UV {
+            r: (0.0, 0.0),
+            a: (0.0, 0.0),
+            b: (0.0, 0.0)
+        }
+    }
+}

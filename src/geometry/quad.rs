@@ -5,7 +5,7 @@ use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformatio
 use crate::geometry::point::Point;
 
 #[derive(Copy, Clone)]
-pub struct Cube {
+pub struct Quad {
     x: [Point; 8],
     s: [Point; 6],
     pub r: f64,
@@ -17,11 +17,105 @@ pub struct Cube {
     base_color: Color,
 }
 
-impl Cube {
-    pub fn new(p: Point, a: f64, c: Color) -> Self {
+impl Quad {
+    pub fn new(p: Point, sides: Point, c: Color) -> Self {
+        let half_sides: Point = Point {
+            x: sides.x / 2.0,
+            y: sides.y / 2.0,
+            z: sides.z / 2.0,
+        };
+
+        let a = sides.clone().norm();
+
+        Quad {
+            x: [
+                Point {
+                    x: p.x - half_sides.x,
+                    y: p.y + half_sides.y,
+                    z: p.z - half_sides.z,
+                },
+                Point {
+                    x: p.x + half_sides.x,
+                    y: p.y + half_sides.y,
+                    z: p.z - half_sides.z,
+                },
+                Point {
+                    x: p.x + half_sides.x,
+                    y: p.y - half_sides.y,
+                    z: p.z - half_sides.z,
+                },
+                Point {
+                    x: p.x - half_sides.x,
+                    y: p.y - half_sides.y,
+                    z: p.z - half_sides.z,
+                },
+                Point {
+                    x: p.x - half_sides.x,
+                    y: p.y + half_sides.y,
+                    z: p.z + half_sides.z,
+                },
+                Point {
+                    x: p.x + half_sides.x,
+                    y: p.y + half_sides.y,
+                    z: p.z + half_sides.z,
+                },
+                Point {
+                    x: p.x + half_sides.x,
+                    y: p.y - half_sides.y,
+                    z: p.z + half_sides.z
+                },
+                Point {
+                    x: p.x - half_sides.x,
+                    y: p.y - half_sides.y,
+                    z: p.z + half_sides.z,
+                },
+            ],
+            s: [
+                Point {
+                    x: p.x - half_sides.x,
+                    y: p.y,
+                    z: p.z,
+                },
+                Point {
+                    x: p.x + half_sides.x,
+                    y: p.y,
+                    z: p.z,
+                },
+                Point {
+                    x: p.x,
+                    y: p.y - half_sides.y,
+                    z: p.z,
+                },
+                Point {
+                    x: p.x,
+                    y: p.y + half_sides.y,
+                    z: p.z,
+                },
+                Point {
+                    x: p.x,
+                    y: p.y,
+                    z: p.z - half_sides.z,
+                },
+                Point {
+                    x: p.x,
+                    y: p.y,
+                    z: p.z + half_sides.z,
+                },
+            ],
+            m: p,
+            r: a,
+            r_outer: f64::sqrt(a * a * a * 3f64),
+            rx: 0.0,
+            ry: 0.0,
+            rz: 0.0,
+            base_color: c,
+        }
+    }
+
+    pub fn cube(p: Point, a: f64, c: Color) -> Self {
         let half_a: f64 = a / 2.0;
 
-        Cube {
+        Quad {
             x: [
                 Point {
                     x: p.x - half_a,
@@ -134,7 +228,7 @@ impl Cube {
         return result;
     }
 
-    fn mins(self) -> [f64; 6] {
+    pub fn mins(self) -> [f64; 6] {
         let mut result: [f64; 6] = [
             self.x[3].x,
             self.x[3].y,
@@ -280,7 +374,7 @@ impl Cube {
     }
 }
 
-impl Transformable for Cube {
+impl Transformable for Quad {
     fn transform(&mut self) -> Box<&mut dyn Transformable> {
         return Box::new(self);
     }
@@ -354,7 +448,7 @@ impl Transformable for Cube {
     }
 }
 
-impl RayMarchingObject for Cube {
+impl RayMarchingObject for Quad {
     fn d(&self, p: Point) -> f64 {
         return self.d_(p);
     }
@@ -375,7 +469,7 @@ impl RayMarchingObject for Cube {
     }
 
     fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync> {
-        return Box::new(Cube {
+        return Box::new(Quad {
             x: self.x,
             s: self.s,
             r: self.r,

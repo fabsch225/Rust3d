@@ -97,7 +97,6 @@ impl PathtracingObject for PolyTree {
 
                 c.c = Color::RGB(r, g, b);
             }
-
             return c;
         }
         
