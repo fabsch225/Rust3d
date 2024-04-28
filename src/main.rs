@@ -51,8 +51,10 @@ use std::time::Instant;
 
 use crate::engine::polytree::poly_tree::PolyTree;
 use crate::engine::raymarching::RayMarchingObjects;
+use crate::engine::utils::rendering::Sphereable;
 use crate::engine::utils::renderung_ui::UiElement;
 use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
+use crate::geometry::face::Face;
 use crate::geometry::quad::Quad;
 use crate::geometry::point::Point as V;
 use crate::engine::camera::Camera;
@@ -84,12 +86,12 @@ pub fn main() -> Result<(), String>{
     let font = include_bytes!("../demo_assets/fonts/NotoSansMath-Regular.ttf") as &[u8];
     let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
 
-    let label1 = engine::utils::anker_label::AnkerLabel::new(0.0, 0.0, 0.0, String::from("Hello Rust!"), font, Color::RED, Color::WHITE);
+    let label1 = engine::utils::anker_label::AnkerLabel::new(0.0, 0.0, 0.0, String::from("Fabian"), font, Color::RED, Color::WHITE);
 
     let t = Instant::now();
     println!("Starting to parse objects");
 
-    let mut line1 = Line::new(V{x: 2.0, y: 1.0, z: 1.0}, V{x: 0.0, y: 0.0, z: 0.0}, 0.01);
+    
     let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 1., z: 1.}, Color::RED);
     let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
 
@@ -98,35 +100,9 @@ pub fn main() -> Result<(), String>{
     let mut t1 = *PolyTree::new(t1); 
 
     t1.translate(V{x: 5.0, y: -1.0, z: 0.0});
-    //let mut m1 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::RED);
-    /*let mut m2 = Cube::new(V{x: 0.0, y: 0.0, z: 0.0}, 3.0, Color::BLUE);
-
-    //let mut p1 = P::parse_wavefront(&String::from("samples/eagle.obj"), &String::from("samples/orzel-mat_Diffuse.jpg"));
-    let mut p2 = Poly::parse_wavefront(&String::from("samples/ref_cube.obj"), &String::from("samples/standart_text.jpg"));
-    //let mut p1 = Poly::parse_wavefront(&String::from("samples/whale.obj"), &String::from("samples/whale.jpg"));
-    let mut p1 = Poly::parse_wavefront(&String::from("samples/horse.obj"), &String::from("samples/horse_tex.png"));
-
-    println!("Parsing took {}ms", t.elapsed().as_millis());
-
-    p1.rot(V{x: 3.14*1.5, y: 0.0, z: 3.14*1.6});
-
-    let t = Instant::now();
-    println!("Starting to create polytree from poly");
-
-    let mut p1 : PolyTree = *PolyTree::new(p1); 
-    let mut p2 : PolyTree = *PolyTree::new(p2);  
     
-    println!("Creating polytree took {}ms", t.elapsed().as_millis());
-
-    p1.translate(V{x: 0.0, y: -1.0, z: 0.0});
-    p2.translate(V{x: 7.0, y: 0.0, z: 2.0});
-    p2.scale(V{x: 15.0, y: 15.0, z: 15.0});
-
-    m1.translate(V{x: 7.0, y: 0.0, z: 2.0});
-    m2.translate(V{x: 7.0, y: 3.0, z: 2.0});
-    */
     let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
-    pa_objs.add(t1);
+    //pa_objs.add(t1);
     
     let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.05);
     //rm_objs.add(line1);
@@ -134,12 +110,25 @@ pub fn main() -> Result<(), String>{
     //rm_objs.add(p2);
     //rm_objs.add(m2);
 
+    let f1 =  Face::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 0.0, y: 0.0, z: 2.0}, V{x: 0.0, y: 2.0, z: 0.0});
+    let f1 = Poly::new(f1.get_middle(), vec![f1]);
+
+    pa_objs.add(f1);
+
+    let mut line1 = Line::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 0.0, y: -2.0, z: 0.0}, 0.01);
+
+    pa_objs.add(line1);
+
     let mut g1 = Graph::new(p1, FunctionR2ToR::new(Box::new(|x, y| x*x + y*y)));
+
+    let s1 = Sphere::new(p1.x[3], 0.12, Color::GREEN);
+    let s2 = Sphere::new(p1.x[5], 0.12, Color::BLUE);
+    
 
     let rm_objs = Arc::new(RwLock::new(rm_objs));
     let pa_objs = Arc::new(RwLock::new(pa_objs));   
     
-	let mut camera : Camera = Camera::new(V{x: -5.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
+	let mut camera : Camera = Camera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
     
     println!("Starting main Loop");
     'running: loop {
@@ -156,10 +145,10 @@ pub fn main() -> Result<(), String>{
         println!("Starting transformation");
         let now = Instant::now();
        
-        pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.1});
+        //pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.1});
         //rm_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.1, z: 0.0}); 
         //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
-        //rm_objs.write().unwrap().get(1).translate(V{x: 0.0, y: 0.01, z: 0.0});
+        //rm_objs.write().unwrap().get(1).translate(V{x: 0.01, y: 0.01, z: 0.01});
 
         let mut objs: RenderObjects = RenderObjects::new();
         
@@ -175,7 +164,7 @@ pub fn main() -> Result<(), String>{
         
         camera.render_anker_label(&label1, &mut canvas, w, h);
 
-        g1.rot(V{x: -0.1, y: 0.0, z: 0.1});
+        //g1.rot(V{x: -0.1, y: 0.0, z: 0.1});
         let sec = camera.render_section(0, 0, w, h, &g1, w, h);
         camera.draw_section(&sec, &mut canvas, 0, 0, w, h);
         //label1.render(&mut canvas, 0, 0);

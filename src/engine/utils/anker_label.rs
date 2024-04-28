@@ -32,7 +32,7 @@ impl AnkerLabel {
         
         let c = Color::RGB(0, 0, 0);
         //⅀
-        layout.append(fonts, &TextStyle::with_user_data("Hallo", 20.0, 0, c));
+        layout.append(fonts, &TextStyle::with_user_data(&text_, 20.0, 0, c));
         let glyps = layout.glyphs();
         let mut texture = Vec::new();
         let mut sub_texture: Vec<Vec<Color>> = Vec::with_capacity(glyps.len());

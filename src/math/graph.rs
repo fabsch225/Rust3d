@@ -22,14 +22,14 @@ pub struct Graph {
 
 impl Graph {
     pub fn new<T : PolyTreeGraphFactory>(bounds: Quad, f: T) -> Graph {
-        let l1 = Line::new(bounds.x[3], bounds.x[2], 0.04);
-        let l2 = Line::new(bounds.x[3], bounds.x[1], 0.04);
-        let l3 = Line::new(bounds.x[3], bounds.x[4], 0.04);
+        let l1 = Line::new(bounds.x[5], bounds.x[2], 0.01);
+        let l2 = Line::new(bounds.x[5], bounds.x[1], 0.01);
+        let l3 = Line::new(bounds.x[5], bounds.x[4], 0.01);
         Graph {
             content: f.create_graph(bounds, 0.1),
             bounds,
             color: Color::WHITE,
-            axis: vec![l1, l2, l3],
+            axis: vec![l1],
             grid: Vec::new(),
             labels: Vec::new(),
         }

@@ -104,6 +104,9 @@ impl Renderable for RenderObjects {
                 let mut p2 = c_.p.clone();
                 p2.subtr(p0);
                 let d = p2.norm();
+                if (d != c_.d && c_.hit) {
+                    println!("distance is {}", c_.d);
+                }
                 assert_eq!(d, c_.d);
                 if (c_.d < bd) {
                     //println!("distance is {}", c_.d);

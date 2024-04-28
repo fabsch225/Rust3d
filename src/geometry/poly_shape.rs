@@ -1,6 +1,7 @@
 use std::fs::{self, File};
 use std::io::{BufReader, BufRead};
 
+use image::imageops::colorops::contrast_in_place;
 use image::io::Reader as ImageReader;
 use image::{Pixels, GenericImageView};
 
@@ -200,7 +201,8 @@ impl PathtracingObject for Poly {
             }
         }
 
-        if (c.hit) {   
+        if (c.hit && false) {   
+            
             let uv = self.tm[i];
             let y = (uv.r.0 + bg.0 * (uv.a.0 - uv.r.0) + bg.1 * (uv.b.0 - uv.r.0));
             let x = 1.0 - (uv.r.1 + bg.0 * (uv.a.1 - uv.r.1) + bg.1 * (uv.b.1 - uv.r.1));

@@ -20,18 +20,24 @@ impl PolyTreeGraphFactory for FunctionR2ToR {
 
         let mut x = startx;
         let mut y = starty;
+
+        let minx = startx;
+        let miny = starty;
+        let eval = |x, y| {
+            self.eval(x - minx, y - miny)
+        };
+
         while x < endx {
             y = starty;
             while y < endy {
-                let z = self.eval(x, y);
-                let p = Point::new(x, y, z);
-                let p1 = Point::new(x + delta, y, self.eval(x + delta, y));
-                let p2 = Point::new(x, y + delta, self.eval(x, y + delta));
-                let p3 = Point::new(x + delta, y + delta, self.eval(x + delta, y + delta));
+                let p = Point::new(x, y, minz + eval(x, y));
+                let p1 = Point::new(x + delta, y, minz + eval(x + delta, y));
+                let p2 = Point::new(x, y + delta, minz + eval(x, y + delta));
+                let p3 = Point::new(x + delta, y + delta, minz + eval(x + delta, y + delta));
                 faces.push(Face::new(p, p1, p2));
                 uvs.push(UV::empty());
-                faces.push(Face::new(p3, p1, p2));
-                uvs.push(UV::empty());
+                //faces.push(Face::new(p3, p1, p2));
+                //uvs.push(UV::empty());
                 y += delta;
             }
             x += delta;

@@ -114,8 +114,11 @@ impl PathtracingObject for Line {
 
         let d = f64::abs(pq.dt(n)) / f64::abs(n.norm());
         if (d < self.thickness && self.is_colliding(p0, p)) {
+            let mut d_p0 = self.nearest_point_to_(p0);
+            d_p0.subtr(p0);
+
             return crate::engine::utils::rendering::Collision {
-                d: self.nearest_point_to_(p0).norm(),
+                d: d_p0.norm(),
                 p: self.nearest_point_to_(p0),
                 hit: true,
                 c: Color::RED
@@ -132,7 +135,13 @@ impl PathtracingObject for Line {
     }
 
     fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync> {
-        todo!()
+        return Box::new(Line {
+            s: self.s.clone(),
+            e: self.e.clone(),
+            m: self.m.clone(),
+            thickness: self.thickness,
+            base_color: self.base_color
+        });
     }
 }
 
