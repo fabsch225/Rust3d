@@ -6,7 +6,7 @@ use crate::geometry::point::Point;
 
 #[derive(Copy, Clone)]
 pub struct Quad {
-    x: [Point; 8],
+    pub x: [Point; 8],
     s: [Point; 6],
     pub r: f64,
     pub r_outer: f64,

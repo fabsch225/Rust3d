@@ -22,11 +22,14 @@ pub struct Graph {
 
 impl Graph {
     pub fn new<T : PolyTreeGraphFactory>(bounds: Quad, f: T) -> Graph {
+        let l1 = Line::new(bounds.x[3], bounds.x[2], 0.04);
+        let l2 = Line::new(bounds.x[3], bounds.x[1], 0.04);
+        let l3 = Line::new(bounds.x[3], bounds.x[4], 0.04);
         Graph {
             content: f.create_graph(bounds, 0.1),
             bounds,
             color: Color::WHITE,
-            axis: Vec::new(),
+            axis: vec![l1, l2, l3],
             grid: Vec::new(),
             labels: Vec::new(),
         }
@@ -35,7 +38,25 @@ impl Graph {
 
 impl Renderable for Graph {
     fn get_collision(&self, p0: V3, p: V3, radius: f64) -> Collision {
-        self.content.get_collision(p0, p)
+        let mut collisions = vec![
+            self.content.get_collision(p0, p)
+        ];
+        for a in self.axis.iter() {
+            collisions.push(a.get_collision(p0, p));
+        }
+        for a in self.grid.iter() {
+            collisions.push(a.get_collision(p0, p));
+        }
+        
+        let mut best_collision = Collision::empty();
+        best_collision.d = f64::INFINITY;
+        for c in collisions {
+            if c.d < best_collision.d && c.hit {
+                best_collision = c;
+            }
+        }
+
+        return best_collision;
     }
 }
 

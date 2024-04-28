@@ -170,11 +170,9 @@ impl PathtracingObject for Poly {
 	fn color(&self, p: V3) -> Color {
         return self.base_color;
     }
-
 	fn is_colliding(&mut self, p0: V3, p: V3) -> bool {
         return true;
     }
-
 	fn get_collision(&self, p0: V3, p: V3) -> Collision {
         let mut c : Collision = Collision::empty();
         let mut bd : f64 = f64::MAX; 

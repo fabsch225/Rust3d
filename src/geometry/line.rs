@@ -1,6 +1,6 @@
 use sdl2::pixels::Color;
 
-use crate::engine::{raymarching::RayMarchingObject, utils::{rendering::Sphereable, transformation::Transformable}};
+use crate::engine::{pathtracing::PathtracingObject, raymarching::RayMarchingObject, utils::{rendering::Sphereable, transformation::Transformable}};
 
 use super::point::Point as V3;
 
@@ -84,6 +84,54 @@ impl Sphereable for Line {
     }
     
     fn get_middle(&self) -> V3 {
+        let mut a = self.m.clone();
+        a.add(self.s);
+        a.mult(0.5);
+        a
+    }
+}
+
+impl PathtracingObject for Line {
+    fn d(&self, p: V3) -> f64 {
+        todo!()
+    }
+
+    fn color(&self, p : V3) -> Color {
+        todo!()
+    }
+
+    fn is_colliding(&mut self, p0 : V3, p : V3) -> bool {
+        todo!()
+    }
+
+    fn get_collision(&self, p0 : V3, p : V3) -> crate::engine::utils::rendering::Collision {
+        let mut pq = p0.clone();
+        pq.subtr(self.s);
+        let mut v = self.e.clone();
+        v.subtr(self.s);
+        let mut n = p.clone();
+        n.cross(v);
+
+        let d = f64::abs(pq.dt(n)) / f64::abs(n.norm());
+        if (d < self.thickness && self.is_colliding(p0, p)) {
+            return crate::engine::utils::rendering::Collision {
+                d: self.nearest_point_to_(p0).norm(),
+                p: self.nearest_point_to_(p0),
+                hit: true,
+                c: Color::RED
+            };
+        }
+        else {
+            return crate::engine::utils::rendering::Collision {
+                d,
+                p: V3::empty(),
+                hit: false,
+                c: self.base_color
+            };
+        }
+    }
+
+    fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync> {
         todo!()
     }
 }
