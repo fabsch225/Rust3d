@@ -4,7 +4,7 @@ use crate::engine::raymarching::RayMarchingObject;
 use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
 use crate::geometry::point::Point;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Quad {
     pub x: [Point; 8],
     s: [Point; 6],

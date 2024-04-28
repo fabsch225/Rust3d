@@ -36,8 +36,8 @@ impl PolyTreeGraphFactory for FunctionR2ToR {
                 let p3 = Point::new(x + delta, y + delta, minz + eval(x + delta, y + delta));
                 faces.push(Face::new(p, p1, p2));
                 uvs.push(UV::empty());
-                //faces.push(Face::new(p3, p1, p2));
-                //uvs.push(UV::empty());
+                faces.push(Face::new(p3, p1, p2));
+                uvs.push(UV::empty());
                 y += delta;
             }
             x += delta;

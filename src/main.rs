@@ -86,8 +86,7 @@ pub fn main() -> Result<(), String>{
     let font = include_bytes!("../demo_assets/fonts/NotoSansMath-Regular.ttf") as &[u8];
     let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
 
-    let label1 = engine::utils::anker_label::AnkerLabel::new(0.0, 0.0, 0.0, String::from("Fabian"), font, Color::RED, Color::WHITE);
-
+    
     let t = Instant::now();
     println!("Starting to parse objects");
 
@@ -104,7 +103,7 @@ pub fn main() -> Result<(), String>{
     let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
     //pa_objs.add(t1);
     
-    let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.05);
+    let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.005);
     //rm_objs.add(line1);
     //rm_objs.add(p1);
     //rm_objs.add(p2);
@@ -113,22 +112,24 @@ pub fn main() -> Result<(), String>{
     let f1 =  Face::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 0.0, y: 0.0, z: 2.0}, V{x: 0.0, y: 2.0, z: 0.0});
     let f1 = Poly::new(f1.get_middle(), vec![f1]);
 
-    pa_objs.add(f1);
+    //pa_objs.add(f1);
 
-    let mut line1 = Line::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 0.0, y: -2.0, z: 0.0}, 0.01);
+    let mut line1 = Line::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 0.0, y: -1.0, z: 0.0}, 0.01);
 
-    pa_objs.add(line1);
+    //pa_objs.add(line1);
 
-    let mut g1 = Graph::new(p1, FunctionR2ToR::new(Box::new(|x, y| x*x + y*y)));
+    let mut g1 = Graph::new(p1, FunctionR2ToR::new(Box::new(|x, y| f64::sin(y * 3.))));
+    //rm_objs.add(p1);
+    let root = p1.x[7];
+    let mut label1 = engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), font, Color::RED, Color::WHITE);
 
-    let s1 = Sphere::new(p1.x[3], 0.12, Color::GREEN);
-    let s2 = Sphere::new(p1.x[5], 0.12, Color::BLUE);
-    
+    //let s2 = Sphere::new(p1.x[5], 0.12, Color::BLUE);
+    //rm_objs.add(s1);
 
     let rm_objs = Arc::new(RwLock::new(rm_objs));
     let pa_objs = Arc::new(RwLock::new(pa_objs));   
     
-	let mut camera : Camera = Camera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 270.0);
+	let mut camera : Camera = Camera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
     
     println!("Starting main Loop");
     'running: loop {
@@ -144,12 +145,13 @@ pub fn main() -> Result<(), String>{
         } 
         println!("Starting transformation");
         let now = Instant::now();
-       
         //pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.1});
         //rm_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.1, z: 0.0}); 
         //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
         //rm_objs.write().unwrap().get(1).translate(V{x: 0.01, y: 0.01, z: 0.01});
 
+        //grrg the label lives in a different coordinate system! fix!
+        label1.translate(V{x: 0.0, y: 0.1, z: 0.0});
         let mut objs: RenderObjects = RenderObjects::new();
         
         objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
@@ -163,7 +165,7 @@ pub fn main() -> Result<(), String>{
         render(&mut canvas, objs, camera, &w, &h);
         
         camera.render_anker_label(&label1, &mut canvas, w, h);
-
+        
         //g1.rot(V{x: -0.1, y: 0.0, z: 0.1});
         let sec = camera.render_section(0, 0, w, h, &g1, w, h);
         camera.draw_section(&sec, &mut canvas, 0, 0, w, h);

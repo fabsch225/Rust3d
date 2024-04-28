@@ -23,6 +23,8 @@ impl Line {
             base_color: Color::BLUE
         }
     }
+    //probalby this is somehow wrong...
+    //i have to understand the coordinate system 😭 
     pub fn nearest_point_to_(&self, p : V3) -> V3 {
         let mut v = self.e.clone();
         let mut pc = p.clone();
@@ -84,10 +86,7 @@ impl Sphereable for Line {
     }
     
     fn get_middle(&self) -> V3 {
-        let mut a = self.m.clone();
-        a.add(self.s);
-        a.mult(0.5);
-        a
+        return self.m;
     }
 }
 
@@ -111,9 +110,10 @@ impl PathtracingObject for Line {
         v.subtr(self.s);
         let mut n = p.clone();
         n.cross(v);
-
-        let d = f64::abs(pq.dt(n)) / f64::abs(n.norm());
-        if (d < self.thickness && self.is_colliding(p0, p)) {
+        let norm_n = n.norm();
+        let d = f64::abs(pq.dt(n)) / f64::abs(norm_n);
+       
+        if (d < self.thickness && self.is_colliding(p0, p) && norm_n > 0.0) {
             let mut d_p0 = self.nearest_point_to_(p0);
             d_p0.subtr(p0);
 
@@ -121,7 +121,7 @@ impl PathtracingObject for Line {
                 d: d_p0.norm(),
                 p: self.nearest_point_to_(p0),
                 hit: true,
-                c: Color::RED
+                c: Color::BLUE
             };
         }
         else {
