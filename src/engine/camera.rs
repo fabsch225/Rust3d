@@ -2,7 +2,7 @@ use std::{borrow::Borrow, sync::{Arc, Mutex}};
 
 use sdl2::{pixels::Color, rect::Point, render::Canvas, video::Window};
 
-use crate::geometry::point::Point as V3;
+use crate::{geometry::point::Point as V3, math::utils::graph_utils::WithLabels};
 
 use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
 
@@ -161,6 +161,14 @@ impl<'a> Camera {
         canvas.set_draw_color(c.c);
         
         canvas.draw_point(Point::new(j as i32, i as i32));
+	}
+
+	pub fn render_anker_labels<W : WithLabels>(&self, a : &W, canvas : &mut Canvas<Window>, w: usize, h : usize) {
+		let labels = a.get_labels();
+
+		for l in labels.iter() {
+			self.render_anker_label(l, canvas, w, h);
+		}
 	}
 
 	pub fn render_anker_label(&self, a : &AnkerLabel, canvas : &mut Canvas<Window>, w: usize, h : usize) {

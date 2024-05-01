@@ -1,14 +1,13 @@
 use fontdue::{layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle}, Font};
 use sdl2::{pixels::Color, render::{Canvas, Texture}, video::Window};
 
-use crate::{engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable}, geometry::sphere::Sphere};
+use crate::{engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable}, geometry::sphere::Sphere, math::utils::graph_utils::WithLabels};
 use crate::geometry::point::Point as V3;
 
 use super::{rendering::Sphereable, renderung_ui::UiElement};
 
 pub struct AnkerLabel {
     pub text: String,
-    pub size: f64,
     pub sphere: Sphere,
     pub visible: bool,
     pub texture_size: (u32, u32),
@@ -16,7 +15,7 @@ pub struct AnkerLabel {
 }
 
 impl AnkerLabel {
-    pub fn new(x_: f64, y_: f64, z_: f64, text_: String, font_ : Font, bg: Color, fg: Color) -> Self {
+    pub fn new(x_: f64, y_: f64, z_: f64, text_: String, font_ : &Font, bg: Color, fg: Color) -> Self {
         let mut layout: Layout<Color> = Layout::new(CoordinateSystem::PositiveYDown);
         let mut layout_settings = LayoutSettings {
             x: 0.,
@@ -104,8 +103,7 @@ impl AnkerLabel {
 
         AnkerLabel {
             text: text_,
-            size: 1.,
-            sphere: Sphere::new(V3{x: 0.,y: 0.,z: 0.}, 1., Color::RGB(0, 0, 0)),
+            sphere: Sphere::new(V3{x: x_,y: y_,z: z_}, 0.005, Color::RGB(0, 0, 0)),
             visible: true,
             texture: texture,
             texture_size: ((max_x - min_x) as u32, (max_y - min_y) as u32),
@@ -130,7 +128,7 @@ impl Sphereable for AnkerLabel {
 
 impl UiElement for AnkerLabel {
     fn render(&self, canvas: &mut Canvas<Window>, x: i32, y: i32) {
-        print!("{} {} {}", self.texture.len(), self.texture_size.0, self.texture_size.1);
+        print!("{} {}", x, y);
         let w = self.texture_size.0;
         for i in 0..self.texture_size.1 {
             for j in 0..self.texture_size.0 {

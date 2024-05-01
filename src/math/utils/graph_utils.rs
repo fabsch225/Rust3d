@@ -1,6 +1,10 @@
 use sdl2::pixels::Color;
 
-use crate::{engine::polytree::poly_tree::PolyTree, geometry::{face::{Face, UV}, point::Point, poly_shape::Poly, quad::Quad}, math::functions::{FunctionR2ToR, FunctionRToR}};
+use crate::{engine::{polytree::poly_tree::PolyTree, utils::anker_label::AnkerLabel}, geometry::{face::{Face, UV}, point::Point, poly_shape::Poly, quad::Quad}, math::functions::{FunctionR2ToR, FunctionRToR}};
+
+pub trait WithLabels {
+    fn get_labels(&self) -> &Vec<AnkerLabel>;
+}
 
 pub trait PolyTreeGraphFactory {
     fn create_graph(&self, bounds : Quad, delta : f64) -> Box<PolyTree>;

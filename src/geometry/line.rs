@@ -2,7 +2,7 @@ use sdl2::pixels::Color;
 
 use crate::engine::{pathtracing::PathtracingObject, raymarching::RayMarchingObject, utils::{rendering::Sphereable, transformation::Transformable}};
 
-use super::point::Point as V3;
+use super::{face::Face, point::Point as V3};
 
 pub struct Line {
     pub s : V3,
@@ -104,22 +104,55 @@ impl PathtracingObject for Line {
     }
 
     fn get_collision(&self, p0 : V3, p : V3) -> crate::engine::utils::rendering::Collision {
-        let mut pq = p0.clone();
-        pq.subtr(self.s);
         let mut v = self.e.clone();
         v.subtr(self.s);
-        let mut n = p.clone();
-        n.cross(v);
-        let norm_n = n.norm();
-        let d = f64::abs(pq.dt(n)) / f64::abs(norm_n);
-       
-        if (d < self.thickness && self.is_colliding(p0, p) && norm_n > 0.0) {
-            let mut d_p0 = self.nearest_point_to_(p0);
-            d_p0.subtr(p0);
+        let mut b = v.clone();
+        b.cross(p);
+        b.normalize();
+        b.mult(self.thickness / 2.0);
+        let a1 = V3{x: self.s.x - b.x, y: self.s.y - b.y, z: self.s.z - b.z};
+        let a2 = V3{x: self.s.x + b.x, y: self.s.y + b.y, z: self.s.z + b.z};
+        let a3 = V3{x: self.e.x - b.x, y: self.e.y - b.y, z: self.e.z - b.z};
+        let a4 = V3{x: self.e.x + b.x, y: self.e.y + b.y, z: self.e.z + b.z};
 
+        let f1 = Face::new(a1, a2, a3);
+        let f2 = Face::new(a4, a2, a3);
+
+        //TODO: optimize: check first face 1 before calculating face 2
+        let bg1 = f1.get_beta_gamma(p0, p);
+        let bg2 = f2.get_beta_gamma(p0, p);
+
+        let mut has_hit = false;
+        let mut d = f64::MAX;
+        let mut d_p0 = V3::empty();
+
+        if (bg1.0 >= 0.0 && bg1.1 >= 0.0 && bg1.0 + bg1.1 <= 1.0) {
+            has_hit = true;
+            d_p0.add(f1.r);
+            let mut a = f1.a.clone();
+            a.mult(bg1.0);
+            d_p0.add(a);
+            let mut b = f1.b.clone();
+            b.mult(bg1.1);
+            d_p0.add(b);
+            d = d_p0.d(p0);
+        }
+        else if (bg2.0 >= 0.0 && bg2.1 >= 0.0 && bg2.0 + bg2.1 <= 1.0) {
+            has_hit = true;
+            d_p0.add(f2.r);
+            let mut a = f2.a.clone();
+            a.mult(bg2.0);
+            d_p0.add(a);
+            let mut b = f2.b.clone();
+            b.mult(bg2.1);
+            d_p0.add(b);
+            d = d_p0.d(p0);
+        }
+
+        if (has_hit) {
             return crate::engine::utils::rendering::Collision {
                 d: d_p0.norm(),
-                p: self.nearest_point_to_(p0),
+                p: self.nearest_point_to_(p0), //WRONG!!!
                 hit: true,
                 c: Color::BLUE
             };

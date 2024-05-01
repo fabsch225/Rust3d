@@ -64,11 +64,13 @@ use crate::geometry::poly_shape::Poly;
 use crate::geometry::sphere::Sphere;
 use crate::geometry::line::Line;
 use crate::math::functions::FunctionR2ToR;
-use crate::math::graph::Graph;
+use crate::math::graph::Graph3D;
 
 ///Todos
 /// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
 /// - [ ] Refactor polytree to be untexured and textured
+/// - [ ] Fix RM coloring
+/// - [ ] implement rectanguar Face
 
 pub fn main() -> Result<(), String>{
     let w : usize = 400;
@@ -98,7 +100,7 @@ pub fn main() -> Result<(), String>{
     //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/whale.obj"), &String::from("demo_assets/models/whale.jpg"));
     let mut t1 = *PolyTree::new(t1); 
 
-    t1.translate(V{x: 5.0, y: -1.0, z: 0.0});
+    
     
     let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
     //pa_objs.add(t1);
@@ -113,15 +115,18 @@ pub fn main() -> Result<(), String>{
     let f1 = Poly::new(f1.get_middle(), vec![f1]);
 
     //pa_objs.add(f1);
+    let mut line1 = Line::new(p1.x[7], p1.x[6], 0.01);
+    let mut p2 = Sphere::new(p1.x[6], 0.1, Color::GREEN);
+    rm_objs.add(line1);
+    rm_objs.add(p2);
+    t1.goto(p1.x[7]);
+    t1.scale(V{x: 0.1, y: 0.1, z: 0.1});
+    pa_objs.add(t1);
 
-    let mut line1 = Line::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 0.0, y: -1.0, z: 0.0}, 0.01);
-
-    //pa_objs.add(line1);
-
-    let mut g1 = Graph::new(p1, FunctionR2ToR::new(Box::new(|x, y| f64::sin(y * 3.))));
+    let mut g1 = Graph3D::new(p1, FunctionR2ToR::new(Box::new(|x, y| f64::sin(y * 3.))), vec!["x", "y", "z"]);
     //rm_objs.add(p1);
     let root = p1.x[7];
-    let mut label1 = engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), font, Color::RED, Color::WHITE);
+    let mut label1 = engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), &font, Color::RED, Color::WHITE);
 
     //let s2 = Sphere::new(p1.x[5], 0.12, Color::BLUE);
     //rm_objs.add(s1);
@@ -160,16 +165,13 @@ pub fn main() -> Result<(), String>{
         //camera.rot(V{x: 0.0, y: 0.1, z: 0.0});
         
         println!("transformation took {}ms", now.elapsed().as_millis());
-
         
         render(&mut canvas, objs, camera, &w, &h);
-        
-        camera.render_anker_label(&label1, &mut canvas, w, h);
         
         //g1.rot(V{x: -0.1, y: 0.0, z: 0.1});
         let sec = camera.render_section(0, 0, w, h, &g1, w, h);
         camera.draw_section(&sec, &mut canvas, 0, 0, w, h);
-        //label1.render(&mut canvas, 0, 0);
+        camera.render_anker_labels(&g1, &mut canvas, w, h);
         canvas.present();
 
         ::std::thread::sleep(Duration::new(0, 1_000_000u32 / 60));

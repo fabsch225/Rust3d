@@ -164,6 +164,11 @@ impl PolyTree {
         }
     }
 
+    pub fn goto(&mut self, p: V3) {
+        let mut p_ = p;
+        p_.subtr(self.m);
+        self.translate(p_);
+    }
 
     pub fn get_middle_from_poly(p : &Poly) -> V3 {
         let mut middle : V3 = V3{x: 0.0, y: 0.0, z: 0.0};
