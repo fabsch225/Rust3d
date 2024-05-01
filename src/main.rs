@@ -93,7 +93,7 @@ pub fn main() -> Result<(), String>{
     println!("Starting to parse objects");
 
     
-    let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 1., z: 1.}, Color::RED);
+    let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 2., z: 1.}, Color::RED);
     let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
 
     let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
