@@ -17,6 +17,7 @@ pub struct Graph3D {
     pub content : Box<dyn PathtracingObject + Send + Sync + 'static>,
     pub bounds : Quad,
     pub color : Color,
+    pub m : V3,
     pub axis : RayMarchingObjects,
     pub grid : Vec<Line>,
     pub labels : Vec<AnkerLabel>,
@@ -55,12 +56,18 @@ impl Graph3D {
         Graph3D {
             content: f.create_graph(bounds, 0.1),
             bounds,
+            m : bounds.m,
             color: Color::WHITE,
             axis: axis_,
             grid: Vec::new(),
             labels: vec![label1, label2, label3],
         }
     }
+
+    pub fn wrapup(old : &PathtracingObjects) -> Self {
+        todo!();
+    }
+
 }
 
 impl WithLabels for Graph3D {
@@ -97,31 +104,19 @@ impl Transformable for Graph3D {
     fn transform(&mut self) -> Box<&mut dyn Transformable> {
         return Box::new(self);
     }
-    fn rot_reverse(&mut self, r_: V3) {
-        self.content.rot_reverse(r_);
-        
-        todo!("axis");
-
-        for a in self.grid.iter_mut() {
-            a.rot_reverse(r_);
-        }
-        for a in self.labels.iter_mut() {
-            a.rot_reverse(r_);
-        }
-    }
     fn rot(&mut self, r_: V3) {
         self.content.rot(r_);
-        todo!("axis");
+        self.axis.rot(r_); 
         for a in self.grid.iter_mut() {
-            a.rot(r_);
+            a.rot_by(r_, self.m);
         }
         for a in self.labels.iter_mut() {
-            a.rot(r_);
+            a.rot_by(r_, self.m);
         }
     }
     fn translate(&mut self, p: V3) {
         self.content.translate(p);
-        todo!("axis");
+        self.axis.translate(p);
         for a in self.grid.iter_mut() {
             a.translate(p);
         }
@@ -131,7 +126,7 @@ impl Transformable for Graph3D {
     }
     fn scale(&mut self, p: V3) {
         self.content.scale(p);
-        todo!("axis");
+        self.axis.scale(p);
         for a in self.grid.iter_mut() {
             a.scale(p);
         }

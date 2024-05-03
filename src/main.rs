@@ -65,12 +65,13 @@ use crate::geometry::sphere::Sphere;
 use crate::geometry::line::Line;
 use crate::math::functions::FunctionR2ToR;
 use crate::math::graph::Graph3D;
-
+ 
 ///Todos
 /// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
 /// - [ ] Refactor polytree to be untexured and textured
 /// - [ ] Fix RM coloring
 /// - [ ] implement rectanguar Face
+/// - [ ] implement rot_by for transformable
 
 pub fn main() -> Result<(), String>{
     let w : usize = 400;
@@ -97,7 +98,8 @@ pub fn main() -> Result<(), String>{
     let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
 
     let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
-    //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/whale.obj"), &String::from("demo_assets/models/whale.jpg"));
+    //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
+    t1.scale(V{x: 0.1, y: 0.1, z: 0.1});
     let mut t1 = *PolyTree::new(t1); 
 
     
@@ -117,11 +119,11 @@ pub fn main() -> Result<(), String>{
     //pa_objs.add(f1);
     let mut line1 = Line::new(p1.x[7], p1.x[6], 0.01);
     let mut p2 = Sphere::new(p1.x[6], 0.1, Color::GREEN);
-    rm_objs.add(line1);
-    rm_objs.add(p2);
-    t1.goto(p1.x[7]);
-    t1.scale(V{x: 0.1, y: 0.1, z: 0.1});
-    pa_objs.add(t1);
+    //rm_objs.add(line1);
+    //rm_objs.add(p2);
+    //t1.goto(V{x: 1.0, y: 1.0, z: 1.0});
+    //t1.scale(V{x: 0.1, y: 0.1, z: 0.1});
+    //pa_objs.add(t1);
 
     let mut g1 = Graph3D::new(p1, FunctionR2ToR::new(Box::new(|x, y| f64::sin(y * 3.))), vec!["x", "y", "z"]);
     //rm_objs.add(p1);
@@ -155,8 +157,7 @@ pub fn main() -> Result<(), String>{
         //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
         //rm_objs.write().unwrap().get(1).translate(V{x: 0.01, y: 0.01, z: 0.01});
 
-        //grrg the label lives in a different coordinate system! fix!
-        label1.translate(V{x: 0.0, y: 0.1, z: 0.0});
+       
         let mut objs: RenderObjects = RenderObjects::new();
         
         objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
@@ -168,7 +169,8 @@ pub fn main() -> Result<(), String>{
         
         render(&mut canvas, objs, camera, &w, &h);
         
-        //g1.rot(V{x: -0.1, y: 0.0, z: 0.1});
+        g1.rot(V{x: 0.0, y: 0.0, z: 0.1});
+
         let sec = camera.render_section(0, 0, w, h, &g1, w, h);
         camera.draw_section(&sec, &mut canvas, 0, 0, w, h);
         camera.render_anker_labels(&g1, &mut canvas, w, h);
@@ -187,7 +189,7 @@ pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camer
     let now = Instant::now();
 
     let (tx, rx) = mpsc::channel::<(usize, Vec<Color>)>();
-    let n = 10;
+    let n = 8;
     let camera_arc = Arc::new(camera);
     let objs =  Arc::new(objs);
 

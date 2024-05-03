@@ -144,6 +144,35 @@ impl RayMarchingObjects {
 	}
 }
 
+impl Transformable for RayMarchingObjects {
+	fn transform(&mut self) -> Box<&mut dyn Transformable> {
+		return Box::new(self);
+	}
+
+	fn rot_reverse(&mut self, r_: V3) {
+		for component in self.objects.iter_mut() {
+			component.rot_reverse(r_);
+		}
+	}
+
+	fn rot(&mut self, r_: V3) {
+		for component in self.objects.iter_mut() {
+			component.rot(r_);
+		}
+	}
+
+	fn translate(&mut self, p_: V3) {
+		for component in self.objects.iter_mut() {
+			component.translate(p_);
+		}
+	}
+
+	fn scale(&mut self, p : V3) {
+		todo!()
+	}
+
+}
+
 impl Renderable for RayMarchingObjects {
 	fn get_collision(&self, p0 : V3, v : V3, radius : f64) -> Collision {
 		let mut p : V3 = p0;
