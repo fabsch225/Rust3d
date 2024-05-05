@@ -128,7 +128,7 @@ impl Sphereable for AnkerLabel {
 
 impl UiElement for AnkerLabel {
     fn render(&self, canvas: &mut Canvas<Window>, x: i32, y: i32) {
-        print!("{} {}", x, y);
+        //("{} {}", x, y);
         let w = self.texture_size.0;
         for i in 0..self.texture_size.1 {
             for j in 0..self.texture_size.0 {

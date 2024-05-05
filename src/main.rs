@@ -38,6 +38,7 @@ mod math {
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::mouse::MouseButton;
 use sdl2::pixels::Color;
 use sdl2::render::{self, Canvas};
 use sdl2::video::Window;
@@ -71,6 +72,7 @@ const H : usize = 600;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
+const TURN_SPEED : f64 = 0.0005;
 
 ///Todos
 /// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
@@ -78,6 +80,7 @@ const VARIABLE_RENDER_SPEED : u8 = 35;
 /// - [ ] Fix RM coloring
 /// - [ ] implement rectanguar Face
 /// - [x] implement rot_by for transformable
+/// - [x] maybe stop rendering when nothing changes
 
 pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;
@@ -89,6 +92,7 @@ pub fn main() -> Result<(), String>{
     let mut canvas = window.into_canvas().build()
         .expect("could not make a canvas");
     let mut event_pump = sdl_context.event_pump()?;
+    let mut state;
 
     let font = include_bytes!("../demo_assets/fonts/NotoSansMath-Regular.ttf") as &[u8];
     let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
@@ -143,8 +147,9 @@ pub fn main() -> Result<(), String>{
 	let mut camera : Camera = Camera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
     
     let mut stage = 1;
-    let mut modulus_size = 400;
+    let mut modulus_size = 300;
     let mut change_modulus = 0;
+    let mut motion = true; //first render without this condition
     //println!("Starting main Loop");
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -157,6 +162,35 @@ pub fn main() -> Result<(), String>{
                 _ => {}
             }
         } 
+
+        if event_pump
+            .mouse_state()
+            .is_mouse_button_pressed(MouseButton::Left)
+        {
+            state = event_pump.relative_mouse_state();
+            //println!("Relative - X = {:?}, Y = {:?}", state.x(), state.y());
+            let rot_z = TURN_SPEED * state.y() as f64;
+            let rot_y = TURN_SPEED * state.x() as f64;
+            if (rot_z != 0.0 || rot_y != 0.0) {
+                motion = true;
+                stage = 1;
+            }   
+
+            if (rot_z > 0.0) {
+                g1.rot(V{x: 0.0, y: 0.0, z: rot_z});
+            }
+            else {
+                g1.rot_reverse(V{x: 0.0, y: 0.0, z: rot_z});
+            }
+
+            if (rot_y > 0.0) {
+                g1.rot(V{x: 0.0, y: rot_y, z: 0.0});
+            }
+            else {
+                g1.rot_reverse(V{x: 0.0, y: rot_y, z: 0.0});
+            }
+        }
+
         //println!("Starting transformation");
         let now = Instant::now();
         //g1.rot(V{x: 0.0, y: 0.0, z: 0.1});
@@ -178,37 +212,48 @@ pub fn main() -> Result<(), String>{
         
         //println!("Starting rendering {} {}" , stage, modulus_size);
 
-        render_mod(&mut canvas, objs, camera, &W, &H, modulus_size, stage);
-        
-        //camera.render_anker_labels(&g1, &mut canvas, w, h);
-        canvas.present();
-
-        let diff = now.elapsed().as_nanos();
-        if ((diff as u32) < NANOS) {
-            ::std::thread::sleep(Duration::new(0, NANOS - diff as u32));
-            if (modulus_size > 1) {
-                change_modulus -= 1;
-            }
-        }
-        else {
-            change_modulus += 1;
-        }
-
-        stage += 1;
-
-        if (stage == modulus_size) {
-            stage = 1;
-            if (change_modulus > 0) {
-                modulus_size += VARIABLE_RENDER_SPEED as usize;
-            }
-            else if (change_modulus < 0) {
-                modulus_size -= VARIABLE_RENDER_SPEED as usize;
-                if (modulus_size < 1) {
-                    modulus_size = 1;
+        //render_multi(&mut canvas, objs, camera, &W, &H);
+        if (motion) {
+            render_mod(&mut canvas, objs, camera, &W, &H, modulus_size, stage);
+            
+            //camera.rot(V{x: 0.1, y: 0., z: 0.});
+            let diff = now.elapsed().as_nanos();
+            if ((diff as u32) < NANOS) {
+                ::std::thread::sleep(Duration::new(0, NANOS - diff as u32));
+                if (modulus_size > 1) {
+                    change_modulus -= 1;
                 }
             }
-            change_modulus = 0;
+            else {
+                change_modulus += 1;
+            }
+
+            stage += 1;
+
+            if (stage == modulus_size) {
+                stage = 1;
+                if (change_modulus > 0) {
+                    modulus_size += VARIABLE_RENDER_SPEED as usize;
+                }
+                else if (change_modulus < 0) {
+                    modulus_size -= VARIABLE_RENDER_SPEED as usize;
+                    if (modulus_size < 1) {
+                        modulus_size = 1;
+                    }
+                }
+                change_modulus = 0;
+
+                camera.render_anker_labels(&g1, &mut canvas, W, H);
+                motion = false;
+            }
+
+            canvas.present();
         }
+        else {
+            ::std::thread::sleep(Duration::new(0, NANOS as u32));
+        }
+
+        
     }
     Ok(())
 }
@@ -224,7 +269,7 @@ pub fn render_multi(canvas : &mut Canvas<Window>, objs : RenderObjects, camera :
     //let w = canvas.window().drawable_size().0 as usize;
     //let h = canvas.window().drawable_size().1 as usize;
     //canvas.clear();
-    println!("Setting up threads...");
+    //println!("Setting up threads...");
     let now = Instant::now();
 
     let (tx, rx) = mpsc::channel::<(usize, Vec<Color>)>();
@@ -245,8 +290,8 @@ pub fn render_multi(canvas : &mut Canvas<Window>, objs : RenderObjects, camera :
             tx.send((i.to_owned(), section));
         });
     }
-    println!("Setup took {}ms", now.elapsed().as_millis());
-    println!("Started rendering without issues");
+    //println!("Setup took {}ms", now.elapsed().as_millis());
+    //println!("Started rendering without issues");
     let now = Instant::now();
 
     for i in 0..n {
@@ -254,10 +299,10 @@ pub fn render_multi(canvas : &mut Canvas<Window>, objs : RenderObjects, camera :
 
         camera.draw_modulus(&section.1, canvas, section.0, n, *w_, *h_);
 
-        println!("Thread {} finished rendering", section.0);
+        //println!("Thread {} finished rendering", section.0);
     }
 
-    println!("Render took {}ms", now.elapsed().as_millis());
+    //println!("Render took {}ms", now.elapsed().as_millis());
 }
 
     
