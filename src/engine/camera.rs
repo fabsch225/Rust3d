@@ -69,6 +69,20 @@ impl<'a> Camera {
 		v
     }
 
+	pub fn render_and_draw_modulus_block<R : Renderable>(&self, canvas : &mut Canvas<Window>, obj: &R, blocksize : usize, index: usize, n : usize, w: usize, h : usize) {
+		for j in (0..w).step_by(blocksize) {
+			if ((j / blocksize) % n == index) {
+				for i in (0..h).step_by(blocksize) {
+					let v = self.get_ray_vec(j, i, w, h);
+					let coll = obj.get_collision(self.x, v, 100.0);
+					let color = coll.c;
+					canvas.set_draw_color(color);
+					canvas.fill_rect(sdl2::rect::Rect::new(j as i32, i as i32, blocksize as u32, blocksize as u32));
+				}
+			}
+		}
+	}
+
 	pub fn draw_modulus(&self, p: &Vec<Color>, canvas : &mut Canvas<Window>, index: usize, n : usize, w: usize, h : usize) {
 		let mut pos : usize = 0;
 
@@ -85,8 +99,9 @@ impl<'a> Camera {
 		}
 	}
 
+
 	pub fn render_modulus<R : Renderable>(&self, obj: &R, w: usize, h : usize, index : usize, n : usize) -> Vec<Color> {
-		let mut pos : usize = 0;
+		//let mut pos : usize = 0;
 		let mut pixels: Vec<Color> = Vec::new();
 
 		for j in 0..w {

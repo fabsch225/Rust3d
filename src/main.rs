@@ -72,7 +72,7 @@ const H : usize = 600;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
-const TURN_SPEED : f64 = 0.0005;
+const TURN_SPEED : f64 = 0.0035;
 
 ///Todos
 /// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
@@ -149,6 +149,7 @@ pub fn main() -> Result<(), String>{
     let mut stage = 1;
     let mut modulus_size = 300;
     let mut change_modulus = 0;
+    let mut block_size = 20;
     let mut motion = true; //first render without this condition
     //println!("Starting main Loop");
     'running: loop {
@@ -169,25 +170,26 @@ pub fn main() -> Result<(), String>{
         {
             state = event_pump.relative_mouse_state();
             //println!("Relative - X = {:?}, Y = {:?}", state.x(), state.y());
-            let rot_z = TURN_SPEED * state.y() as f64;
+            //let rot_z = TURN_SPEED * state.y() as f64;
             let rot_y = TURN_SPEED * state.x() as f64;
-            if (rot_z != 0.0 || rot_y != 0.0) {
+            if (rot_y != 0.0) { //rot_z != 0.0 || 
                 motion = true;
-                stage = 1;
+                //stage = 1;
+                block_size = 20;
             }   
-
+            /* 
             if (rot_z > 0.0) {
                 g1.rot(V{x: 0.0, y: 0.0, z: rot_z});
             }
             else {
-                g1.rot_reverse(V{x: 0.0, y: 0.0, z: rot_z});
-            }
+                g1.rot_reverse(V{x: 0.0, y: 0.0, z: - rot_z});
+            }*/
 
             if (rot_y > 0.0) {
                 g1.rot(V{x: 0.0, y: rot_y, z: 0.0});
             }
             else {
-                g1.rot_reverse(V{x: 0.0, y: rot_y, z: 0.0});
+                g1.rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
             }
         }
 
@@ -214,7 +216,8 @@ pub fn main() -> Result<(), String>{
 
         //render_multi(&mut canvas, objs, camera, &W, &H);
         if (motion) {
-            render_mod(&mut canvas, objs, camera, &W, &H, modulus_size, stage);
+            camera.render_and_draw_modulus_block(&mut canvas, &objs, block_size, stage, modulus_size / block_size, W, H);
+            //render_mod(&mut canvas, objs, camera, &W, &H, modulus_size / block_size, stage);
             
             //camera.rot(V{x: 0.1, y: 0., z: 0.});
             let diff = now.elapsed().as_nanos();
@@ -230,30 +233,39 @@ pub fn main() -> Result<(), String>{
 
             stage += 1;
 
-            if (stage == modulus_size) {
+            if (stage >= modulus_size / block_size) {
                 stage = 1;
-                if (change_modulus > 0) {
-                    modulus_size += VARIABLE_RENDER_SPEED as usize;
-                }
-                else if (change_modulus < 0) {
-                    modulus_size -= VARIABLE_RENDER_SPEED as usize;
-                    if (modulus_size < 1) {
-                        modulus_size = 1;
+                
+                if (block_size > 1) {
+                    block_size /= 2;
+                    if block_size < 1 {
+                        block_size = 1;
+
+                        if (change_modulus > 0) {
+                            modulus_size += VARIABLE_RENDER_SPEED as usize;
+                        }
+                        else if (change_modulus < 0) {
+                            modulus_size -= VARIABLE_RENDER_SPEED as usize;
+                            if (modulus_size < 1) {
+                                modulus_size = 1;
+                            }
+                        }
+                        change_modulus = 0;
                     }
                 }
-                change_modulus = 0;
-
-                camera.render_anker_labels(&g1, &mut canvas, W, H);
-                motion = false;
+                else {
+                    motion = false;
+                    camera.render_anker_labels(&g1, &mut canvas, W, H);
+                }
             }
+
+           
 
             canvas.present();
         }
         else {
             ::std::thread::sleep(Duration::new(0, NANOS as u32));
         }
-
-        
     }
     Ok(())
 }
