@@ -174,11 +174,11 @@ impl<'a> Camera {
 	pub fn render_anker_label(&self, a : &AnkerLabel, canvas : &mut Canvas<Window>, w: usize, h : usize) {
 		let mut pos : usize = 0;
 
-		for i in 0..h {
-			for j in 0..w {
+		for j in 0..w {
+			for i in 0..h {
 				let v = self.get_ray_vec(j, i, w, h);
 				if (a.is_colliding(self.x, v)) {
-					a.render(canvas, i as i32, j as i32);
+					a.render(canvas, j as i32, i as i32);
 					return;
 				}
 			}

@@ -171,6 +171,12 @@ impl Transformable for RayMarchingObjects {
 		todo!()
 	}
 
+	fn rot_by(&mut self, p : V3, r : V3) {
+		for component in self.objects.iter_mut() {
+			component.rot_by(p, r);
+		}
+	}
+
 }
 
 impl Renderable for RayMarchingObjects {

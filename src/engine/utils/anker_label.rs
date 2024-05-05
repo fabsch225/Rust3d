@@ -159,4 +159,8 @@ impl Transformable for AnkerLabel {
     fn transform(&mut self) -> Box<&mut dyn Transformable> {
         Box::new(self)
     }
+    
+    fn rot_by(&mut self, p : V3, r : V3) {
+        self.sphere.rot_by(p, r);
+    }
 }

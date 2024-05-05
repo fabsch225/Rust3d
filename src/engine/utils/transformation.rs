@@ -8,13 +8,7 @@ pub trait Transformable {
         self.rot(V3{x: TWO_PI - r.x, y: TWO_PI - r.y, z: TWO_PI - r.z});
     }
     fn rot(&mut self, r : V3);
-    fn rot_by(&mut self, r : V3, p : V3) {
-        let mut minus_p = p.clone();
-        minus_p.mult(-1.0);
-        self.translate(p);
-        self.rot(r);
-        self.translate(minus_p);
-    }
+    fn rot_by(&mut self, p : V3, r : V3);
     fn translate(&mut self, p : V3);
     fn scale(&mut self, p : V3);
     fn transform(&mut self) -> Box<&mut dyn Transformable>;

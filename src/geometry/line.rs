@@ -78,6 +78,14 @@ impl Transformable for Line {
     fn transform(&mut self) -> Box<&mut dyn Transformable> {
         todo!()
     }
+    
+    fn rot_by(&mut self, p : V3, r : V3) {
+        self.s.rot_by(p, r);
+        self.e.rot_by(p, r);
+        self.m = self.e.clone();
+        self.m.add(self.s);
+        self.m.mult(0.5);
+    }
 }
 
 impl Sphereable for Line {

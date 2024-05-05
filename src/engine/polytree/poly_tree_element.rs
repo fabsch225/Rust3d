@@ -41,6 +41,19 @@ impl PolyTreeElement {
             leaf: false,
         }
     }
+    pub fn rot_by(&mut self, p0: V3, r_: V3) {
+        self.m.rot_by(p0, r_);
+        if (self.leaf) {
+           
+            for i in 0..self.faces.len() {
+                self.faces[i].rot(r_, p0);
+            }
+        } else {
+            for i in 0..self.children.len() {
+                self.children[i].rot(r_, p0);
+            }
+        }
+    }
     pub fn scale_by(&mut self, p: V3, p0: V3) {
         if (self.leaf) {
             for i in 0..self.faces.len() {

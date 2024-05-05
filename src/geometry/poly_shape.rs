@@ -159,6 +159,13 @@ impl Transformable for Poly {
         }
         self.m.trans(p.x, p.y, p.z);
     }
+    
+    fn rot_by(&mut self, p : V3, r : V3) {
+        for f in self.x.iter_mut() {
+            f.rot(p, r);
+        }
+        self.m.rot_by(p, r);
+    }
 }
 
 impl PathtracingObject for Poly {

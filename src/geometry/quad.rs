@@ -381,10 +381,6 @@ impl Transformable for Quad {
     fn rot_reverse(&mut self, p: Point) {
         let cm: Point = self.m.clone();
 
-        self.rx -= p.x;
-        self.ry -= p.y;
-        self.rz -= p.z;
-
         for i in 0..8 {
             self.x[i].subtr(self.m);
             self.x[i].rot_reverse(p);
@@ -399,12 +395,6 @@ impl Transformable for Quad {
     }
 
     fn rot(&mut self, p: Point) {
-        let cm: Point = self.m.clone();
-
-        self.rx += p.x;
-        self.ry += p.y;
-        self.rz += p.z;
-
         for i in 0..8 {
             self.x[i].subtr(self.m);
             self.x[i].rot(p);
@@ -444,6 +434,16 @@ impl Transformable for Quad {
             self.s[i].y *= p.y;
             self.s[i].z *= p.z;
             self.s[i].add(self.m);
+        }
+    }
+    
+    fn rot_by(&mut self, p : Point, r : Point) {
+        for i in 0..8 {
+           self.x[i].rot_by(p, r)
+        }
+
+        for i in 0..6 {
+            self.s[i].rot_by(p, r)
         }
     }
 }

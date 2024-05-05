@@ -41,6 +41,11 @@ impl Transformable for PolyTree {
         self.source.scale(p);
         self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
     }
+    
+    fn rot_by(&mut self, p : V3, r : V3) {
+        self.source.rot_by(p, r);
+        self.root.rot_by(p, r);
+    }
 }
 
 impl PathtracingObject for PolyTree {

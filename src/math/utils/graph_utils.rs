@@ -19,8 +19,8 @@ impl PolyTreeGraphFactory for FunctionR2ToR {
         let starty = mins[1];
         let endx = mins[3];
         let endy = mins[4];
-        let minz = mins[2];
-        let maxz = mins[5];
+        let minz = mins[5];
+        let maxz = mins[2];
 
         let mut x = startx;
         let mut y = starty;

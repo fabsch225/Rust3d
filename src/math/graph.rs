@@ -27,8 +27,8 @@ impl Graph3D {
     pub fn new<T : PolyTreeGraphFactory>(bounds: Quad, f: T, labels : Vec<&str>) -> Graph3D {
         assert_eq!(labels.len(), 3);
 
-        let fg_ = Color::BLUE;
-        let bg_ = Color::WHITE;
+        let fg_ = Color::RED;
+        let bg_ = Color::GRAY;
 
         let line1 = Line::new(bounds.x[7], bounds.x[6], 0.05);
         let line2 = Line::new(bounds.x[7], bounds.x[4], 0.05);
@@ -64,8 +64,16 @@ impl Graph3D {
         }
     }
 
-    pub fn wrapup(old : &PathtracingObjects) -> Self {
-        todo!();
+    pub fn wrapup(old : &Graph3D) -> Self {
+        return Graph3D {
+            content: old.content.clone(),
+            bounds: Clone::clone(&old.bounds),
+            m: V3{x: 0.0, y: 0.0, z: 0.0},
+            color: Color::WHITE,
+            axis: RayMarchingObjects::wrapup(&old.axis),
+            grid: Vec::new(),
+            labels: Vec::new(),
+        };
     }
 
 }
@@ -95,7 +103,9 @@ impl Renderable for Graph3D {
                 best_collision = c;
             }
         }
-
+        //let mut r = RayMarchingObjects::new(0.01);
+        //r.add(Clone::clone(&self.bounds));
+        //return r.get_collision(p0, p, 100.);    
         return best_collision;
     }
 }
@@ -105,14 +115,16 @@ impl Transformable for Graph3D {
         return Box::new(self);
     }
     fn rot(&mut self, r_: V3) {
-        self.content.rot(r_);
-        self.axis.rot(r_); 
+        self.content.rot_by(self.m, r_);
+        self.axis.rot_by(self.m, r_); 
+        self.bounds.rot_by(self.m, r_);
         for a in self.grid.iter_mut() {
-            a.rot_by(r_, self.m);
+            a.rot_by(self.m, r_);
         }
         for a in self.labels.iter_mut() {
-            a.rot_by(r_, self.m);
+            a.rot_by(self.m, r_);
         }
+
     }
     fn translate(&mut self, p: V3) {
         self.content.translate(p);
@@ -133,5 +145,9 @@ impl Transformable for Graph3D {
         for a in self.labels.iter_mut() {
             a.scale(p);
         }
+    }
+    
+    fn rot_by(&mut self, r : V3, p : V3) {
+        todo!()
     }
 }

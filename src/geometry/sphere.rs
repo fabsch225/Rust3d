@@ -52,6 +52,10 @@ impl Transformable for Sphere {
     fn translate(&mut self, p: Point) {
     	self.m.trans(p.x, p.y, p.z);
     }
+    
+    fn rot_by(&mut self, p : Point, r : Point) {
+        self.m.rot_by(p, r);
+    }
 }
 
 impl Sphereable for Sphere {

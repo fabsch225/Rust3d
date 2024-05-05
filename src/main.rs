@@ -66,19 +66,23 @@ use crate::geometry::line::Line;
 use crate::math::functions::FunctionR2ToR;
 use crate::math::graph::Graph3D;
  
+const W : usize = 600;
+const H : usize = 600;
+const FRAMERATE : u32 = 60;
+const NANOS : u32 = 1_000_000_000 / FRAMERATE;
+const VARIABLE_RENDER_SPEED : u8 = 35;
+
 ///Todos
 /// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
 /// - [ ] Refactor polytree to be untexured and textured
 /// - [ ] Fix RM coloring
 /// - [ ] implement rectanguar Face
-/// - [ ] implement rot_by for transformable
+/// - [x] implement rot_by for transformable
 
 pub fn main() -> Result<(), String>{
-    let w : usize = 400;
-    let h : usize = 400;
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
-    let window = video_subsystem.window("rust3d", w as u32, h as u32)
+    let window = video_subsystem.window("rust3d", W as u32, H as u32)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
@@ -99,7 +103,7 @@ pub fn main() -> Result<(), String>{
 
     let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
     //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
-    t1.scale(V{x: 0.1, y: 0.1, z: 0.1});
+    t1.scale(V{x: 0.7, y: 0.7, z: 0.7});
     let mut t1 = *PolyTree::new(t1); 
 
     
@@ -138,7 +142,10 @@ pub fn main() -> Result<(), String>{
     
 	let mut camera : Camera = Camera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
     
-    println!("Starting main Loop");
+    let mut stage = 1;
+    let mut modulus_size = 400;
+    let mut change_modulus = 0;
+    //println!("Starting main Loop");
     'running: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -150,8 +157,10 @@ pub fn main() -> Result<(), String>{
                 _ => {}
             }
         } 
-        println!("Starting transformation");
+        //println!("Starting transformation");
         let now = Instant::now();
+        //g1.rot(V{x: 0.0, y: 0.0, z: 0.1});
+
         //pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.1});
         //rm_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.1, z: 0.0}); 
         //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
@@ -160,28 +169,58 @@ pub fn main() -> Result<(), String>{
        
         let mut objs: RenderObjects = RenderObjects::new();
         
-        objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
-        objs.wrap(Box::new(RayMarchingObjects::wrapup(&rm_objs.read().unwrap())));
-
+        //objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
+        //objs.wrap(Box::new(RayMarchingObjects::wrapup(&rm_objs.read().unwrap())));
+        objs.wrap(Box::new(Graph3D::wrapup(&g1)));
         //camera.rot(V{x: 0.0, y: 0.1, z: 0.0});
         
-        println!("transformation took {}ms", now.elapsed().as_millis());
+        //println!("transformation took {}ms", now.elapsed().as_millis());
         
-        render(&mut canvas, objs, camera, &w, &h);
-        
-        g1.rot(V{x: 0.0, y: 0.0, z: 0.1});
+        //println!("Starting rendering {} {}" , stage, modulus_size);
 
-        let sec = camera.render_section(0, 0, w, h, &g1, w, h);
-        camera.draw_section(&sec, &mut canvas, 0, 0, w, h);
-        camera.render_anker_labels(&g1, &mut canvas, w, h);
+        render_mod(&mut canvas, objs, camera, &W, &H, modulus_size, stage);
+        
+        //camera.render_anker_labels(&g1, &mut canvas, w, h);
         canvas.present();
 
-        ::std::thread::sleep(Duration::new(0, 1_000_000u32 / 60));
+        let diff = now.elapsed().as_nanos();
+        if ((diff as u32) < NANOS) {
+            ::std::thread::sleep(Duration::new(0, NANOS - diff as u32));
+            if (modulus_size > 1) {
+                change_modulus -= 1;
+            }
+        }
+        else {
+            change_modulus += 1;
+        }
+
+        stage += 1;
+
+        if (stage == modulus_size) {
+            stage = 1;
+            if (change_modulus > 0) {
+                modulus_size += VARIABLE_RENDER_SPEED as usize;
+            }
+            else if (change_modulus < 0) {
+                modulus_size -= VARIABLE_RENDER_SPEED as usize;
+                if (modulus_size < 1) {
+                    modulus_size = 1;
+                }
+            }
+            change_modulus = 0;
+        }
     }
     Ok(())
 }
 
-pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camera, w : &usize, h : &usize) {
+pub fn render_mod(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camera, w_ : &usize, h_ : &usize, modulus : usize, stage : usize) {
+    let w = canvas.window().drawable_size().0 as usize;
+    let h = canvas.window().drawable_size().1 as usize;
+    let section = camera.render_modulus(&objs, w, h, stage, modulus);
+    camera.draw_modulus(&section, canvas, stage, modulus, *w_, *h_);
+}
+
+pub fn render_multi(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camera, w_ : &usize, h_ : &usize) {
     //let w = canvas.window().drawable_size().0 as usize;
     //let h = canvas.window().drawable_size().1 as usize;
     //canvas.clear();
@@ -197,8 +236,8 @@ pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camer
         let camera_arc = Arc::clone(&camera_arc);
         let objs = Arc::clone(&objs);
         let tx = tx.clone();
-        let w_ = w.clone();
-        let h_ = h.clone();
+        let w_ = w_.clone();
+        let h_ = h_.clone();
 
         thread::spawn(move || {
             //let obj_mutex_cloned = Arc::clone(&obj_mutex_cloned);
@@ -213,7 +252,7 @@ pub fn render(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camer
     for i in 0..n {
         let section = rx.recv().unwrap();
 
-        camera.draw_modulus(&section.1, canvas, section.0, n, *w, *h);
+        camera.draw_modulus(&section.1, canvas, section.0, n, *w_, *h_);
 
         println!("Thread {} finished rendering", section.0);
     }

@@ -113,7 +113,7 @@ impl Face {
         self.m = Face::calculate_middle(self.r, self.a, self.b);
         self.radius = Face::calculate_radius(self.m, self.r, self.a, self.b);
     }
-    
+
     pub fn rot(&mut self, r_: V3, p: V3) {
         self.r.rot_by(p, r_);
         self.a.rot_by(p, r_);
