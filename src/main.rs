@@ -54,6 +54,7 @@ use crate::engine::polytree::poly_tree::PolyTree;
 use crate::engine::raymarching::RayMarchingObjects;
 use crate::engine::utils::rendering::Sphereable;
 use crate::engine::utils::renderung_ui::UiElement;
+use crate::engine::utils::transformation::{PI, TWO_PI};
 use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
 use crate::geometry::face::Face;
 use crate::geometry::quad::Quad;
@@ -67,8 +68,8 @@ use crate::geometry::line::Line;
 use crate::math::functions::FunctionR2ToR;
 use crate::math::graph::Graph3D;
  
-const W : usize = 600;
-const H : usize = 600;
+const W : usize = 1000;
+const H : usize = 1000;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
@@ -96,12 +97,10 @@ pub fn main() -> Result<(), String>{
 
     let font = include_bytes!("../demo_assets/fonts/NotoSansMath-Regular.ttf") as &[u8];
     let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
-
     
     let t = Instant::now();
     println!("Starting to parse objects");
 
-    
     let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 2., z: 1.}, Color::RED);
     let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
 
@@ -110,8 +109,6 @@ pub fn main() -> Result<(), String>{
     t1.scale(V{x: 0.7, y: 0.7, z: 0.7});
     let mut t1 = *PolyTree::new(t1); 
 
-    
-    
     let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
     //pa_objs.add(t1);
     
@@ -133,8 +130,8 @@ pub fn main() -> Result<(), String>{
     //t1.scale(V{x: 0.1, y: 0.1, z: 0.1});
     //pa_objs.add(t1);
 
-    let mut g1 = Graph3D::new(p1, FunctionR2ToR::new(Box::new(|x, y| f64::sin(y * 3.))), vec!["x", "y", "z"]);
-    //rm_objs.add(p1);
+    let mut g1 = Graph3D::new(p1, FunctionR2ToR::new(Box::new(|x, y| - x*x -  y*y + 1.0)), vec!["x", "y", "z"]);
+    g1.rot(V{x: PI / 2., y: 0.0, z: 0.0});
     let root = p1.x[7];
     let mut label1 = engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), &font, Color::RED, Color::WHITE);
 
@@ -175,7 +172,7 @@ pub fn main() -> Result<(), String>{
             if (rot_y != 0.0) { //rot_z != 0.0 || 
                 motion = true;
                 //stage = 1;
-                block_size = 20;
+                block_size = 10;
             }   
             /* 
             if (rot_z > 0.0) {
@@ -217,9 +214,7 @@ pub fn main() -> Result<(), String>{
         //render_multi(&mut canvas, objs, camera, &W, &H);
         if (motion) {
             camera.render_and_draw_modulus_block(&mut canvas, &objs, block_size, stage, modulus_size / block_size, W, H);
-            //render_mod(&mut canvas, objs, camera, &W, &H, modulus_size / block_size, stage);
-            
-            //camera.rot(V{x: 0.1, y: 0., z: 0.});
+
             let diff = now.elapsed().as_nanos();
             if ((diff as u32) < NANOS) {
                 ::std::thread::sleep(Duration::new(0, NANOS - diff as u32));
@@ -230,17 +225,13 @@ pub fn main() -> Result<(), String>{
             else {
                 change_modulus += 1;
             }
-
             stage += 1;
-
             if (stage >= modulus_size / block_size) {
-                stage = 1;
-                
+                stage = 0;
                 if (block_size > 1) {
                     block_size /= 2;
                     if block_size < 1 {
                         block_size = 1;
-
                         if (change_modulus > 0) {
                             modulus_size += VARIABLE_RENDER_SPEED as usize;
                         }
@@ -258,8 +249,6 @@ pub fn main() -> Result<(), String>{
                     camera.render_anker_labels(&g1, &mut canvas, W, H);
                 }
             }
-
-           
 
             canvas.present();
         }
