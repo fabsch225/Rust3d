@@ -68,8 +68,8 @@ use crate::geometry::line::Line;
 use crate::math::functions::FunctionR2ToR;
 use crate::math::graph::Graph3D;
  
-const W : usize = 1000;
-const H : usize = 1000;
+const W : usize = 500;
+const H : usize = 500;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
@@ -82,6 +82,8 @@ const TURN_SPEED : f64 = 0.0035;
 /// - [ ] implement rectanguar Face
 /// - [x] implement rot_by for transformable
 /// - [x] maybe stop rendering when nothing changes
+/// - [ ] implement goto for transformable
+/// - [ ] rot_reverse is buggy for polytree
 
 pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;
@@ -106,7 +108,7 @@ pub fn main() -> Result<(), String>{
 
     let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
     //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
-    t1.scale(V{x: 0.7, y: 0.7, z: 0.7});
+    //t1.scale(V{x: 0.7, y: 0.7, z: 0.7});
     let mut t1 = *PolyTree::new(t1); 
 
     let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
@@ -126,9 +128,10 @@ pub fn main() -> Result<(), String>{
     let mut p2 = Sphere::new(p1.x[6], 0.1, Color::GREEN);
     //rm_objs.add(line1);
     //rm_objs.add(p2);
-    //t1.goto(V{x: 1.0, y: 1.0, z: 1.0});
+    t1.goto(V{x: 1.0, y: 0.0, z: 0.0});
+    t1.rot(V{x: 0.0, y: 0.0, z: PI});
     //t1.scale(V{x: 0.1, y: 0.1, z: 0.1});
-    //pa_objs.add(t1);
+    pa_objs.add(t1);
 
     let mut g1 = Graph3D::new(p1, FunctionR2ToR::new(Box::new(|x, y| - x*x -  y*y + 1.0)), vec!["x", "y", "z"]);
     g1.rot(V{x: PI / 2., y: 0.0, z: 0.0});
@@ -183,10 +186,12 @@ pub fn main() -> Result<(), String>{
             }*/
 
             if (rot_y > 0.0) {
-                g1.rot(V{x: 0.0, y: rot_y, z: 0.0});
+                //g1.rot(V{x: 0.0, y: rot_y, z: 0.0});
+                pa_objs.write().unwrap().get(0).rot(V{x: 0.0, y: rot_y, z: 0.0});
             }
             else {
-                g1.rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
+                //g1.rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
+                pa_objs.write().unwrap().get(0).rot(V{x: 0.0, y: - rot_y, z: 0.0});            
             }
         }
 
@@ -194,7 +199,7 @@ pub fn main() -> Result<(), String>{
         let now = Instant::now();
         //g1.rot(V{x: 0.0, y: 0.0, z: 0.1});
 
-        //pa_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.0, z: 0.1});
+        //pa_objs.write().unwrap().get(0).rot(V{x: 0.1, y: 0.0, z: 0.0});
         //rm_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.1, z: 0.0}); 
         //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
         //rm_objs.write().unwrap().get(1).translate(V{x: 0.01, y: 0.01, z: 0.01});
@@ -202,9 +207,9 @@ pub fn main() -> Result<(), String>{
        
         let mut objs: RenderObjects = RenderObjects::new();
         
-        //objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
+        objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
         //objs.wrap(Box::new(RayMarchingObjects::wrapup(&rm_objs.read().unwrap())));
-        objs.wrap(Box::new(Graph3D::wrapup(&g1)));
+        //objs.wrap(Box::new(Graph3D::wrapup(&g1)));
         //camera.rot(V{x: 0.0, y: 0.1, z: 0.0});
         
         //println!("transformation took {}ms", now.elapsed().as_millis());
@@ -212,8 +217,11 @@ pub fn main() -> Result<(), String>{
         //println!("Starting rendering {} {}" , stage, modulus_size);
 
         //render_multi(&mut canvas, objs, camera, &W, &H);
+        //canvas.present();
         if (motion) {
-            camera.render_and_draw_modulus_block(&mut canvas, &objs, block_size, stage, modulus_size / block_size, W, H);
+            render_multi(&mut canvas, objs, camera, &W, &H);
+            canvas.present();
+            /*camera.render_and_draw_modulus_block(&mut canvas, &objs, block_size, stage, modulus_size / block_size, W, H);
 
             let diff = now.elapsed().as_nanos();
             if ((diff as u32) < NANOS) {
@@ -246,10 +254,10 @@ pub fn main() -> Result<(), String>{
                 }
                 else {
                     motion = false;
-                    camera.render_anker_labels(&g1, &mut canvas, W, H);
+                    //camera.render_anker_labels(&g1, &mut canvas, W, H);
                 }
             }
-
+            */
             canvas.present();
         }
         else {
