@@ -66,6 +66,11 @@ impl<'a> Camera {
         };
 
 		v.norm();
+
+		//if (v.z == 0.0) { v.z = 0.0001; }
+		//TODO: Implement this mathematically correct. It somehow worked on the other Axis
+		if (v.y == 0.0) { v.y = 0.00000001; }
+
 		v
     }
 
@@ -73,7 +78,7 @@ impl<'a> Camera {
 		for j in (0..w).step_by(blocksize) {
 			if ((j / blocksize) % n == index) {
 				for i in (0..h).step_by(blocksize) {
-					let v = self.get_ray_vec(j, i, w, h);
+					let mut v = self.get_ray_vec(j, i, w, h);
 					let coll = obj.get_collision(self.x, v, 100.0);
 					let color = coll.c;
 					canvas.set_draw_color(color);
@@ -107,7 +112,7 @@ impl<'a> Camera {
 		for j in 0..w {
 			if (j % n == index) {
 				for i in 0..h {
-					let v = self.get_ray_vec(j, i, w, h);
+					let mut v = self.get_ray_vec(j, i, w, h);
 					let c = obj.get_collision(self.x, v, 100.0);
 					pixels.push(c.c);
 				}
