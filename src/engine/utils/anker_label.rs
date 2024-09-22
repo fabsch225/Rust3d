@@ -76,7 +76,7 @@ impl AnkerLabel {
                 sub_texture[i].push(c);
             }
 
-            print!("{:?}", g);
+            //print!("{:?}", g);
         }
 
         let is_represented = |x: i32, y: i32| -> i32 {
