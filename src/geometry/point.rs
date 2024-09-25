@@ -117,7 +117,7 @@ impl Point {
 		let sin_z : f64 = f64::sin(p.z);
 
 	    
-       let mut tp = Point { x: self.x, y: self.y, z: self.z };
+        let mut tp = Point { x: self.x, y: self.y, z: self.z };
 
         self.x = tp.x * (cos_y * cos_z)
         	+ tp.y * (cos_y * sin_z)

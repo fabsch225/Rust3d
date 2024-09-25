@@ -25,12 +25,13 @@ pub mod geometry {
     pub mod quad;
     pub mod sphere;
     pub mod line;
-    pub mod npoint;
+   
 }
 
 pub mod math {
     pub mod graph;
     pub mod matrix;
+    pub mod vector;
     pub mod functions;
     pub mod utils {
         pub mod graph_utils;
