@@ -1,5 +1,5 @@
-use std::sync::Arc;
-
+use std::sync::{mpsc, Arc};
+use std::thread;
 use sdl2::pixels::Color;
 
 use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision, Sphereable}, transformation::Transformable};
@@ -125,15 +125,15 @@ impl PolyTree {
     }
 
     pub fn make_polytree_root<'pd>(p: Poly) -> PolyTreeElement {
-        return Self::construct_tree(p.x, p.tm);
+        return Self::construct_tree(p.x, p.tm, true);
     }
 
-    pub fn construct_tree(fs: Vec<F>, uvs: Vec<UV>) -> PolyTreeElement {
+    //ToDo Cache this, load from file
+    //ToDo multithreading
+    pub fn construct_tree(fs: Vec<F>, uvs: Vec<UV>, useThreads: bool) -> PolyTreeElement {
         let m_ = PolyTree::get_middle(&fs);
         let r_ = PolyTree::get_radius(&fs);
-
         if fs.len() < 200 {
-
             return PolyTreeElement {
                 children: Vec::new(),
                 faces: fs,
@@ -146,16 +146,45 @@ impl PolyTree {
         else {
             let mut children : Vec<PolyTreeElement> = Vec::new();
             let (dfsc, duvs) = PolyTree::divide_faces(fs, uvs);
-            for i in 0..8 {
+            if (useThreads) {
+                let (tx, rx) = mpsc::channel();
+                let dfsc = Arc::new(dfsc);
+                let duvs = Arc::new(duvs);
 
-                let mut dfsc_ = Vec::new();
-                let mut duvs_ = Vec::new();
-                for j in 0..dfsc[i].len() {
-                    dfsc_.push(dfsc[i][j]);
-                    duvs_.push(duvs[i][j]);
+                for i in 0..8 {
+                    let tx = tx.clone();
+                    let dfsc = Arc::clone(&dfsc);
+                    let duvs = Arc::clone(&duvs);
+
+                    thread::spawn(move || {
+                        let mut dfsc_ = Vec::new();
+                        let mut duvs_ = Vec::new();
+
+                        for j in 0..dfsc[i].len() {
+                            dfsc_.push(dfsc[i][j]);
+                            duvs_.push(duvs[i][j]);
+                        }
+
+                        let child = PolyTree::construct_tree(dfsc_, duvs_, false);
+                        tx.send(child).expect("Failed to send the result");
+                    });
                 }
+                let mut i = 0;
+                for child in rx.iter().take(8) {
+                    i += 1;
+                    children.push(child);
+                }
+            } else {
+                for i in 0..8 {
+                    let mut dfsc_ = Vec::new();
+                    let mut duvs_ = Vec::new();
+                    for j in 0..dfsc[i].len() {
+                        dfsc_.push(dfsc[i][j]);
+                        duvs_.push(duvs[i][j]);
+                    }
 
-                children.push(PolyTree::construct_tree(dfsc_, duvs_));
+                    children.push(PolyTree::construct_tree(dfsc_, duvs_, false));
+                }
             }
 
             return PolyTreeElement {
@@ -199,14 +228,14 @@ impl PolyTree {
 
     pub fn get_radius(x : &Vec<F>) -> f64 {
         let mut r : f64 = 0.0;
+        let m = PolyTree::get_middle(x);
         for i in 0..x.len() {
-            let d = x[i].m.d(PolyTree::get_middle(x));
+            let d = x[i].m.d(m);
             let r_ = x[i].get_radius();
             if (d + r_ > r) {
                 r = d + r_;
             }
         }
-
         r
     }
 
@@ -269,8 +298,7 @@ impl PolyTree {
                 }
             }
         }
-        assert!(dfsc.len() == duvs.len());
-        
-        return (dfsc, duvs);
+
+        (dfsc, duvs)
     }
 }

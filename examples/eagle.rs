@@ -31,7 +31,7 @@ use rust3d::geometry::sphere::Sphere;
 use rust3d::geometry::line::Line;
 use rust3d::math::functions::FunctionR2ToR;
 use rust3d::math::graph::Graph3D;
- 
+
 const W : usize = 1000;
 const H : usize = 1000;
 const FRAMERATE : u32 = 60;
@@ -53,21 +53,21 @@ pub fn main() -> Result<(), String>{
 
     let font = include_bytes!("../demo_assets/fonts/NotoSansMath-Regular.ttf") as &[u8];
     let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
-    
+
     let t = Instant::now();
     println!("Starting to parse objects");
 
     let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 2., z: 1.}, Color::RED);
     let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
 
-    let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
-    //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
-    //t1.scale(V{x: 0.7, y: 0.7, z: 0.7});
-    let mut t1 = *PolyTree::new(t1); 
+    //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
+    let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
+    t1.scale(V{x: 0.15, y: 0.15,z: 0.15});
+    let mut t1 = *PolyTree::new(t1);
 
     let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
     //pa_objs.add(t1);
-    
+
     let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.005);
     //rm_objs.add(line1);
     //rm_objs.add(p1);
@@ -96,16 +96,16 @@ pub fn main() -> Result<(), String>{
     //rm_objs.add(s1);
 
     let rm_objs = Arc::new(RwLock::new(rm_objs));
-    let pa_objs = Arc::new(RwLock::new(pa_objs));   
-    
-	let mut camera : Camera = Camera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
-    
+    let pa_objs = Arc::new(RwLock::new(pa_objs));
+
+    let mut camera : Camera = Camera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
+
     let mut stage = 1;
     let mut modulus_size = 300;
     let mut change_modulus = 0;
     let mut block_size = 20;
     let mut motion = true; //first render without this condition
-    //println!("Starting main Loop");
+    println!("Starting main Loop");
     'running: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -116,7 +116,7 @@ pub fn main() -> Result<(), String>{
                 } => break 'running,
                 _ => {}
             }
-        } 
+        }
 
         if event_pump
             .mouse_state()
@@ -126,12 +126,12 @@ pub fn main() -> Result<(), String>{
             //println!("Relative - X = {:?}, Y = {:?}", state.x(), state.y());
             //let rot_z = TURN_SPEED * state.y() as f64;
             let rot_y = TURN_SPEED * state.x() as f64;
-            if (rot_y != 0.0) { //rot_z != 0.0 || 
+            if (rot_y != 0.0) { //rot_z != 0.0 ||
                 motion = true;
                 //stage = 1;
                 block_size = 10;
-            }   
-            /* 
+            }
+            /*
             if (rot_z > 0.0) {
                 g1.rot(V{x: 0.0, y: 0.0, z: rot_z});
             }
@@ -145,29 +145,29 @@ pub fn main() -> Result<(), String>{
             }
             else {
                 //g1.rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
-                pa_objs.write().unwrap().get(0).rot(V{x: 0.0, y: - rot_y, z: 0.0});            
+                pa_objs.write().unwrap().get(0).rot(V{x: 0.0, y: - rot_y, z: 0.0});
             }
         }
 
-        //println!("Starting transformation");
+        println!("Starting transformation");
         let now = Instant::now();
         //g1.rot(V{x: 0.0, y: 0.0, z: 0.1});
 
         //pa_objs.write().unwrap().get(0).rot(V{x: 0.1, y: 0.0, z: 0.0});
-        //rm_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.1, z: 0.0}); 
+        //rm_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.1, z: 0.0});
         //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
         //rm_objs.write().unwrap().get(1).translate(V{x: 0.01, y: 0.01, z: 0.01});
 
-       
+
         let mut objs: RenderObjects = RenderObjects::new();
-        
+
         objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
         //objs.wrap(Box::new(RayMarchingObjects::wrapup(&rm_objs.read().unwrap())));
         //objs.wrap(Box::new(Graph3D::wrapup(&g1)));
         //camera.rot(V{x: 0.0, y: 0.1, z: 0.0});
-        
+
         //println!("transformation took {}ms", now.elapsed().as_millis());
-        
+
         //println!("Starting rendering {} {}" , stage, modulus_size);
 
         //render_multi(&mut canvas, objs, camera, &W, &H);
@@ -253,8 +253,8 @@ pub fn render_multi(canvas : &mut Canvas<Window>, objs : RenderObjects, camera :
             tx.send((i.to_owned(), section));
         });
     }
-    //println!("Setup took {}ms", now.elapsed().as_millis());
-    //println!("Started rendering without issues");
+    println!("Setup took {}ms", now.elapsed().as_millis());
+    println!("Started rendering without issues");
     let now = Instant::now();
 
     for i in 0..n {
@@ -262,7 +262,7 @@ pub fn render_multi(canvas : &mut Canvas<Window>, objs : RenderObjects, camera :
 
         camera.draw_modulus(&section.1, canvas, section.0, n, *w_, *h_);
 
-        //println!("Thread {} finished rendering", section.0);
+        println!("Thread {} finished rendering", section.0);
     }
 
     println!("Render took {}ms", now.elapsed().as_millis());

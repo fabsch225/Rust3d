@@ -255,6 +255,7 @@ impl NMatrix {
         R([n-1 n],[n-1 n]) = [cos(theta) -sin(theta); sin(theta) cos(theta)];
         M = M\R*M;
      */
+    //ToDo cache this!
     pub fn aguilera_perez_single_thread(v: &NMatrix, alpha: f64, n: usize) -> NMatrix {
         let mut v = v.clone();
         assert_eq!(v.rows, n);
