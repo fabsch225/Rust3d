@@ -32,8 +32,8 @@ use rust3d::geometry::line::Line;
 use rust3d::math::functions::FunctionR2ToR;
 use rust3d::math::graph::Graph3D;
  
-const W : usize = 500;
-const H : usize = 500;
+const W : usize = 1500;
+const H : usize = 1500;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
@@ -41,9 +41,9 @@ const TURN_SPEED : f64 = 0.0035;
 
 ///Todos
 /// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
-/// - [ ] Refactor polytree to be untexured and textured
+/// - [ ] Refactor polytree to be untextured and textured
 /// - [ ] Fix RM coloring
-/// - [ ] implement rectanguar Face
+/// - [ ] implement rectangular Face
 /// - [x] implement rot_by for transformable
 /// - [x] maybe stop rendering when nothing changes
 /// - [ ] implement goto for transformable
@@ -141,7 +141,7 @@ pub fn main() -> Result<(), String>{
                 //stage = 1;
                 block_size = 10;
             }   
-            /* 
+            /*
             if (rot_z > 0.0) {
                 g1.rot(V{x: 0.0, y: 0.0, z: rot_z});
             }
@@ -155,7 +155,7 @@ pub fn main() -> Result<(), String>{
             }
             else {
                 //g1.rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
-                pa_objs.write().unwrap().get(0).rot(V{x: 0.0, y: - rot_y, z: 0.0});            
+                pa_objs.write().unwrap().get(0).rot(V{x: 0.0, y: rot_y, z: 0.0});
             }
         }
 

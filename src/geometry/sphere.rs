@@ -38,23 +38,23 @@ impl Sphere {
 }
 
 impl Transformable for Sphere {
-    fn transform(&mut self) -> Box<&mut dyn Transformable> {
-        return Box::new(self);
-    }
-    fn scale(&mut self, p : Point) {
-        self.r *= p.x;
-    }
-
     fn rot_reverse(&mut self, p:Point) {}
-
     fn rot(&mut self, p:Point) {}
+
+    fn rot_by(&mut self, p : Point, r : Point) {
+        self.m.rot_by(p, r);
+    }
 
     fn translate(&mut self, p: Point) {
     	self.m.trans(p.x, p.y, p.z);
     }
-    
-    fn rot_by(&mut self, p : Point, r : Point) {
-        self.m.rot_by(p, r);
+
+    fn scale(&mut self, p : Point) {
+        self.r *= p.x;
+    }
+
+    fn transform(&mut self) -> Box<&mut dyn Transformable> {
+        return Box::new(self);
     }
 }
 

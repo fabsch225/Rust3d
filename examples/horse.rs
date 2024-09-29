@@ -39,16 +39,6 @@ const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
 const TURN_SPEED : f64 = 0.0035;
 
-///Todos
-/// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
-/// - [ ] Refactor polytree to be untexured and textured
-/// - [ ] Fix RM coloring
-/// - [ ] implement rectanguar Face
-/// - [x] implement rot_by for transformable
-/// - [x] maybe stop rendering when nothing changes
-/// - [ ] implement goto for transformable
-/// - [ ] rot_reverse is buggy for polytree
-
 pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;

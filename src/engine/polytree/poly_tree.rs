@@ -19,9 +19,6 @@ pub struct PolyTree {
 }
 
 impl Transformable for PolyTree {
-    fn transform(&mut self) -> Box<&mut dyn Transformable> {
-        return Box::new(self);
-    }
     fn rot_reverse(&mut self, r_: V3) {
         self.root.rot_reverse(r_, self.source.m);
         self.source.rot_reverse(r_);
@@ -29,6 +26,10 @@ impl Transformable for PolyTree {
     fn rot(&mut self, r_: V3) {
         self.root.rot(r_, self.source.m);
         self.source.rot(r_);
+    }
+    fn rot_by(&mut self, p : V3, r : V3) {
+        self.source.rot_by(p, r);
+        self.root.rot_by(p, r);
     }
     fn translate(&mut self, p: V3) { 
         
@@ -41,31 +42,23 @@ impl Transformable for PolyTree {
         self.source.scale(p);
         self.root = PolyTree::make_polytree_root(Clone::clone(&self.source));
     }
-    
-    fn rot_by(&mut self, p : V3, r : V3) {
-        self.source.rot_by(p, r);
-        self.root.rot_by(p, r);
+
+    fn transform(&mut self) -> Box<&mut dyn Transformable> {
+        return Box::new(self);
     }
 }
 
 impl PathtracingObject for PolyTree {
-    fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync + 'static> {
-        return Box::new(PolyTree {
-            m: self.m,
-            root: Clone::clone(&self.root),
-            source: Clone::clone(&self.source)
-        })
-    }
     fn d(&self, p: V3) -> f64 {
         return 0.0; //todo
     }
     fn color(&self, p: V3) -> Color {
         return self.source.base_color;
     }
-    
     fn is_colliding(&mut self, p0: V3, p: V3) -> bool {
         return true;
     }
+
     fn get_collision(&self, p0: V3, p: V3) -> Collision {
         let mut ptcf_closest = PolyTreeCollisionFeedback::empty();
         let mut bd : f64 = f64::MAX;
@@ -96,7 +89,7 @@ impl PathtracingObject for PolyTree {
                 c.c = Color::RED;
             }
             else {
-                let r = self.source.tf[pos]; 
+                let r = self.source.tf[pos];
                 let g = self.source.tf[pos + 1];
                 let b = self.source.tf[pos + 2];
 
@@ -104,9 +97,16 @@ impl PathtracingObject for PolyTree {
             }
             return c;
         }
-        
+
         return Collision{d: bd, p: p0, hit: false, c: Color::RED};
-        
+
+    }
+    fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync + 'static> {
+        return Box::new(PolyTree {
+            m: self.m,
+            root: Clone::clone(&self.root),
+            source: Clone::clone(&self.source)
+        })
     }
 }
 

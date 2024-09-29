@@ -44,7 +44,6 @@ impl PolyTreeElement {
     pub fn rot_by(&mut self, p0: V3, r_: V3) {
         self.m.rot_by(p0, r_);
         if (self.leaf) {
-           
             for i in 0..self.faces.len() {
                 self.faces[i].rot(r_, p0);
             }
@@ -69,7 +68,6 @@ impl PolyTreeElement {
     pub fn rot(&mut self, r_: V3, p0: V3) {
         self.m.rot_by(p0, r_);
         if (self.leaf) {
-           
             for i in 0..self.faces.len() {
                 self.faces[i].rot(r_, p0);
             }
@@ -80,16 +78,15 @@ impl PolyTreeElement {
         }
     }
     pub fn rot_reverse(&mut self, r_: V3, p0: V3) {
+        self.m.rot_reverse_by(r_, p0);
         if (self.leaf) {
             for i in 0..self.faces.len() {
                 self.faces[i].rot_reverse(r_, p0);
             }
-            self.m.rot_reverse_by(r_, p0);
         } else {
             for i in 0..self.children.len() {
                 self.children[i].rot_reverse(r_, p0);
             }
-            self.m.rot_reverse_by(r_, p0);
         }
     }
     pub fn trans(&mut self, p: V3) {

@@ -119,7 +119,7 @@ impl Face {
         self.a.rot_by(p, r_);
         self.b.rot_by(p, r_);
         self.m.rot_by(p, r_);
-        //self.update();
+        self.update();
  	}
     
     pub fn trans(&mut self, p: V3) {

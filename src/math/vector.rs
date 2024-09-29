@@ -27,6 +27,20 @@ impl NVector {
         self.x[i] = v;
     }
 
+    pub fn is_null(&self) -> bool {
+        for i in 0..self.n {
+            if self.get(i).abs() > 1e-5 {
+                return false;
+            }
+        }
+        true
+    }
+
+    pub fn expand(&mut self) {
+        self.x.push(1.);
+        self.n += 1;
+    }
+
     pub fn new_from(p: &NVector) -> NVector {
         NVector { 
             n: p.n,
@@ -44,12 +58,7 @@ impl NVector {
             alpha.set(i, r.x[i]);
         }
 
-        let m = NMatrix::rotation(&alpha);
-        m.print();
-        let result = NMatrix::multiply_nvector(&m, self);
-        for i in 0..self.n {
-            self.x[i] = result.x[i];
-        }
+        panic!("NVector::rot: not implemented");
     }
 
     pub fn rot_reverse(&mut self, r : f64) {
@@ -74,16 +83,29 @@ impl NVector {
         }
     }
 
-    pub fn mult(&mut self, v : f64) {
+    pub fn scale(&mut self, v : f64) {
         for i in 0..self.n {
             self.x[i] = self.x[i] * v;
         }
     }
 
-    pub fn print(&self) {
+    pub fn dot(&self, p : &NVector) -> f64 {
+        let mut result = 0.;
         for i in 0..self.n {
-            print!("x{} = {}, ", i, self.x[i]);
+            result  += self.x[i] * p.x[i];
         }
-        println!();
+        result
+    }
+
+    pub fn norm(&self) -> f64 {
+        let mut result = 0.;
+        for i in 0..self.n {
+            result += self.x[i] * self.x[i];
+        }
+        result.sqrt()
+    }
+
+    pub fn print(&self) {
+        println!("{:?}", self.x);
     }
 }
