@@ -72,24 +72,35 @@ impl Face {
 
         //print!("{} {} {} {} {} {} ", p0.x, p0.y, p0.z, p.x, p.y, p.z);
 
-        //gauss
+        //gauss (with early returns)
 
         let (a, b, c) = (p0.x, p0.y, p0.z);
         let (d, e, f) = (p.x, p.y, p.z);
         let (x, y, z) = (self.r.x, self.r.y, self.r.z);
 
-        let n1 = -(self.a.x - x) * e + (self.a.y - y) * d;
-        let n2 = -(self.a.y - y) * f + (self.a.z - z) * e; 
+        //if n3 == 0 -> early return
         let n3 = -(self.b.x - x) * e + (self.b.y - y) * d;
+        if (n3 == 0.) {
+            return (-1., -1.);
+        }
+        let n1 = -(self.a.x - x) * e + (self.a.y - y) * d;
+        let n2 = -(self.a.y - y) * f + (self.a.z - z) * e;
+
         let n4 = -(self.b.y - y) * f + (self.b.z - z) * e;
+
+        let n1n4n2n3_pre = n1 * n4 - n2 * n3;
+        //if (n1 * n4 - n2 * n3) == 0 -> early return
+        if (n1n4n2n3_pre == 0.) {
+            return (-1., -1.);
+        }
 
         let o1 = (x - a) * e - (y - b) * d;  
         let o2 = (y - b) * f - (z - c) * e; 
 
-        let beta = (o1 * n4 - o2 * n3) / (n1 * n4 - n2 * n3); 
+        let beta = (o1 * n4 - o2 * n3) / n1n4n2n3_pre;
         let gamma = (o1 - beta * n1) / n3;
 
-        return (beta, gamma);
+        (beta, gamma)
     } 
 
     pub fn rot_reverse(&mut self, r_: V3, p: V3) {
