@@ -23,3 +23,6 @@ fontdue = "0.8.0"
 # is why it is not a default feature -- it could become hard to disable.
 
 # rusqlite = { version = "0.29.0", features = ["bundled"] }
+
+[profile.release]
+#debug = "full"

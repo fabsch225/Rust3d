@@ -1,5 +1,6 @@
 use super::matrix::NMatrix;
 
+#[derive(Clone, Debug)]
 pub struct NVector {
     pub n : usize,
     pub x : Vec<f64>,
@@ -36,7 +37,8 @@ impl NVector {
         true
     }
 
-    pub fn expand(&mut self) {
+    //same Vector, but in homogeneous coordinates
+    pub fn expand_to_homogeneous(&mut self) {
         self.x.push(1.);
         self.n += 1;
     }
@@ -105,7 +107,40 @@ impl NVector {
         result.sqrt()
     }
 
+    pub fn normalize(&mut self) {
+        self.scale(1. / self.norm());
+    }
+
     pub fn print(&self) {
         println!("{:?}", self.x);
+    }
+
+    pub fn gram_schmidt(vectors: Vec<NVector>) -> Vec<NVector> {
+        let mut orthogonalized: Vec<NVector> = Vec::new();
+
+        for v in vectors {
+            let mut u = v;
+            for u_prev in &orthogonalized {
+                let mut proj = u_prev.clone();
+                proj.scale(u.dot(u_prev));
+                u.subtr(&proj);
+            }
+            u.normalize();
+            orthogonalized.push(u);
+        }
+
+        orthogonalized
+    }
+
+    pub fn gram_schmidt2(v1: NVector, v2: NVector) -> (NVector, NVector) {
+        let mut v1 = v1.clone();
+        let mut v2 = v2.clone();
+        v1.normalize();
+        let mut proj_v2_v1 = v1.clone();
+        proj_v2_v1.scale(v2.dot(&v1));
+        v2.subtr(&proj_v2_v1);
+        v2.normalize();
+
+        (v1, v2)
     }
 }

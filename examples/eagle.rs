@@ -32,8 +32,8 @@ use rust3d::geometry::line::Line;
 use rust3d::math::functions::FunctionR2ToR;
 use rust3d::math::graph::Graph3D;
 
-const W : usize = 1000;
-const H : usize = 1000;
+const W : usize = 800;
+const H : usize = 800;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
@@ -145,7 +145,7 @@ pub fn main() -> Result<(), String>{
             }
             else {
                 //g1.rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
-                pa_objs.write().unwrap().get(0).rot(V{x: 0.0, y: - rot_y, z: 0.0});
+                pa_objs.write().unwrap().get(0).rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
             }
         }
 

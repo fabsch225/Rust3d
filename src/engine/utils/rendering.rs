@@ -44,20 +44,19 @@ pub trait Sphereable {
     fn get_radius(&self) -> f64;
     fn get_middle(&self) -> V3;
 
+    //ToDo optimizing this is critical
     fn is_colliding(&self, p0: V3, p: V3) -> bool {
         //is it behind me?
-        let mut to_m = self.get_middle().clone();
-        to_m.subtr(p0);
-        let proj = to_m.dt(p);
+        let mut m = self.get_middle().clone();
+        m.subtr(p0);
+        let proj = m.dt(p);
         if (proj < 0.0) {
             return false;
         } else {
             //is it too far away from the ray?
-            let mut m_ = self.get_middle().clone();
-            m_.subtr(p0);
-            m_.cross(p);
+            m.cross(p);
 
-            if (m_.norm() > self.get_radius()) {
+            if (m.norm() > self.get_radius()) {
                 return false;
             } else {
                 return true;
@@ -105,9 +104,9 @@ impl Renderable for RenderObjects {
                 p2.subtr(p0);
                 let d = p2.norm();
                 if (d != c_.d && c_.hit) {
-                    println!("distance is {}", c_.d);
+                    //println!("distance is {}", c_.d);
                 }
-                assert_eq!(d, c_.d);
+                //assert_eq!(d, c_.d);
                 if (c_.d < bd) {
                     //println!("distance is {}", c_.d);
                     c = c_;

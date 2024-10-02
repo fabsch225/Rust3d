@@ -36,4 +36,8 @@ pub mod math {
     pub mod utils {
         pub mod graph_utils;
     }
+
+    pub mod optimization {
+        pub mod float_ops;
+    }
 }

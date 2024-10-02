@@ -204,7 +204,8 @@ impl NMatrix {
         result.determinant_single_thread()
     }
 
-    pub fn expand(&mut self) {
+    //same Matrix, but in homogeneous coordinates
+    pub fn expand_to_homogeneous(&mut self) {
         let mut clone = self.clone();
         self.cols += 1;
         self.rows += 1;

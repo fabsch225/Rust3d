@@ -145,7 +145,7 @@ pub fn main() -> Result<(), String>{
             }
             else {
                 //g1.rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
-                pa_objs.write().unwrap().get(0).rot(V{x: 0.0, y: - rot_y, z: 0.0});            
+                pa_objs.write().unwrap().get(0).rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
             }
         }
 

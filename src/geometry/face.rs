@@ -89,7 +89,7 @@ impl Face {
         let beta = (o1 * n4 - o2 * n3) / (n1 * n4 - n2 * n3); 
         let gamma = (o1 - beta * n1) / n3;
 
-        return (beta, gamma);    
+        return (beta, gamma);
     } 
 
     pub fn rot_reverse(&mut self, r_: V3, p: V3) {

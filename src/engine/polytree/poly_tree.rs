@@ -130,7 +130,7 @@ impl PolyTree {
 
     //ToDo Cache this, load from file
     //ToDo multithreading
-    pub fn construct_tree(fs: Vec<F>, uvs: Vec<UV>, useThreads: bool) -> PolyTreeElement {
+    pub fn construct_tree(fs: Vec<F>, uvs: Vec<UV>, use_threads: bool) -> PolyTreeElement {
         let m_ = PolyTree::get_middle(&fs);
         let r_ = PolyTree::get_radius(&fs);
         if fs.len() < 200 {
@@ -146,7 +146,7 @@ impl PolyTree {
         else {
             let mut children : Vec<PolyTreeElement> = Vec::new();
             let (dfsc, duvs) = PolyTree::divide_faces(fs, uvs);
-            if (useThreads) {
+            if (use_threads) {
                 let (tx, rx) = mpsc::channel();
                 let dfsc = Arc::new(dfsc);
                 let duvs = Arc::new(duvs);
