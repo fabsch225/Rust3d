@@ -1,6 +1,6 @@
 use super::vector::NVector;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct NMatrix {
     pub rows: usize,
     pub cols: usize,
@@ -94,6 +94,10 @@ impl NMatrix {
             result.x[i] = sum;
         }
         result
+    }
+
+    pub fn add_entry(&mut self, row: usize, col: usize, value: f64) {
+        self.data[row * self.cols + col] += value;
     }
 
     pub fn add(&self, other: &NMatrix) -> Self {
@@ -279,5 +283,25 @@ impl NMatrix {
         m = mi.multiply_single_thread(&rm);
         m = m.multiply_single_thread(&mi);
         m
+    }
+
+    pub fn rotation_matrix(a: NVector, b: NVector, theta: f64) -> NMatrix {
+        let n = a.n;
+        assert_eq!(b.n, n);
+        let mut rotation = NMatrix::identity(n);
+
+        let cos_theta = theta.cos();
+        let sin_theta = theta.sin();
+/*
+        for i in 0..n {
+            for j in 0..n {
+                rotation[i, j] += (cos_theta - 1) * (v1_orth[i] * v1_orth[j] + v2_orth[i] * v2_orth[j])
+
+                rotation[i, j] += sin_theta * (v2_orth[i] * v1_orth[j] - v1_orth[i] * v2_orth[j])
+
+            }
+        }
+*/
+        rotation
     }
 }

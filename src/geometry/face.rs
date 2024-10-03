@@ -83,6 +83,7 @@ impl Face {
         if (n3 == 0.) {
             return (-1., -1.);
         }
+
         let n1 = -(self.a.x - x) * e + (self.a.y - y) * d;
         let n2 = -(self.a.y - y) * f + (self.a.z - z) * e;
 

@@ -2,6 +2,12 @@
 mod tests {
     use rust3d::math::{matrix::NMatrix, vector::NVector};
 
+    fn assert_nvector_equal(a: NVector, b: NVector) {
+        for i in 0..3 {
+            assert!((a.get(i) - b.get(i)).abs() < 1e-5);
+        }
+    }
+
     #[test]
     fn test_nmatrix_creation() {
         let m = NMatrix::new(3, 3);
@@ -119,5 +125,30 @@ mod tests {
     fn test_non_invertible_NMatrix() {
         let m = NMatrix::from_vec(2, 2, vec![1.0, 2.0, 2.0, 4.0]);
         m.inverse_single_thread(); // should panic
+    }
+
+    #[test]
+    fn test_rotation_matrix_with_vector() {
+        let a = NVector::new(3, vec![1.0, 0.0, 0.0]);
+        let b = NVector::new(3, vec![0.0, 1.0, 0.0]);
+        let theta = std::f64::consts::FRAC_PI_2;
+        let rotation_matrix = NMatrix::rotation_matrix(a.clone(), b.clone(), theta);
+        println!("{:?}", rotation_matrix);
+
+        let vector = NVector::new(3, vec![1.0, 0.0, 0.0]);
+        let rotated_vector = rotation_matrix.multiply_nvector(&vector);
+        let expected = NVector::new(3, vec![0.0, 1.0, 0.0]);
+        assert_nvector_equal(rotated_vector, expected);
+
+        let vector = NVector::new(3, vec![0.0, 1.0, 0.0]);
+        let rotated_vector = rotation_matrix.multiply_nvector(&vector);
+        let expected = NVector::new(3, vec![-1.0, 0.0, 0.0]);
+        assert_nvector_equal(rotated_vector, expected);
+
+        let vector = NVector::new(3, vec![0.0, 0.0, 1.0]);
+        let rotated_vector = rotation_matrix.multiply_nvector(&vector);
+        println!("{:?}", rotated_vector);
+        let expected = NVector::new(3, vec![0.0, 0.0, 1.0]);
+        assert_nvector_equal(rotated_vector, expected);
     }
 }

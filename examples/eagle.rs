@@ -62,7 +62,7 @@ pub fn main() -> Result<(), String>{
 
     //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
     let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
-    t1.scale(V{x: 0.15, y: 0.15,z: 0.15});
+    t1.scale(V{x: 0.1, y: 0.1,z: 0.1});
     let mut t1 = *PolyTree::new(t1);
 
     let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
