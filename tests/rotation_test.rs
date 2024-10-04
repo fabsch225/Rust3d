@@ -3,7 +3,8 @@ mod tests {
     use rust3d::math::{matrix::NMatrix, vector::NVector};
     use rust3d::math::utils::assertion_utils;
     use rust3d::math::utils::assertion_utils::assert_equal_nvector;
-
+    /*
+    just stick to the aguilera-perez method for clean Nd Rotations
     #[test]
     fn test_rotation_matrix_difference() {
         let a = NVector::from_vec(vec![1.0, 0.0, 0.0]);
@@ -19,4 +20,6 @@ mod tests {
         let e_ = m.multiply_nvector(&d);
         assert_equal_nvector(&e, &e_);
     }
+
+     */
 }

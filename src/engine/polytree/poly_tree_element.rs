@@ -1,7 +1,7 @@
 use crate::engine::pathtracing::PathtracingObject;
-use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision, Sphereable}, transformation::Transformable};
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, Sphereable}, transformation::Transformable};
 use crate::geometry::face::{Face as F, UV};
-use crate::geometry::point::Point as V3;
+use crate::geometry::vector3::Vector3 as V3;
 use crate::engine::polytree::poly_tree_utils::PolyTreeCollisionFeedback;
 use crate::geometry::poly_shape::Poly;
 use crate::engine::polytree::poly_tree::PolyTree;
@@ -94,12 +94,12 @@ impl PolyTreeElement {
             for i in 0..self.faces.len() {
                 self.faces[i].trans(p);
             }
-            self.m.trans(p.x, p.y, p.z);
+            self.m.translate(p.x, p.y, p.z);
         } else {
             for i in 0..self.children.len() {
                 self.children[i].trans(p);
             }
-            self.m.trans(p.x, p.y, p.z);
+            self.m.translate(p.x, p.y, p.z);
         }
     }
     pub fn calulate_middle(&mut self) -> V3 {

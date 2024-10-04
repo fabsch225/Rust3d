@@ -2,18 +2,18 @@ use sdl2::pixels::Color;
 
 use crate::engine::raymarching::RayMarchingObject;
 use crate::engine::utils::rendering::Sphereable;
-use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
-use crate::geometry::point::Point;
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
+use crate::geometry::vector3::Vector3;
 
 #[derive(Copy, Clone)]
 pub struct Sphere {
-	m: Point,
+	m: Vector3,
     r: f64,
     base_color: Color
 }
 
 impl Sphere {
-    pub fn new(p: Point, r_: f64, c: Color) -> Self {
+    pub fn new(p: Vector3, r_: f64, c: Color) -> Self {
         Sphere {
             m: p,
             r: r_,
@@ -21,13 +21,13 @@ impl Sphere {
         }
     }
 
-    pub fn d_(self, p : Point) -> f64 {
+    pub fn d_(self, p : Vector3) -> f64 {
         return self.m.d(p) - self.r;
     }
 
-    pub fn nearest_point_to(self, p : Point) -> Point {
-        let mut v : Point = self.m.clone();
-        let mut res : Point = self.m.clone();
+    pub fn nearest_point_to(self, p : Vector3) -> Vector3 {
+        let mut v : Vector3 = self.m.clone();
+        let mut res : Vector3 = self.m.clone();
         v.subtr(p);
         v.normalize();
         v.mult(self.r);
@@ -38,18 +38,18 @@ impl Sphere {
 }
 
 impl Transformable for Sphere {
-    fn rot_reverse(&mut self, p:Point) {}
-    fn rot(&mut self, p:Point) {}
+    fn rot_reverse(&mut self, p: Vector3) {}
+    fn rot(&mut self, p: Vector3) {}
 
-    fn rot_by(&mut self, p : Point, r : Point) {
+    fn rot_by(&mut self, p : Vector3, r : Vector3) {
         self.m.rot_by(p, r);
     }
 
-    fn translate(&mut self, p: Point) {
-    	self.m.trans(p.x, p.y, p.z);
+    fn translate(&mut self, p: Vector3) {
+    	self.m.translate(p.x, p.y, p.z);
     }
 
-    fn scale(&mut self, p : Point) {
+    fn scale(&mut self, p : Vector3) {
         self.r *= p.x;
     }
 
@@ -63,25 +63,25 @@ impl Sphereable for Sphere {
         return self.r;
     }
 
-    fn get_middle(&self) -> Point {
+    fn get_middle(&self) -> Vector3 {
         return self.m.clone();
     }
 }
 
 impl RayMarchingObject for Sphere {
-	fn d(&self, p : Point) -> f64 {
+	fn d(&self, p : Vector3) -> f64 {
 		return self.d_(p);
 	}
 
-    fn d_r(&self, p : Point) -> f64 {
+    fn d_r(&self, p : Vector3) -> f64 {
 		return self.d_(p);
 	}
 
-	fn color(&self, p : Point) -> Color {
+	fn color(&self, p : Vector3) -> Color {
 		return self.base_color; // + self.find_s_index(p) * 10
 	}
 
-    fn nearest_point(&self, p: Point) -> Point {
+    fn nearest_point(&self, p: Vector3) -> Vector3 {
         return self.nearest_point_to(p)
     }
 

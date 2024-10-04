@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use rust3d::geometry::point::Point;
+    use rust3d::geometry::vector3::Vector3;
     use rust3d::math::vector::NVector;
 
     fn assert_approx_eq(a: f64, b: f64, epsilon: f64) {

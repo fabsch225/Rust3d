@@ -1,5 +1,5 @@
-use crate::engine::{pathtracing::PathtracingObject, utils::{rendering::{Collision, RenderObjects, Renderable, Sphereable}, transformation::Transformable}};
-use crate::geometry::point::Point as V3;
+use crate::engine::{pathtracing::PathtracingObject, utils::{rendering::{Collision, RayRenderScene, RayRenderable, Sphereable}, transformation::Transformable}};
+use crate::geometry::vector3::Vector3 as V3;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Face {
@@ -135,9 +135,9 @@ impl Face {
  	}
     
     pub fn trans(&mut self, p: V3) {
-    	self.r.trans(p.x, p.y, p.z);
-        self.a.trans(p.x, p.y, p.z);
-        self.b.trans(p.x, p.y, p.z);
+    	self.r.translate(p.x, p.y, p.z);
+        self.a.translate(p.x, p.y, p.z);
+        self.b.translate(p.x, p.y, p.z);
 
         self.update();
     }

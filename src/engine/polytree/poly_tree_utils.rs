@@ -1,4 +1,4 @@
-use crate::geometry::point::Point as V3;
+use crate::geometry::vector3::Vector3 as V3;
 use crate::geometry::face::UV;
 
 use std::rc::Rc;

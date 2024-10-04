@@ -2,10 +2,10 @@ use std::sync::{mpsc, Arc};
 use std::thread;
 use sdl2::pixels::Color;
 
-use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision, Sphereable}, transformation::Transformable};
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, Sphereable}, transformation::Transformable};
 use crate::engine::pathtracing::PathtracingObject;
 use crate::geometry::face::{Face as F, UV};
-use crate::geometry::point::Point as V3;
+use crate::geometry::vector3::Vector3 as V3;
 use crate::geometry::poly_shape::Poly;
 use crate::engine::polytree::poly_tree_element::PolyTreeElement;
 

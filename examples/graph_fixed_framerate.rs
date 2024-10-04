@@ -15,16 +15,16 @@ use std::time::Duration;
 use std::time::Instant;
 
 use rust3d::engine::polytree::poly_tree::PolyTree;
-use rust3d::engine::raymarching::RayMarchingObjects;
+use rust3d::engine::raymarching::RayMarchingScene;
 use rust3d::engine::utils::rendering::Sphereable;
 use rust3d::engine::utils::renderung_ui::UiElement;
 use rust3d::engine::utils::transformation::{PI, TWO_PI};
-use rust3d::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
+use rust3d::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
 use rust3d::geometry::face::Face;
 use rust3d::geometry::quad::Quad;
-use rust3d::geometry::point::Point as V;
-use rust3d::engine::camera::Camera;
-use rust3d::engine::pathtracing::PathtracingObjects;
+use rust3d::geometry::vector3::Vector3 as V;
+use rust3d::engine::camera::RayCamera;
+use rust3d::engine::pathtracing::PathTracingScene;
 use rust3d::engine::pathtracing::PathtracingObject;
 use rust3d::geometry::poly_shape::Poly;
 use rust3d::geometry::sphere::Sphere;
@@ -64,7 +64,7 @@ pub fn main() -> Result<(), String>{
     let root = p1.x[7];
     let mut label1 = rust3d::engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), &font, Color::RED, Color::WHITE);
 
-    let mut camera : Camera = Camera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
+    let mut camera : RayCamera = RayCamera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
 
     let mut stage = 1;
     let mut modulus_size = 300;
@@ -101,7 +101,7 @@ pub fn main() -> Result<(), String>{
             }
         }
         let now = Instant::now();
-        let mut objs: RenderObjects = RenderObjects::new();
+        let mut objs: RayRenderScene = RayRenderScene::new();
         objs.wrap(Box::new(Graph3D::wrapup(&g1)));
 
         if (motion) {

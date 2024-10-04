@@ -1,16 +1,16 @@
 use sdl2::pixels::Color;
 
 use crate::engine::raymarching::RayMarchingObject;
-use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
-use crate::geometry::point::Point;
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
+use crate::geometry::vector3::Vector3;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Quad {
-    pub x: [Point; 8],
-    s: [Point; 6],
+    pub x: [Vector3; 8],
+    s: [Vector3; 6],
     pub r: f64,
     pub r_outer: f64,
-    pub m: Point,
+    pub m: Vector3,
     rx: f64,
     ry: f64,
     rz: f64,
@@ -18,8 +18,8 @@ pub struct Quad {
 }
 
 impl Quad {
-    pub fn new(p: Point, sides: Point, c: Color) -> Self {
-        let half_sides: Point = Point {
+    pub fn new(p: Vector3, sides: Vector3, c: Color) -> Self {
+        let half_sides: Vector3 = Vector3 {
             x: sides.x / 2.0,
             y: sides.y / 2.0,
             z: sides.z / 2.0,
@@ -29,74 +29,74 @@ impl Quad {
 
         Quad {
             x: [
-                Point {
+                Vector3 {
                     x: p.x - half_sides.x,
                     y: p.y + half_sides.y,
                     z: p.z - half_sides.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_sides.x,
                     y: p.y + half_sides.y,
                     z: p.z - half_sides.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_sides.x,
                     y: p.y - half_sides.y,
                     z: p.z - half_sides.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x - half_sides.x,
                     y: p.y - half_sides.y,
                     z: p.z - half_sides.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x - half_sides.x,
                     y: p.y + half_sides.y,
                     z: p.z + half_sides.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_sides.x,
                     y: p.y + half_sides.y,
                     z: p.z + half_sides.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_sides.x,
                     y: p.y - half_sides.y,
                     z: p.z + half_sides.z
                 },
-                Point {
+                Vector3 {
                     x: p.x - half_sides.x,
                     y: p.y - half_sides.y,
                     z: p.z + half_sides.z,
                 },
             ],
             s: [
-                Point {
+                Vector3 {
                     x: p.x - half_sides.x,
                     y: p.y,
                     z: p.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_sides.x,
                     y: p.y,
                     z: p.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x,
                     y: p.y - half_sides.y,
                     z: p.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x,
                     y: p.y + half_sides.y,
                     z: p.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x,
                     y: p.y,
                     z: p.z - half_sides.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x,
                     y: p.y,
                     z: p.z + half_sides.z,
@@ -112,79 +112,79 @@ impl Quad {
         }
     }
 
-    pub fn cube(p: Point, a: f64, c: Color) -> Self {
+    pub fn cube(p: Vector3, a: f64, c: Color) -> Self {
         let half_a: f64 = a / 2.0;
 
         Quad {
             x: [
-                Point {
+                Vector3 {
                     x: p.x - half_a,
                     y: p.y + half_a,
                     z: p.z - half_a,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_a,
                     y: p.y + half_a,
                     z: p.z - half_a,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_a,
                     y: p.y - half_a,
                     z: p.z - half_a,
                 },
-                Point {
+                Vector3 {
                     x: p.x - half_a,
                     y: p.y - half_a,
                     z: p.z - half_a,
                 },
-                Point {
+                Vector3 {
                     x: p.x - half_a,
                     y: p.y + half_a,
                     z: p.z + half_a,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_a,
                     y: p.y + half_a,
                     z: p.z + half_a,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_a,
                     y: p.y - half_a,
                     z: p.z + half_a,
                 },
-                Point {
+                Vector3 {
                     x: p.x - half_a,
                     y: p.y - half_a,
                     z: p.z + half_a,
                 },
             ],
             s: [
-                Point {
+                Vector3 {
                     x: p.x - half_a,
                     y: p.y,
                     z: p.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x + half_a,
                     y: p.y,
                     z: p.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x,
                     y: p.y - half_a,
                     z: p.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x,
                     y: p.y + half_a,
                     z: p.z,
                 },
-                Point {
+                Vector3 {
                     x: p.x,
                     y: p.y,
                     z: p.z - half_a,
                 },
-                Point {
+                Vector3 {
                     x: p.x,
                     y: p.y,
                     z: p.z + half_a,
@@ -200,7 +200,7 @@ impl Quad {
         }
     }
 
-    pub fn has_point(self, p: Point) -> u32 {
+    pub fn has_point(self, p: Vector3) -> u32 {
         if true {
             return 5;
         } else {
@@ -216,8 +216,8 @@ impl Quad {
         }
     }
 
-    pub fn find_s_index(self, p: Point) -> u32 {
-        let mut min_d: Point = self.s[0];
+    pub fn find_s_index(self, p: Vector3) -> u32 {
+        let mut min_d: Vector3 = self.s[0];
         let mut result: u32 = 1;
         for i in 0..6 {
             if (p.d(min_d) > p.d(self.s[i])) {
@@ -260,13 +260,13 @@ impl Quad {
         return result;
     }
 
-    pub fn nearest_point_to(self, p: Point) -> Point {
-        let mut pc: Point = p.clone();
+    pub fn nearest_point_to(self, p: Vector3) -> Vector3 {
+        let mut pc: Vector3 = p.clone();
 
-        let mut o: Point = self.x[3];
-        let mut x: Point = self.x[2];
-        let mut y: Point = self.x[0];
-        let mut z: Point = self.x[7];
+        let mut o: Vector3 = self.x[3];
+        let mut x: Vector3 = self.x[2];
+        let mut y: Vector3 = self.x[0];
+        let mut z: Vector3 = self.x[7];
 
         pc.subtr(o);
 
@@ -311,7 +311,7 @@ impl Quad {
         return o;
     }
 
-    pub fn d_(self, p: Point) -> f64 {
+    pub fn d_(self, p: Vector3) -> f64 {
         if p.d(self.m) > self.r_outer {
             //doesnt work i think
             //println!("{}", self.r_outer);
@@ -321,14 +321,14 @@ impl Quad {
         }
     }
 
-    pub fn d_rounded(self, p: Point) -> f64 {
+    pub fn d_rounded(self, p: Vector3) -> f64 {
         //trash
-        let mut pc: Point = p.clone();
+        let mut pc: Vector3 = p.clone();
 
-        let mut o: Point = self.x[3];
-        let mut x: Point = self.x[2];
-        let mut y: Point = self.x[0];
-        let mut z: Point = self.x[7];
+        let mut o: Vector3 = self.x[3];
+        let mut x: Vector3 = self.x[2];
+        let mut y: Vector3 = self.x[0];
+        let mut z: Vector3 = self.x[7];
 
         pc.subtr(o);
 
@@ -378,8 +378,8 @@ impl Transformable for Quad {
     fn transform(&mut self) -> Box<&mut dyn Transformable> {
         return Box::new(self);
     }
-    fn rot_reverse(&mut self, p: Point) {
-        let cm: Point = self.m.clone();
+    fn rot_reverse(&mut self, p: Vector3) {
+        let cm: Vector3 = self.m.clone();
 
         for i in 0..8 {
             self.x[i].subtr(self.m);
@@ -394,32 +394,32 @@ impl Transformable for Quad {
         }
     }
 
-    fn rot(&mut self, p: Point) {
+    fn rot(&mut self, p: Vector3) {
         for i in 0..8 {
             self.x[i].subtr(self.m);
-            self.x[i].rot(p);
+            self.x[i].rotate(p);
             self.x[i].add(self.m);
         }
 
         for i in 0..6 {
             self.s[i].subtr(self.m);
-            self.s[i].rot(p);
+            self.s[i].rotate(p);
             self.s[i].add(self.m);
         }
     }
 
-    fn translate(&mut self, p: Point) {
-        self.m.trans(p.x, p.y, p.z);
+    fn translate(&mut self, p: Vector3) {
+        self.m.translate(p.x, p.y, p.z);
 
         for i in 0..8 {
-            self.x[i].trans(p.x, p.y, p.z);
+            self.x[i].translate(p.x, p.y, p.z);
         }
         for i in 0..6 {
-            self.s[i].trans(p.x, p.y, p.z);
+            self.s[i].translate(p.x, p.y, p.z);
         }
     }
 
-    fn scale(&mut self, p: Point) {
+    fn scale(&mut self, p: Vector3) {
         for i in 0..8 {
             self.x[i].subtr(self.m);
             self.x[i].x *= p.x;
@@ -437,7 +437,7 @@ impl Transformable for Quad {
         }
     }
     
-    fn rot_by(&mut self, p : Point, r : Point) {
+    fn rot_by(&mut self, p : Vector3, r : Vector3) {
         for i in 0..8 {
            self.x[i].rot_by(p, r)
         }
@@ -449,22 +449,22 @@ impl Transformable for Quad {
 }
 
 impl RayMarchingObject for Quad {
-    fn d(&self, p: Point) -> f64 {
+    fn d(&self, p: Vector3) -> f64 {
         return self.d_(p);
     }
 
-    fn d_r(&self, p: Point) -> f64 {
+    fn d_r(&self, p: Vector3) -> f64 {
         return self.d_rounded(p);
     }
 
-    fn color(&self, p: Point) -> Color {
+    fn color(&self, p: Vector3) -> Color {
         //let mut color : Point = Point{x: self.base_color.r as f64, y: self.base_color.g as f64, z: self.base_color.b as f64};
         //color.add(Point { x: self.find_s_index(p) as f64 * 10.0, y: (self.find_s_index(p) as f64 * 10.0), z: (self.find_s_index(p) as f64 * 10.0) });
 
         return self.base_color; //Color::RGB(color.x as u8,  color.y as u8, color.z as u8); // + self.find_s_index(p) * 10
     }
 
-    fn nearest_point(&self, p: Point) -> Point {
+    fn nearest_point(&self, p: Vector3) -> Vector3 {
         return self.nearest_point_to(p);
     }
 

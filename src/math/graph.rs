@@ -2,14 +2,14 @@ use std::vec;
 
 use sdl2::pixels::Color;
 
-use crate::engine::pathtracing::{PathtracingObject, PathtracingObjects};
+use crate::engine::pathtracing::{PathtracingObject, PathTracingScene};
 use crate::engine::polytree::poly_tree::PolyTree;
-use crate::engine::raymarching::{RayMarchingObject, RayMarchingObjects};
+use crate::engine::raymarching::{RayMarchingObject, RayMarchingScene};
 use crate::engine::utils::anker_label::AnkerLabel;
-use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision, Sphereable}, transformation::Transformable};
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, Sphereable}, transformation::Transformable};
 use crate::geometry::line::Line;
 use crate::geometry::quad::Quad;
-use crate::geometry::point::Point as V3;
+use crate::geometry::vector3::Vector3 as V3;
 
 use super::utils::graph_utils::{PolyTreeGraphFactory, WithLabels};
 
@@ -18,7 +18,7 @@ pub struct Graph3D {
     pub bounds : Quad,
     pub color : Color,
     pub m : V3,
-    pub axis : RayMarchingObjects,
+    pub axis : RayMarchingScene,
     pub grid : Vec<Line>,
     pub labels : Vec<AnkerLabel>,
 }
@@ -49,7 +49,7 @@ impl Graph3D {
                 skel.push(Line::new(bounds.x[i], bounds.x[j], 0.01));
             }
         }
-        let mut axis_ = RayMarchingObjects::new(0.02);
+        let mut axis_ = RayMarchingScene::new(0.02);
         axis_.add(line1);
         axis_.add(line2);
         axis_.add(line3);
@@ -70,7 +70,7 @@ impl Graph3D {
             bounds: Clone::clone(&old.bounds),
             m: V3{x: 0.0, y: 0.0, z: 0.0},
             color: Color::WHITE,
-            axis: RayMarchingObjects::wrapup(&old.axis),
+            axis: RayMarchingScene::wrapup(&old.axis),
             grid: Vec::new(),
             labels: Vec::new(),
         };
@@ -84,7 +84,7 @@ impl WithLabels for Graph3D {
     }
 }
 
-impl Renderable for Graph3D {
+impl RayRenderable for Graph3D {
     fn get_collision(&self, p0: V3, p: V3, radius: f64) -> Collision {
         let mut collisions = vec![
             self.content.get_collision(p0, p)

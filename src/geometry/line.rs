@@ -2,7 +2,7 @@ use sdl2::pixels::Color;
 
 use crate::engine::{pathtracing::PathtracingObject, raymarching::RayMarchingObject, utils::{rendering::Sphereable, transformation::Transformable}};
 
-use super::point::Point as V3;
+use super::vector3::Vector3 as V3;
 
 pub struct Line {
     pub s : V3,

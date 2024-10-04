@@ -2,14 +2,14 @@ use std::{borrow::Borrow, sync::{Arc, Mutex}};
 
 use sdl2::{pixels::Color, rect::Point, render::Canvas, video::Window};
 
-use crate::{geometry::point::Point as V3, math::utils::graph_utils::WithLabels};
+use crate::{geometry::vector3::Vector3 as V3, math::utils::graph_utils::WithLabels};
 
-use crate::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
 
 use super::utils::{anker_label::AnkerLabel, rendering::Sphereable, renderung_ui::UiElement};
 
 #[derive(Copy, Clone)]
-pub struct Camera {
+pub struct RayCamera {
 	pub v: [V3; 3],
 	pub zoom: f64,
 	pub x: V3,
@@ -20,7 +20,7 @@ pub struct Camera {
 	pub view_distance: f64,
 }
 
-impl<'a> Camera {
+impl<'a> RayCamera {
 	pub fn new(p: V3, rx_: f64, ry_: f64, rz_: f64) -> Self {
 		let mut v_ : [V3; 3] = [
 	    		V3{x: 1.0, y: -0.5, z: -0.5},
@@ -29,11 +29,11 @@ impl<'a> Camera {
 	    	];
 
 		for i in 0..3 {
-			v_[i].rot(V3{x: rx_, y: ry_, z: rz_});
-			v_[i].trans(p.x, p.y, p.z);
+			v_[i].rotate(V3{x: rx_, y: ry_, z: rz_});
+			v_[i].translate(p.x, p.y, p.z);
 		}
     	
-        Camera {
+        RayCamera {
 	        v: v_,
         	x: p,
             rx: rx_,
@@ -48,7 +48,7 @@ impl<'a> Camera {
 	pub fn rot(&mut self, p : V3) {
 		for i in 0..3 {
 			self.v[i].subtr(self.x);
-			self.v[i].rot(p);
+			self.v[i].rotate(p);
 			self.v[i].add(self.x);
 		}
 	}
@@ -74,7 +74,7 @@ impl<'a> Camera {
 		v
     }
 
-	pub fn render_and_draw_modulus_block<R : Renderable>(&self, canvas : &mut Canvas<Window>, obj: &R, blocksize : usize, index: usize, n : usize, w: usize, h : usize) {
+	pub fn render_and_draw_modulus_block<R : RayRenderable>(&self, canvas : &mut Canvas<Window>, obj: &R, blocksize : usize, index: usize, n : usize, w: usize, h : usize) {
 		for j in (0..w).step_by(blocksize) {
 			if ((j / blocksize) % n == index) {
 				for i in (0..h).step_by(blocksize) {
@@ -105,7 +105,7 @@ impl<'a> Camera {
 	}
 
 
-	pub fn render_modulus<R : Renderable>(&self, obj: &R, w: usize, h : usize, index : usize, n : usize) -> Vec<Color> {
+	pub fn render_modulus<R : RayRenderable>(&self, obj: &R, w: usize, h : usize, index : usize, n : usize) -> Vec<Color> {
 		//let mut pos : usize = 0;
 		let mut pixels: Vec<Color> = Vec::new();
 
@@ -122,7 +122,7 @@ impl<'a> Camera {
 		pixels
 	}	
 
-	pub fn render_modulus_multi<R : Renderable>(&self, obj: Arc<R>, w: usize, h : usize, index : usize, n : usize) -> Vec<Color> {
+	pub fn render_modulus_multi<R : RayRenderable>(&self, obj: Arc<R>, w: usize, h : usize, index : usize, n : usize) -> Vec<Color> {
 		let mut pos : usize = 0;
 		let mut pixels: Vec<Color> = Vec::new();
 
@@ -155,7 +155,7 @@ impl<'a> Camera {
 		}	
 	}
 
-	pub fn render_section(&self, j1: usize, i1 : usize, j2: usize, i2 : usize, obj: &dyn Renderable, w: usize, h : usize) -> Vec<Color> {
+	pub fn render_section(&self, j1: usize, i1 : usize, j2: usize, i2 : usize, obj: &dyn RayRenderable, w: usize, h : usize) -> Vec<Color> {
 		let mut section: Vec<Color> = Vec::new();
 
 		for i in i1..i2 {
@@ -174,7 +174,7 @@ impl<'a> Camera {
 		return section;
 	}
 
-    pub fn render_pixel_at(&self, j: usize, i : usize, canvas : &mut Canvas<Window>, obj: &dyn Renderable, w: usize, h : usize,) {
+    pub fn render_pixel_at(&self, j: usize, i : usize, canvas : &mut Canvas<Window>, obj: &dyn RayRenderable, w: usize, h : usize,) {
         let v = self.get_ray_vec(j, i, w, h);
         let mut c = obj.get_collision(self.x, v, 100.0);
     

@@ -3,10 +3,10 @@ use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::rect::Point;
 
-use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision}, transformation::Transformable};
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision}, transformation::Transformable};
 use crate::geometry::sphere::Sphere;
 use crate::geometry::quad::Quad;
-use crate::geometry::point::Point as V3;
+use crate::geometry::vector3::Vector3 as V3;
 use crate::geometry::face::Face;
 
 pub trait RayMarchingObject : Transformable {
@@ -17,25 +17,25 @@ pub trait RayMarchingObject : Transformable {
 	fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync>;
 }
 
-pub struct RayMarchingObjects {
+pub struct RayMarchingScene {
     pub objects: Vec<Box<dyn RayMarchingObject + Send + Sync>>,
 	pub epsilon: f64,
 }
 
-impl RayMarchingObjects {
+impl RayMarchingScene {
 	pub fn new(epsilon: f64) -> Self {
-		RayMarchingObjects {
+		RayMarchingScene {
 			objects: Vec::new(),
 			epsilon,
 		}
 	}
 
-	pub fn wrapup(old : &RayMarchingObjects) -> Self {
+	pub fn wrapup(old : &RayMarchingScene) -> Self {
         let mut objects_vec: Vec<Box<dyn RayMarchingObject + Send + Sync>> = Vec::new();
         for i in 0..old.objects.len() {
             objects_vec.push(old.objects[i].clone());
         }
-        RayMarchingObjects {
+        RayMarchingScene {
 			epsilon: old.epsilon,
             objects: objects_vec,
         }
@@ -144,7 +144,7 @@ impl RayMarchingObjects {
 	}
 }
 
-impl Transformable for RayMarchingObjects {
+impl Transformable for RayMarchingScene {
 	fn transform(&mut self) -> Box<&mut dyn Transformable> {
 		return Box::new(self);
 	}
@@ -179,7 +179,7 @@ impl Transformable for RayMarchingObjects {
 
 }
 
-impl Renderable for RayMarchingObjects {
+impl RayRenderable for RayMarchingScene {
 	fn get_collision(&self, p0 : V3, v : V3, radius : f64) -> Collision {
 		let mut p : V3 = p0;
 		let mut d : f64 = 0.0;
@@ -196,7 +196,7 @@ impl Renderable for RayMarchingObjects {
 				return Collision{d: 0.0, p, hit: false, c};
 			}
 			else {
-				p.trans(v.x * d / 2.0, v.y * d / 2.0, v.z * d / 2.0);
+				p.translate(v.x * d / 2.0, v.y * d / 2.0, v.z * d / 2.0);
 			}
 		}
 	}

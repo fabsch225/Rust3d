@@ -15,16 +15,16 @@ use std::time::Duration;
 use std::time::Instant;
 
 use rust3d::engine::polytree::poly_tree::PolyTree;
-use rust3d::engine::raymarching::RayMarchingObjects;
+use rust3d::engine::raymarching::RayMarchingScene;
 use rust3d::engine::utils::rendering::Sphereable;
 use rust3d::engine::utils::renderung_ui::UiElement;
 use rust3d::engine::utils::transformation::{PI, TWO_PI};
-use rust3d::engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable};
+use rust3d::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
 use rust3d::geometry::face::Face;
 use rust3d::geometry::quad::Quad;
-use rust3d::geometry::point::Point as V;
-use rust3d::engine::camera::Camera;
-use rust3d::engine::pathtracing::PathtracingObjects;
+use rust3d::geometry::vector3::Vector3 as V;
+use rust3d::engine::camera::RayCamera;
+use rust3d::engine::pathtracing::PathTracingScene;
 use rust3d::engine::pathtracing::PathtracingObject;
 use rust3d::geometry::poly_shape::Poly;
 use rust3d::geometry::sphere::Sphere;
@@ -65,10 +65,10 @@ pub fn main() -> Result<(), String>{
     t1.scale(V{x: 0.1, y: 0.1,z: 0.1});
     let mut t1 = *PolyTree::new(t1);
 
-    let mut pa_objs : PathtracingObjects = PathtracingObjects::new();
+    let mut pa_objs : PathTracingScene = PathTracingScene::new();
     //pa_objs.add(t1);
 
-    let mut rm_objs : RayMarchingObjects = RayMarchingObjects::new(0.005);
+    let mut rm_objs : RayMarchingScene = RayMarchingScene::new(0.005);
     //rm_objs.add(line1);
     //rm_objs.add(p1);
     //rm_objs.add(p2);
@@ -98,7 +98,7 @@ pub fn main() -> Result<(), String>{
     let rm_objs = Arc::new(RwLock::new(rm_objs));
     let pa_objs = Arc::new(RwLock::new(pa_objs));
 
-    let mut camera : Camera = Camera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
+    let mut camera : RayCamera = RayCamera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
 
     let mut stage = 1;
     let mut modulus_size = 300;
@@ -159,9 +159,9 @@ pub fn main() -> Result<(), String>{
         //rm_objs.write().unwrap().get(1).translate(V{x: 0.01, y: 0.01, z: 0.01});
 
 
-        let mut objs: RenderObjects = RenderObjects::new();
+        let mut objs: RayRenderScene = RayRenderScene::new();
 
-        objs.wrap(Box::new(PathtracingObjects::wrapup(&pa_objs.read().unwrap())));
+        objs.wrap(Box::new(PathTracingScene::wrapup(&pa_objs.read().unwrap())));
         //objs.wrap(Box::new(RayMarchingObjects::wrapup(&rm_objs.read().unwrap())));
         //objs.wrap(Box::new(Graph3D::wrapup(&g1)));
         //camera.rot(V{x: 0.0, y: 0.1, z: 0.0});
@@ -221,14 +221,14 @@ pub fn main() -> Result<(), String>{
     Ok(())
 }
 
-pub fn render_mod(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camera, w_ : &usize, h_ : &usize, modulus : usize, stage : usize) {
+pub fn render_mod(canvas : &mut Canvas<Window>, objs : RayRenderScene, camera : RayCamera, w_ : &usize, h_ : &usize, modulus : usize, stage : usize) {
     let w = canvas.window().drawable_size().0 as usize;
     let h = canvas.window().drawable_size().1 as usize;
     let section = camera.render_modulus(&objs, w, h, stage, modulus);
     camera.draw_modulus(&section, canvas, stage, modulus, *w_, *h_);
 }
 
-pub fn render_multi(canvas : &mut Canvas<Window>, objs : RenderObjects, camera : Camera, w_ : &usize, h_ : &usize) {
+pub fn render_multi(canvas : &mut Canvas<Window>, objs : RayRenderScene, camera : RayCamera, w_ : &usize, h_ : &usize) {
     //let w = canvas.window().drawable_size().0 as usize;
     //let h = canvas.window().drawable_size().1 as usize;
     //canvas.clear();

@@ -1,6 +1,6 @@
 use sdl2::pixels::Color;
 
-use crate::{engine::{polytree::poly_tree::PolyTree, utils::anker_label::AnkerLabel}, geometry::{face::{Face, UV}, point::Point, poly_shape::Poly, quad::Quad}, math::functions::{FunctionR2ToR, FunctionRToR}};
+use crate::{engine::{polytree::poly_tree::PolyTree, utils::anker_label::AnkerLabel}, geometry::{face::{Face, UV}, vector3::Vector3, poly_shape::Poly, quad::Quad}, math::functions::{FunctionR2ToR, FunctionRToR}};
 
 pub trait WithLabels {
     fn get_labels(&self) -> &Vec<AnkerLabel>;
@@ -34,10 +34,10 @@ impl PolyTreeGraphFactory for FunctionR2ToR {
         while x < endx {
             y = starty;
             while y < endy {
-                let p = Point::new(x, y, minz + eval(x, y));
-                let p1 = Point::new(x + delta, y, minz + eval(x + delta, y));
-                let p2 = Point::new(x, y + delta, minz + eval(x, y + delta));
-                let p3 = Point::new(x + delta, y + delta, minz + eval(x + delta, y + delta));
+                let p = Vector3::new(x, y, minz + eval(x, y));
+                let p1 = Vector3::new(x + delta, y, minz + eval(x + delta, y));
+                let p2 = Vector3::new(x, y + delta, minz + eval(x, y + delta));
+                let p3 = Vector3::new(x + delta, y + delta, minz + eval(x + delta, y + delta));
                 faces.push(Face::new(p, p1, p2));
                 uvs.push(UV::empty());
                 //faces.push(Face::new(p3, p1, p2));
@@ -46,7 +46,7 @@ impl PolyTreeGraphFactory for FunctionR2ToR {
             }
             x += delta;
         }
-        let p = Poly::new_textured(Point::new(mins[0], mins[1], mins[2]), faces, uvs, vec![255, 255, 255, 255], 0, 0);
+        let p = Poly::new_textured(Vector3::new(mins[0], mins[1], mins[2]), faces, uvs, vec![255, 255, 255, 255], 0, 0);
         PolyTree::new(p)
     }
 }

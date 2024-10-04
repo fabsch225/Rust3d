@@ -1,7 +1,7 @@
 use std::sync::{Arc, RwLock};
 
 use crate::geometry::face::UV;
-use crate::geometry::point::Point as V3;
+use crate::geometry::vector3::Vector3 as V3;
 
 use sdl2::pixels::Color;
 use crate::engine::utils::transformation::Transformable;
@@ -66,31 +66,31 @@ pub trait Sphereable {
 }
 
 
-pub trait Renderable : Send + Sync {
+pub trait RayRenderable: Send + Sync {
     fn get_collision(&self, p0: V3, p: V3, radius: f64) -> Collision;
 }
 
-pub struct RenderObjects {
-    pub objects: Vec<Box<dyn Renderable>>
+pub struct RayRenderScene {
+    pub objects: Vec<Box<dyn RayRenderable>>
 }
 
-impl RenderObjects {
+impl RayRenderScene {
     pub fn new() -> Self {
-        RenderObjects {
+        RayRenderScene {
             objects: Vec::new()
         }
     }
 
-    pub fn wrap(&mut self, obj: Box<dyn Renderable>) {
+    pub fn wrap(&mut self, obj: Box<dyn RayRenderable>) {
         self.objects.push(obj);
     }
 
-    pub fn read(&self) -> &dyn Renderable {
+    pub fn read(&self) -> &dyn RayRenderable {
         return self;
     }
 }
 
-impl Renderable for RenderObjects {
+impl RayRenderable for RayRenderScene {
     fn get_collision(&self, p0: V3, p: V3, radius: f64) -> Collision {
         let mut c: Collision = Collision::empty();
         let mut bd: f64 = f64::MAX;

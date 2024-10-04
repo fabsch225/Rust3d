@@ -2,9 +2,10 @@
 
 pub mod engine {
     pub mod camera;
-    pub mod proj_camera;
+    pub mod projection_camera;
     pub mod pathtracing;
     pub mod raymarching;
+    pub mod projection;
     pub mod utils {
         pub mod anker_label;
         pub mod rendering;
@@ -22,11 +23,13 @@ pub mod engine {
 pub mod geometry {
     pub mod poly_shape;
     pub mod face;
+    pub mod vector3;
     pub mod point;
     pub mod quad;
     pub mod sphere;
     pub mod line;
     pub mod nface;
+    pub mod nline;
 }
 
 pub mod math {
@@ -39,7 +42,7 @@ pub mod math {
         pub mod nmatrix_operations;
         pub mod nmatrix_rotations;
 
-        pub mod three_d {
+        pub mod d3 {
             pub mod utils;
         }
     }

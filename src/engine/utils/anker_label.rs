@@ -1,8 +1,8 @@
 use fontdue::{layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle}, Font};
 use sdl2::{pixels::Color, render::{Canvas, Texture}, video::Window};
 
-use crate::{engine::utils::{rendering::{RenderObjects, Renderable}, transformation::Transformable}, geometry::sphere::Sphere, math::utils::graph_utils::WithLabels};
-use crate::geometry::point::Point as V3;
+use crate::{engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable}, geometry::sphere::Sphere, math::utils::graph_utils::WithLabels};
+use crate::geometry::vector3::Vector3 as V3;
 
 use super::{rendering::Sphereable, renderung_ui::UiElement};
 

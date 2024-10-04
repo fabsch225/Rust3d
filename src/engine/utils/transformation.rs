@@ -1,4 +1,4 @@
-use crate::geometry::point::Point as V3;
+use crate::geometry::vector3::Vector3 as V3;
 
 pub const PI: f64 = 3.14159265358979323846264338327950288_f64; // 3.1415926535897931f64
 pub const TWO_PI: f64 = 6.28318530717958647692528676655900576_f64; // 6.2831853071795862f64 //copilot did this, maybe not exactly correct

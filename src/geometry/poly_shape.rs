@@ -6,8 +6,8 @@ use image::io::Reader as ImageReader;
 use image::{Pixels, GenericImageView};
 
 use crate::engine::pathtracing::PathtracingObject;
-use crate::engine::utils::{rendering::{RenderObjects, Renderable, Collision, Sphereable}, transformation::Transformable};
-use crate::geometry::point::Point as V3;
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, Sphereable}, transformation::Transformable};
+use crate::geometry::vector3::Vector3 as V3;
 use crate::geometry::face::{Face as F, UV};
 
 
@@ -150,14 +150,14 @@ impl Transformable for Poly {
         for f in self.x.iter_mut() {
             f.trans(p);
         }
-        self.m.trans(p.x, p.y, p.z);
+        self.m.translate(p.x, p.y, p.z);
     }
 
     fn scale(&mut self, p: V3) { 
         for f in self.x.iter_mut() {
             f.scale_by(p, self.m);
         }
-        self.m.trans(p.x, p.y, p.z);
+        self.m.translate(p.x, p.y, p.z);
     }
     
     fn rot_by(&mut self, p : V3, r : V3) {
