@@ -12,7 +12,14 @@ impl NVector {
             n: n_,
             x: x_
         }
-    }    
+    }
+
+    pub fn from_vec(x_ : Vec<f64>) -> Self {
+        NVector {
+            n: x_.len(),
+            x: x_
+        }
+    }
 
     pub fn get(&self, i : usize) -> f64 {
         if i >= self.n {
@@ -26,6 +33,10 @@ impl NVector {
             panic!("NVector::set: i >= self.n");
         }
         self.x[i] = v;
+    }
+
+    pub fn len(&self) -> usize {
+        self.n
     }
 
     pub fn is_null(&self) -> bool {
