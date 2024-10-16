@@ -6,7 +6,7 @@ use crate::engine::pathtracing::{PathtracingObject, PathTracingScene};
 use crate::engine::polytree::poly_tree::PolyTree;
 use crate::engine::raymarching::{RayMarchingObject, RayMarchingScene};
 use crate::engine::utils::anker_label::AnkerLabel;
-use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, Sphereable}, transformation::Transformable};
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, RaySphereable}, transformation::Transformable};
 use crate::geometry::line::Line;
 use crate::geometry::quad::Quad;
 use crate::geometry::vector3::Vector3 as V3;
@@ -24,6 +24,7 @@ pub struct Graph3D {
 }
 
 impl Graph3D {
+    //ToDO Configuration Object
     pub fn new<T : PolyTreeGraphFactory>(bounds: Quad, f: T, labels : Vec<&str>) -> Graph3D {
         assert_eq!(labels.len(), 3);
 
@@ -37,9 +38,9 @@ impl Graph3D {
         let font = include_bytes!("../../demo_assets/fonts/NotoSansMath-Regular.ttf") as &[u8];
         let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
 
-        let label1 = AnkerLabel::new(bounds.x[6].x, bounds.x[6].y, bounds.x[6].z, labels[0].to_string(), &font, bg_, fg_);
-        let label2 = AnkerLabel::new(bounds.x[4].x, bounds.x[4].y, bounds.x[4].z, labels[1].to_string(), &font, bg_, fg_);
-        let label3 = AnkerLabel::new(bounds.x[3].x, bounds.x[3].y, bounds.x[3].z, labels[2].to_string(), &font, bg_, fg_); 
+        let label1 = AnkerLabel::new(bounds.x[6].x, bounds.x[6].y, bounds.x[6].z, labels[0].to_string(), &font, 50.0,  bg_, fg_);
+        let label2 = AnkerLabel::new(bounds.x[4].x, bounds.x[4].y, bounds.x[4].z, labels[1].to_string(), &font, 50.0, bg_, fg_);
+        let label3 = AnkerLabel::new(bounds.x[3].x, bounds.x[3].y, bounds.x[3].z, labels[2].to_string(), &font, 50.0, bg_, fg_);
         let mut skel = Vec::new();
         for i in 0..7 {
             for j in 0..7 {
@@ -54,7 +55,7 @@ impl Graph3D {
         axis_.add(line2);
         axis_.add(line3);
         Graph3D {
-            content: f.create_graph(bounds, 0.1),
+            content: f.create_graph(bounds, 0.01),
             bounds,
             m : bounds.m,
             color: Color::WHITE,

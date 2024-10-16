@@ -1,4 +1,5 @@
 #![allow(unused)]
+extern crate core;
 
 pub mod engine {
     pub mod camera;
@@ -11,9 +12,12 @@ pub mod engine {
         pub mod rendering;
         pub mod transformation;
         pub mod renderung_ui;
+        pub mod js_canvas;
+        pub mod virtual_canvas;
+        pub mod raster_sorting;
     }
     
-    pub mod polytree {
+    pub mod simplex3d_sphere_tree {
         pub mod poly_tree;
         pub mod poly_tree_element;
         pub mod poly_tree_utils;
@@ -21,10 +25,11 @@ pub mod engine {
 }
 
 pub mod geometry {
-    pub mod poly_shape;
+    pub mod simplex3d;
     pub mod face;
     pub mod vector3;
     pub mod point;
+    pub mod cube;
     pub mod quad;
     pub mod sphere;
     pub mod line;

@@ -1,3 +1,4 @@
+#[deprecated]
 pub fn fast_square_root(num: f64) -> f64 {
     if num < 0.0_f64 {
         return f64::NAN;

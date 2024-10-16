@@ -1,4 +1,4 @@
-use super::matrix::NMatrix;
+use super::matrix::MatrixND;
 
 #[derive(Clone, Debug)]
 pub struct NVector {

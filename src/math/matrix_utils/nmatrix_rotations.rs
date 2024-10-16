@@ -1,13 +1,13 @@
-use crate::math::matrix::NMatrix;
+use crate::math::matrix::MatrixND;
 use crate::math::vector::NVector;
 
-impl NMatrix {
+impl MatrixND {
 
     //Givens Rotation
     //https://math.stackexchange.com/questions/1402362/can-rotations-in-4d-be-given-an-explicit-matrix-form
 
-    pub fn givens_rotation_from_indices(n: usize, a: usize, b: usize, alpha: f64) -> NMatrix {
-        let mut result = NMatrix::identity(n);
+    pub fn givens_rotation_from_indices(n: usize, a: usize, b: usize, alpha: f64) -> MatrixND {
+        let mut result = MatrixND::identity(n);
         result.set(a, a, alpha.cos());
         result.set(a, b, - alpha.sin());
         result.set(b, b, alpha.cos());
@@ -37,34 +37,35 @@ impl NMatrix {
         M = M\R*M;
      */
     //ToDo cache this!
-    pub fn aguilera_perez_single_thread(v: &NMatrix, alpha: f64, n: usize) -> NMatrix {
+    pub fn aguilera_perez_single_thread(v: &MatrixND, alpha: f64, n: usize) -> MatrixND {
         let mut v = v.clone();
         assert_eq!(v.rows, n);
         assert_eq!(v.cols, n - 2);
 
-        let mut m = NMatrix::identity(n);
+        let mut m = MatrixND::identity(n);
 
         for c in 1..(n-1) {
             for r in ((c+1)..(n+1)).rev() {
                 println!("V: ({}, {})", r, c);
                 let theta = f64::atan2(v.get(r - 1, c - 1), v.get(r - 2, c - 1));
-                let rm = NMatrix::givens_rotation_from_indices(n, r - 1, r - 2, theta);
+                let rm = MatrixND::givens_rotation_from_indices(n, r - 1, r - 2, theta);
                 v = rm.multiply_single_thread(&v);
                 v.print();
                 m = rm.multiply_single_thread(&m);
             }
         }
-        let rm = NMatrix::givens_rotation_from_indices(n, n - 2, n - 1, alpha);
+        let rm = MatrixND::givens_rotation_from_indices(n, n - 2, n - 1, alpha);
         let mi = m.inverse_single_thread();
         m = mi.multiply_single_thread(&rm);
         m = m.multiply_single_thread(&mi);
         m
     }
 
-    pub fn rotation_matrix(a: NVector, b: NVector, theta: f64) -> NMatrix {
+    //incorrect!
+    pub fn rotation_matrix(a: NVector, b: NVector, theta: f64) -> MatrixND {
         let n = a.n;
         assert_eq!(b.n, n);
-        let mut rotation = NMatrix::identity(n);
+        let mut rotation = MatrixND::identity(n);
 
         let cos_theta = theta.cos();
         let sin_theta = theta.sin();

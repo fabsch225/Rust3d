@@ -1,9 +1,9 @@
-use crate::math::matrix::NMatrix;
+use crate::math::matrix::MatrixND;
 use crate::math::vector::NVector;
 
-impl NMatrix {
+impl MatrixND {
     pub fn transpose(&self) -> Self {
-        let mut result = NMatrix::new(self.cols, self.rows);
+        let mut result = MatrixND::new(self.cols, self.rows);
         for i in 0..self.rows {
             for j in 0..self.cols {
                 result.set(j, i, self.get(i, j));
@@ -12,9 +12,9 @@ impl NMatrix {
         result
     }
 
-    pub fn multiply_single_thread(&self, other: &NMatrix) -> Self {
+    pub fn multiply_single_thread(&self, other: &MatrixND) -> Self {
         assert_eq!(self.cols, other.rows);
-        let mut result = NMatrix::new(self.rows, other.cols);
+        let mut result = MatrixND::new(self.rows, other.cols);
         for i in 0..self.rows {
             for j in 0..other.cols {
                 let mut sum = 0.0;
@@ -28,7 +28,7 @@ impl NMatrix {
     }
 
     pub fn multiply_scalar(&self, scalar: f64) -> Self {
-        let mut result = NMatrix::new(self.rows, self.cols);
+        let mut result = MatrixND::new(self.rows, self.cols);
         for i in 0..self.rows {
             for j in 0..self.cols {
                 result.set(i, j, self.get(i, j) * scalar);
@@ -50,10 +50,10 @@ impl NMatrix {
         result
     }
 
-    pub fn add(&self, other: &NMatrix) -> Self {
+    pub fn add(&self, other: &MatrixND) -> Self {
         assert_eq!(self.rows, other.rows);
         assert_eq!(self.cols, other.cols);
-        let mut result = NMatrix::new(self.rows, self.cols);
+        let mut result = MatrixND::new(self.rows, self.cols);
         for i in 0..self.rows {
             for j in 0..self.cols {
                 result.set(i, j, self.get(i, j) + other.get(i, j));
@@ -62,10 +62,10 @@ impl NMatrix {
         result
     }
 
-    pub fn subtract(&self, other: &NMatrix) -> Self {
+    pub fn subtract(&self, other: &MatrixND) -> Self {
         assert_eq!(self.rows, other.rows);
         assert_eq!(self.cols, other.cols);
-        let mut result = NMatrix::new(self.rows, self.cols);
+        let mut result = MatrixND::new(self.rows, self.cols);
         for i in 0..self.rows {
             for j in 0..self.cols {
                 result.set(i, j, self.get(i, j) - other.get(i, j));
@@ -77,7 +77,7 @@ impl NMatrix {
 
     //recursive function to find inverse of NMatrix
     pub fn inverse_single_thread(&self) -> Self {
-        let mut result = NMatrix::new(self.rows, self.cols);
+        let mut result = MatrixND::new(self.rows, self.cols);
         let det = self.determinant_single_thread();
         if det == 0.0 {
             panic!("NMatrix is not invertible");
@@ -116,7 +116,7 @@ impl NMatrix {
     }
 
     pub fn minor(&self, row: usize, col: usize) -> f64 {
-        let mut result = NMatrix::new(self.rows - 1, self.cols - 1);
+        let mut result = MatrixND::new(self.rows - 1, self.cols - 1);
         let mut i_prime = 0;
         for i in 0..self.rows {
             if i == row {
@@ -134,5 +134,4 @@ impl NMatrix {
         }
         result.determinant_single_thread()
     }
-
 }

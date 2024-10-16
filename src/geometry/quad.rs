@@ -5,6 +5,7 @@ use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transform
 use crate::geometry::vector3::Vector3;
 
 #[derive(Copy, Clone, Debug)]
+//ToDO this is horror, who thought of this struct?
 pub struct Quad {
     pub x: [Vector3; 8],
     s: [Vector3; 6],
@@ -208,14 +209,6 @@ impl Quad {
         }
     }
 
-    pub fn print_points(&mut self) {
-        for i in 0..8 {
-            println!("{}", self.x[i].x.to_string());
-            println!("{}", self.x[i].y.to_string());
-            println!("{}", self.x[i].z.to_string());
-        }
-    }
-
     pub fn find_s_index(self, p: Vector3) -> u32 {
         let mut min_d: Vector3 = self.s[0];
         let mut result: u32 = 1;
@@ -374,10 +367,7 @@ impl Quad {
     }
 }
 
-impl Transformable for Quad {
-    fn transform(&mut self) -> Box<&mut dyn Transformable> {
-        return Box::new(self);
-    }
+    impl Transformable for Quad {
     fn rot_reverse(&mut self, p: Vector3) {
         let cm: Vector3 = self.m.clone();
 
@@ -393,7 +383,6 @@ impl Transformable for Quad {
             self.s[i].add(self.m);
         }
     }
-
     fn rot(&mut self, p: Vector3) {
         for i in 0..8 {
             self.x[i].subtr(self.m);
@@ -405,6 +394,16 @@ impl Transformable for Quad {
             self.s[i].subtr(self.m);
             self.s[i].rotate(p);
             self.s[i].add(self.m);
+        }
+    }
+
+    fn rot_by(&mut self, p : Vector3, r : Vector3) {
+        for i in 0..8 {
+           self.x[i].rot_by(p, r)
+        }
+
+        for i in 0..6 {
+            self.s[i].rot_by(p, r)
         }
     }
 
@@ -436,15 +435,9 @@ impl Transformable for Quad {
             self.s[i].add(self.m);
         }
     }
-    
-    fn rot_by(&mut self, p : Vector3, r : Vector3) {
-        for i in 0..8 {
-           self.x[i].rot_by(p, r)
-        }
 
-        for i in 0..6 {
-            self.s[i].rot_by(p, r)
-        }
+    fn transform(&mut self) -> Box<&mut dyn Transformable> {
+        return Box::new(self);
     }
 }
 

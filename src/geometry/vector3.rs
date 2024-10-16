@@ -99,13 +99,15 @@ impl Vector3 {
 		
 	    let mut tp = Vector3 { x: self.x, y: self.y, z: self.z };
 	
-	    self.x = tp.x * (cos_y * cos_z)
-	        + tp.y * (sin_x * sin_y * cos_z - cos_x * sin_z)
-	        + tp.z * (cos_x * sin_y * cos_z + sin_x * sin_z);
-	    self.y = tp.x * (cos_y * sin_z)
-	        + tp.y * (sin_x * sin_y * sin_z + cos_x * cos_z)
-	        + tp.z * (cos_x * sin_y * sin_z - sin_x * cos_z);
-	    self.z = tp.x * (-sin_y) + tp.y * (sin_x * cos_y) + tp.z * (cos_x * cos_y);
+	    self.x =   tp.x * (cos_y * cos_z)
+	             + tp.y * (sin_x * sin_y * cos_z - cos_x * sin_z)
+	             + tp.z * (cos_x * sin_y * cos_z + sin_x * sin_z);
+	    self.y =   tp.x * (cos_y * sin_z)
+	        	 + tp.y * (sin_x * sin_y * sin_z + cos_x * cos_z)
+	        	 + tp.z * (cos_x * sin_y * sin_z - sin_x * cos_z);
+	    self.z =   tp.x * (-sin_y)
+				 + tp.y * (sin_x * cos_y)
+			     + tp.z * (cos_x * cos_y);
 		
 	}
 	
@@ -121,14 +123,14 @@ impl Vector3 {
 	    
         let mut tp = Vector3 { x: self.x, y: self.y, z: self.z };
 
-        self.x = tp.x * (cos_y * cos_z)
-        	+ tp.y * (cos_y * sin_z)
-          	+ tp.z * (-sin_y);
-		self.y = tp.x * (sin_x * sin_y * cos_z - cos_x * sin_z)
-		 	+ tp.y * (sin_x * sin_y * sin_z + cos_x * cos_z)
-		 	+ tp.z * (sin_x * cos_y);
-		self.z = tp.x * (cos_x * sin_y * cos_z + sin_x * sin_z)
-		 	+ tp.y * (cos_x * sin_y * sin_z - sin_x * cos_z)
-		  	+ tp.z * (cos_x * cos_y);
+        self.x =   tp.x * (cos_y * cos_z)
+        	     + tp.y * (cos_y * sin_z)
+          	     + tp.z * (-sin_y);
+		self.y =   tp.x * (sin_x * sin_y * cos_z - cos_x * sin_z)
+		 	     + tp.y * (sin_x * sin_y * sin_z + cos_x * cos_z)
+		 	     + tp.z * (sin_x * cos_y);
+		self.z =   tp.x * (cos_x * sin_y * cos_z + sin_x * sin_z)
+		 	     + tp.y * (cos_x * sin_y * sin_z - sin_x * cos_z)
+		  	     + tp.z * (cos_x * cos_y);
 	}
 }

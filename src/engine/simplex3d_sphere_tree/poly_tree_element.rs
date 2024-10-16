@@ -1,9 +1,9 @@
 use crate::engine::pathtracing::PathtracingObject;
-use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, Sphereable}, transformation::Transformable};
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, RaySphereable}, transformation::Transformable};
 use crate::geometry::face::{Face as F, UV};
 use crate::geometry::vector3::Vector3 as V3;
 use crate::engine::polytree::poly_tree_utils::PolyTreeCollisionFeedback;
-use crate::geometry::poly_shape::Poly;
+use crate::geometry::simplex3d::Simplex3D;
 use crate::engine::polytree::poly_tree::PolyTree;
 
 #[derive(Debug, Clone)]
@@ -16,7 +16,7 @@ pub struct PolyTreeElement {
     pub leaf: bool,
 }
 
-impl Sphereable for PolyTreeElement {
+impl RaySphereable for PolyTreeElement {
     fn get_radius(&self) -> f64 {
         return self.radius;
     }

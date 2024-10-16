@@ -16,7 +16,7 @@ use std::time::Instant;
 
 use rust3d::engine::polytree::poly_tree::PolyTree;
 use rust3d::engine::raymarching::RayMarchingScene;
-use rust3d::engine::utils::rendering::Sphereable;
+use rust3d::engine::utils::rendering::RaySphereable;
 use rust3d::engine::utils::renderung_ui::UiElement;
 use rust3d::engine::utils::transformation::{PI, TWO_PI};
 use rust3d::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
@@ -26,7 +26,7 @@ use rust3d::geometry::vector3::Vector3 as V;
 use rust3d::engine::camera::RayCamera;
 use rust3d::engine::pathtracing::PathTracingScene;
 use rust3d::engine::pathtracing::PathtracingObject;
-use rust3d::geometry::poly_shape::Poly;
+use rust3d::geometry::simplex3d::Simplex3D;
 use rust3d::geometry::sphere::Sphere;
 use rust3d::geometry::line::Line;
 use rust3d::math::functions::FunctionR2ToR;
@@ -60,7 +60,7 @@ pub fn main() -> Result<(), String>{
     let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 2., z: 1.}, Color::RED);
     let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
 
-    let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
+    let mut t1 = Simplex3D::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
     //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
     //t1.scale(V{x: 0.7, y: 0.7, z: 0.7});
     let mut t1 = *PolyTree::new(t1); 
@@ -75,7 +75,7 @@ pub fn main() -> Result<(), String>{
     //rm_objs.add(m2);
 
     let f1 =  Face::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 0.0, y: 0.0, z: 2.0}, V{x: 0.0, y: 2.0, z: 0.0});
-    let f1 = Poly::new(f1.get_middle(), vec![f1]);
+    let f1 = Simplex3D::new(f1.get_middle(), vec![f1]);
 
     //pa_objs.add(f1);
     let mut line1 = Line::new(p1.x[7], p1.x[6], 0.01);

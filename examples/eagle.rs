@@ -16,7 +16,7 @@ use std::time::Instant;
 
 use rust3d::engine::polytree::poly_tree::PolyTree;
 use rust3d::engine::raymarching::RayMarchingScene;
-use rust3d::engine::utils::rendering::Sphereable;
+use rust3d::engine::utils::rendering::RaySphereable;
 use rust3d::engine::utils::renderung_ui::UiElement;
 use rust3d::engine::utils::transformation::{PI, TWO_PI};
 use rust3d::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
@@ -26,7 +26,7 @@ use rust3d::geometry::vector3::Vector3 as V;
 use rust3d::engine::camera::RayCamera;
 use rust3d::engine::pathtracing::PathTracingScene;
 use rust3d::engine::pathtracing::PathtracingObject;
-use rust3d::geometry::poly_shape::Poly;
+use rust3d::geometry::simplex3d::Simplex3D;
 use rust3d::geometry::sphere::Sphere;
 use rust3d::geometry::line::Line;
 use rust3d::math::functions::FunctionR2ToR;
@@ -42,7 +42,7 @@ const TURN_SPEED : f64 = 0.0035;
 pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
-    let window = video_subsystem.window("rust3d", W as u32, H as u32)
+    let window = video_subsystem.window("Eagle", W as u32, H as u32)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
@@ -51,51 +51,21 @@ pub fn main() -> Result<(), String>{
     let mut event_pump = sdl_context.event_pump()?;
     let mut state;
 
-    let font = include_bytes!("../demo_assets/fonts/NotoSansMath-Regular.ttf") as &[u8];
-    let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
-
     let t = Instant::now();
     println!("Starting to parse objects");
 
-    let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 2., z: 1.}, Color::RED);
-    let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
-
-    //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
-    let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
+   let mut t1 = Simplex3D::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
     t1.scale(V{x: 0.1, y: 0.1,z: 0.1});
     let mut t1 = *PolyTree::new(t1);
 
     let mut pa_objs : PathTracingScene = PathTracingScene::new();
-    //pa_objs.add(t1);
 
-    let mut rm_objs : RayMarchingScene = RayMarchingScene::new(0.005);
-    //rm_objs.add(line1);
-    //rm_objs.add(p1);
-    //rm_objs.add(p2);
-    //rm_objs.add(m2);
-
-    let f1 =  Face::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 0.0, y: 0.0, z: 2.0}, V{x: 0.0, y: 2.0, z: 0.0});
-    let f1 = Poly::new(f1.get_middle(), vec![f1]);
-
-    //pa_objs.add(f1);
-    let mut line1 = Line::new(p1.x[7], p1.x[6], 0.01);
-    let mut p2 = Sphere::new(p1.x[6], 0.1, Color::GREEN);
-    //rm_objs.add(line1);
-    //rm_objs.add(p2);
     t1.goto(V{x: 1.0, y: 0.0, z: 0.0});
     t1.rot(V{x: 0.0, y: 0.0, z: PI});
-    //t1.scale(V{x: 0.1, y: 0.1, z: 0.1});
+
     pa_objs.add(t1);
 
-    let mut g1 = Graph3D::new(p1, FunctionR2ToR::new(Box::new(|x, y| - x*x -  y*y + 1.0)), vec!["x", "y", "z"]);
-    g1.rot(V{x: PI / 2., y: 0.0, z: 0.0});
-    let root = p1.x[7];
-    let mut label1 = rust3d::engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), &font, Color::RED, Color::WHITE);
 
-    //let s2 = Sphere::new(p1.x[5], 0.12, Color::BLUE);
-    //rm_objs.add(s1);
-
-    let rm_objs = Arc::new(RwLock::new(rm_objs));
     let pa_objs = Arc::new(RwLock::new(pa_objs));
 
     let mut camera : RayCamera = RayCamera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
@@ -123,95 +93,28 @@ pub fn main() -> Result<(), String>{
             .is_mouse_button_pressed(MouseButton::Left)
         {
             state = event_pump.relative_mouse_state();
-            //println!("Relative - X = {:?}, Y = {:?}", state.x(), state.y());
-            //let rot_z = TURN_SPEED * state.y() as f64;
             let rot_y = TURN_SPEED * state.x() as f64;
-            if (rot_y != 0.0) { //rot_z != 0.0 ||
+            if (rot_y != 0.0) {
                 motion = true;
-                //stage = 1;
                 block_size = 10;
             }
-            /*
-            if (rot_z > 0.0) {
-                g1.rot(V{x: 0.0, y: 0.0, z: rot_z});
-            }
-            else {
-                g1.rot_reverse(V{x: 0.0, y: 0.0, z: - rot_z});
-            }*/
 
             if (rot_y > 0.0) {
-                //g1.rot(V{x: 0.0, y: rot_y, z: 0.0});
                 pa_objs.write().unwrap().get(0).rot(V{x: 0.0, y: rot_y, z: 0.0});
             }
             else {
-                //g1.rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
                 pa_objs.write().unwrap().get(0).rot_reverse(V{x: 0.0, y: - rot_y, z: 0.0});
             }
         }
 
         println!("Starting transformation");
         let now = Instant::now();
-        //g1.rot(V{x: 0.0, y: 0.0, z: 0.1});
-
-        //pa_objs.write().unwrap().get(0).rot(V{x: 0.1, y: 0.0, z: 0.0});
-        //rm_objs.write().unwrap().get(0).rot(V{x: -0.1, y: 0.1, z: 0.0});
-        //rm_objs.write().unwrap().get(0).translate(V{x: 0.0, y: 0.01, z: 0.0});
-        //rm_objs.write().unwrap().get(1).translate(V{x: 0.01, y: 0.01, z: 0.01});
-
 
         let mut objs: RayRenderScene = RayRenderScene::new();
 
         objs.wrap(Box::new(PathTracingScene::wrapup(&pa_objs.read().unwrap())));
-        //objs.wrap(Box::new(RayMarchingObjects::wrapup(&rm_objs.read().unwrap())));
-        //objs.wrap(Box::new(Graph3D::wrapup(&g1)));
-        //camera.rot(V{x: 0.0, y: 0.1, z: 0.0});
-
-        //println!("transformation took {}ms", now.elapsed().as_millis());
-
-        //println!("Starting rendering {} {}" , stage, modulus_size);
-
-        //render_multi(&mut canvas, objs, camera, &W, &H);
-        //canvas.present();
         if (motion) {
             render_multi(&mut canvas, objs, camera, &W, &H);
-            canvas.present();
-            /*camera.render_and_draw_modulus_block(&mut canvas, &objs, block_size, stage, modulus_size / block_size, W, H);
-
-            let diff = now.elapsed().as_nanos();
-            if ((diff as u32) < NANOS) {
-                ::std::thread::sleep(Duration::new(0, NANOS - diff as u32));
-                if (modulus_size > 1) {
-                    change_modulus -= 1;
-                }
-            }
-            else {
-                change_modulus += 1;
-            }
-            stage += 1;
-            if (stage >= modulus_size / block_size) {
-                stage = 0;
-                if (block_size > 1) {
-                    block_size /= 2;
-                    if block_size < 1 {
-                        block_size = 1;
-                        if (change_modulus > 0) {
-                            modulus_size += VARIABLE_RENDER_SPEED as usize;
-                        }
-                        else if (change_modulus < 0) {
-                            modulus_size -= VARIABLE_RENDER_SPEED as usize;
-                            if (modulus_size < 1) {
-                                modulus_size = 1;
-                            }
-                        }
-                        change_modulus = 0;
-                    }
-                }
-                else {
-                    motion = false;
-                    //camera.render_anker_labels(&g1, &mut canvas, W, H);
-                }
-            }
-            */
             canvas.present();
         }
         else {

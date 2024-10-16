@@ -10,16 +10,16 @@
     matrix.m[3][3] = 0.0f;
     return matrix;
 }*/
-use crate::math::matrix::NMatrix;
+use crate::math::matrix::MatrixND;
 
-impl NMatrix {
+impl MatrixND {
     /// Creates a Projecting Matrix for 3D Graphics
     /// * `fov` - field of view in radians
     /// * `aspect_ratio` - aspect ratio
     /// * `near` - NEAR value
     /// * `far` - FAR value
     pub fn projection3d2d(fov: f64, aspect_ratio: f64, near: f64, far: f64) -> Self {
-        let mut mat = NMatrix::new(4, 4);
+        let mut mat = MatrixND::new(4, 4);
         mat.set(0, 0, aspect_ratio * fov);
         mat.set(1, 1, fov);
         mat.set(2, 2, far / (far - near));

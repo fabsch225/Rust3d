@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use rust3d::math::{matrix::NMatrix, vector::NVector};
+    use rust3d::math::{matrix::MatrixND, vector::NVector};
     use rust3d::math::utils::assertion_utils;
     use rust3d::math::utils::assertion_utils::assert_equal_nvector;
     /*

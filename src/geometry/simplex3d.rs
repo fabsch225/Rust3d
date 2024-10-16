@@ -6,7 +6,7 @@ use image::io::Reader as ImageReader;
 use image::{Pixels, GenericImageView};
 
 use crate::engine::pathtracing::PathtracingObject;
-use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, Sphereable}, transformation::Transformable};
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, RaySphereable}, transformation::Transformable};
 use crate::geometry::vector3::Vector3 as V3;
 use crate::geometry::face::{Face as F, UV};
 
@@ -14,7 +14,7 @@ use crate::geometry::face::{Face as F, UV};
 use sdl2::pixels::Color;
 
 #[derive(Debug, Clone)]
-pub struct Poly {
+pub struct Simplex3D {
     pub m : V3,
     pub x : Vec<F>,
     pub tm : Vec<UV>,
@@ -25,9 +25,9 @@ pub struct Poly {
     pub has_t: bool
 }
 
-impl Poly {
+impl Simplex3D {
     pub fn new(m_ : V3, x_ : Vec<F>) -> Self {
-        Poly { 
+        Simplex3D {
             m: m_,
             x: x_,
             tm:  Vec::new(),
@@ -40,7 +40,7 @@ impl Poly {
     }    
 
     pub fn new_textured(m_ : V3, x_ : Vec<F>, tm_ : Vec<UV>, tf_ : Vec<u8>, tw_ : u32, th_ : u32) -> Self {
-        Poly { 
+        Simplex3D {
             m: m_,
             x: x_,
             tm:  tm_,  
@@ -52,8 +52,8 @@ impl Poly {
         }
     }  
 
-    pub fn new_from(p: &Poly) -> Poly {
-        Poly { 
+    pub fn new_from(p: &Simplex3D) -> Simplex3D {
+        Simplex3D {
             m: p.m,
             x: p.x.clone(),
             tm:  p.tm.clone(),  
@@ -130,7 +130,7 @@ impl Poly {
 
 }
 
-impl Transformable for Poly {
+impl Transformable for Simplex3D {
     fn transform(&mut self) -> Box<&mut dyn Transformable> {
         return Box::new(self);
     }
@@ -168,9 +168,9 @@ impl Transformable for Poly {
     }
 }
 
-impl PathtracingObject for Poly {
+impl PathtracingObject for Simplex3D {
     fn clone(&self) -> Box<dyn PathtracingObject + Send + Sync + 'static> {
-        return Box::new(Poly::new_from(&self));
+        return Box::new(Simplex3D::new_from(&self));
     }
     fn d(&self, p: V3) -> f64 {
         return 0.0; //todo

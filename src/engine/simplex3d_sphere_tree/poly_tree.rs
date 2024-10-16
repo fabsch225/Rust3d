@@ -2,11 +2,11 @@ use std::sync::{mpsc, Arc};
 use std::thread;
 use sdl2::pixels::Color;
 
-use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, Sphereable}, transformation::Transformable};
+use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, RaySphereable}, transformation::Transformable};
 use crate::engine::pathtracing::PathtracingObject;
 use crate::geometry::face::{Face as F, UV};
 use crate::geometry::vector3::Vector3 as V3;
-use crate::geometry::poly_shape::Poly;
+use crate::geometry::simplex3d::Simplex3D;
 use crate::engine::polytree::poly_tree_element::PolyTreeElement;
 
 use super::poly_tree_utils::PolyTreeCollisionFeedback;
@@ -15,7 +15,7 @@ use super::poly_tree_utils::PolyTreeCollisionFeedback;
 pub struct PolyTree {
     pub m : V3,
     pub root : PolyTreeElement,
-    pub source : Poly,
+    pub source : Simplex3D,
 }
 
 impl Transformable for PolyTree {
@@ -111,7 +111,7 @@ impl PathtracingObject for PolyTree {
 }
 
 impl PolyTree {
-    pub fn new(p: Poly) -> Box<PolyTree> {
+    pub fn new(p: Simplex3D) -> Box<PolyTree> {
         Box::new(PolyTree {
             m: p.m,
             source: Clone::clone(&p),
@@ -124,7 +124,7 @@ impl PolyTree {
         self.root.calculate_radius();
     }
 
-    pub fn make_polytree_root<'pd>(p: Poly) -> PolyTreeElement {
+    pub fn make_polytree_root<'pd>(p: Simplex3D) -> PolyTreeElement {
         return Self::construct_tree(p.x, p.tm, true);
     }
 
@@ -204,7 +204,7 @@ impl PolyTree {
         self.translate(p_);
     }
 
-    pub fn get_middle_from_poly(p : &Poly) -> V3 {
+    pub fn get_middle_from_poly(p : &Simplex3D) -> V3 {
         let mut middle : V3 = V3{x: 0.0, y: 0.0, z: 0.0};
         for i in 0..p.x.len() {
             middle.add(p.x[i].m);
@@ -213,7 +213,7 @@ impl PolyTree {
         middle
     }
 
-    pub fn get_radius_from_poly(p : &Poly) -> f64 {  
+    pub fn get_radius_from_poly(p : &Simplex3D) -> f64 {
         0.0
     }
 

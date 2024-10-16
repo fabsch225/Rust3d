@@ -1,4 +1,4 @@
-use crate::engine::{pathtracing::PathtracingObject, utils::{rendering::{Collision, RayRenderScene, RayRenderable, Sphereable}, transformation::Transformable}};
+use crate::engine::{pathtracing::PathtracingObject, utils::{rendering::{Collision, RayRenderScene, RayRenderable, RaySphereable}, transformation::Transformable}};
 use crate::geometry::vector3::Vector3 as V3;
 
 #[derive(Debug, Clone, Copy)]
@@ -11,7 +11,7 @@ pub struct Face {
     pub radius: f64
 }
 
-impl Sphereable for Face {
+impl RaySphereable for Face {
     fn get_radius(&self) -> f64 {
         return self.radius;
     }

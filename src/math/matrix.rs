@@ -1,13 +1,13 @@
 use super::vector::NVector;
 
 #[derive(Clone, Debug)]
-pub struct NMatrix {
+pub struct MatrixND {
     pub rows: usize,
     pub cols: usize,
     pub data: Vec<f64>,
 }
 
-impl NMatrix {
+impl MatrixND {
     //ToDo make it nice
     pub fn print(&self) {
         println!("===");

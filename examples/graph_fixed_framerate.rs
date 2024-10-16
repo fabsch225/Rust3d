@@ -16,7 +16,7 @@ use std::time::Instant;
 
 use rust3d::engine::polytree::poly_tree::PolyTree;
 use rust3d::engine::raymarching::RayMarchingScene;
-use rust3d::engine::utils::rendering::Sphereable;
+use rust3d::engine::utils::rendering::RaySphereable;
 use rust3d::engine::utils::renderung_ui::UiElement;
 use rust3d::engine::utils::transformation::{PI, TWO_PI};
 use rust3d::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
@@ -26,7 +26,7 @@ use rust3d::geometry::vector3::Vector3 as V;
 use rust3d::engine::camera::RayCamera;
 use rust3d::engine::pathtracing::PathTracingScene;
 use rust3d::engine::pathtracing::PathtracingObject;
-use rust3d::geometry::poly_shape::Poly;
+use rust3d::geometry::simplex3d::Simplex3D;
 use rust3d::geometry::sphere::Sphere;
 use rust3d::geometry::line::Line;
 use rust3d::math::functions::FunctionR2ToR;
@@ -57,12 +57,13 @@ pub fn main() -> Result<(), String>{
     let t = Instant::now();
     println!("Starting to parse objects");
 
-    let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 2., z: 1.}, Color::RED);
+    let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 1., z: 1.}, Color::RED);
 
-    let mut g1 = Graph3D::new(p1, FunctionR2ToR::new(Box::new(|x, y| - x*x -  y*y + 1.0)), vec!["x", "y", "z"]);
+    let mut g1 = Graph3D::new(p1, FunctionR2ToR::new(Box::new(|x, y| - x*x -  y*y)), vec!["x", "y", "z"]);
     g1.rot(V{x: PI / 2., y: 0.0, z: 0.0});
+    g1.rot(V{x: PI, y: 0.0, z: 0.0});
     let root = p1.x[7];
-    let mut label1 = rust3d::engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), &font, Color::RED, Color::WHITE);
+    let mut label1 = rust3d::engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), &font, 50.0, Color::RED, Color::WHITE);
 
     let mut camera : RayCamera = RayCamera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
 

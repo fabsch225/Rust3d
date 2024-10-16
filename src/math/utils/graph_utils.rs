@@ -1,6 +1,6 @@
 use sdl2::pixels::Color;
 
-use crate::{engine::{polytree::poly_tree::PolyTree, utils::anker_label::AnkerLabel}, geometry::{face::{Face, UV}, vector3::Vector3, poly_shape::Poly, quad::Quad}, math::functions::{FunctionR2ToR, FunctionRToR}};
+use crate::{engine::{polytree::poly_tree::PolyTree, utils::anker_label::AnkerLabel}, geometry::{face::{Face, UV}, vector3::Vector3, simplex3d::Simplex3D, quad::Quad}, math::functions::{FunctionR2ToR, FunctionRToR}};
 
 pub trait WithLabels {
     fn get_labels(&self) -> &Vec<AnkerLabel>;
@@ -46,7 +46,8 @@ impl PolyTreeGraphFactory for FunctionR2ToR {
             }
             x += delta;
         }
-        let p = Poly::new_textured(Vector3::new(mins[0], mins[1], mins[2]), faces, uvs, vec![255, 255, 255, 255], 0, 0);
+        //isnt m the middle???????
+        let p = Simplex3D::new_textured(Vector3::new(mins[0], mins[1], mins[2]), faces, uvs, vec![255, 255, 255, 255], 0, 0);
         PolyTree::new(p)
     }
 }

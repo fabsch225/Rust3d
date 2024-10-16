@@ -4,7 +4,7 @@ use sdl2::{pixels::Color, render::{Canvas, Texture}, video::Window};
 use crate::{engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable}, geometry::sphere::Sphere, math::utils::graph_utils::WithLabels};
 use crate::geometry::vector3::Vector3 as V3;
 
-use super::{rendering::Sphereable, renderung_ui::UiElement};
+use super::{rendering::RaySphereable, renderung_ui::UiElement};
 
 pub struct AnkerLabel {
     pub text: String,
@@ -15,7 +15,7 @@ pub struct AnkerLabel {
 }
 
 impl AnkerLabel {
-    pub fn new(x_: f64, y_: f64, z_: f64, text_: String, font_ : &Font, bg: Color, fg: Color) -> Self {
+    pub fn new(x_: f64, y_: f64, z_: f64, text_: String, font_ : &Font, size: f32, bg: Color, fg: Color) -> Self {
         let mut layout: Layout<Color> = Layout::new(CoordinateSystem::PositiveYDown);
         let mut layout_settings = LayoutSettings {
             x: 0.,
@@ -31,7 +31,7 @@ impl AnkerLabel {
         
         let c = Color::RGB(0, 0, 0);
         //⅀
-        layout.append(fonts, &TextStyle::with_user_data(&text_, 20.0, 0, c));
+        layout.append(fonts, &TextStyle::with_user_data(&text_, size, 0, c));
         let glyps = layout.glyphs();
         let mut texture = Vec::new();
         let mut sub_texture: Vec<Vec<Color>> = Vec::with_capacity(glyps.len());
@@ -112,7 +112,7 @@ impl AnkerLabel {
 }
 
 
-impl Sphereable for AnkerLabel {
+impl RaySphereable for AnkerLabel {
     fn is_colliding(&self, p0: V3, p: V3) -> bool {
         return self.sphere.is_colliding(p0, p);
     }

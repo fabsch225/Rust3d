@@ -1,8 +1,8 @@
-use crate::math::matrix::NMatrix;
+use crate::math::matrix::MatrixND;
 use crate::math::vector::NVector;
 
-impl NMatrix {
-    pub fn gauss_single_thread(b: &NVector, x: &NMatrix) -> Option<NVector> {
+impl MatrixND {
+    pub fn gauss_single_thread(b: &NVector, x: &MatrixND) -> Option<NVector> {
         let mut b = b.clone();
         let mut x = x.clone();
         let n = b.n;

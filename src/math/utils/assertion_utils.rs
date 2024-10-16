@@ -1,4 +1,4 @@
-use crate::math::matrix::NMatrix;
+use crate::math::matrix::MatrixND;
 use crate::math::vector::NVector;
 
 pub fn assert_equal_nvector_custom_precision(v1: &NVector, v2: &NVector, precision: f64) {
@@ -16,7 +16,7 @@ pub fn assert_equal_nvector_custom_precision(v1: &NVector, v2: &NVector, precisi
     }
 }
 
-pub fn assert_equal_nmatrix_custom_precision(m1: &NMatrix, m2: &NMatrix, precision: f64) {
+pub fn assert_equal_nmatrix_custom_precision(m1: &MatrixND, m2: &MatrixND, precision: f64) {
     assert_eq!(m1.rows, m2.rows, "Matrices must have the same number of rows.");
     assert_eq!(m1.cols, m2.cols, "Matrices must have the same number of columns.");
 
@@ -39,6 +39,6 @@ pub fn assert_equal_nvector(v1: &NVector, v2: &NVector) {
     assert_equal_nvector_custom_precision(v1, v2, 0.00001);
 }
 
-pub fn assert_equal_nmatrix(m1: &NMatrix, m2: &NMatrix) {
+pub fn assert_equal_nmatrix(m1: &MatrixND, m2: &MatrixND) {
     assert_equal_nmatrix_custom_precision(m1, m2, 0.00001);
 }

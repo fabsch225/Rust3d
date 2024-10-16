@@ -40,7 +40,7 @@ impl Collision {
     }
 }
 
-pub trait Sphereable {
+pub trait RaySphereable {
     fn get_radius(&self) -> f64;
     fn get_middle(&self) -> V3;
 
@@ -86,7 +86,7 @@ impl RayRenderScene {
     }
 
     pub fn read(&self) -> &dyn RayRenderable {
-        return self;
+        self
     }
 }
 

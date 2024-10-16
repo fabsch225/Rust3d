@@ -1,6 +1,6 @@
 #[allow(unused)]
 
-use rust3d::math::matrix::NMatrix;
+use rust3d::math::matrix::MatrixND;
 use rust3d::engine::utils::transformation::PI;
 use rust3d::math::vector::NVector;
 
@@ -60,18 +60,18 @@ fn rotation_matrix(v1: Vec<f64>, v2: Vec<f64>, angle: f64) -> Vec<Vec<f64>> {
 
 
 pub fn main() {
-    let m = NMatrix{rows: 2, cols: 2, data: vec![2., 4., 0., 1.]};
+    let m = MatrixND {rows: 2, cols: 2, data: vec![2., 4., 0., 1.]};
     let vec = m.get_col_vector(0);
     let vec2 = m.get_row_vector(0);
     vec2.print();
     vec.print();
-    let tm = NMatrix::translation_matrix(&vec);
+    let tm = MatrixND::translation_matrix(&vec);
     tm.print();
 
-    let xy_plane = NMatrix{rows: 3, cols: 1, data: vec![0.,
-                                                        1.,
-                                                        0.,]};
-    let matrix = NMatrix::aguilera_perez_single_thread(&xy_plane, PI / 2., 3);
+    let xy_plane = MatrixND {rows: 3, cols: 1, data: vec![0.,
+                                                          1.,
+                                                          0.,]};
+    let matrix = MatrixND::aguilera_perez_single_thread(&xy_plane, PI / 2., 3);
     matrix.print();
     let mut vec1  = NVector{n: 3, x: vec![0., 1., 0.]};
 

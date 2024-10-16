@@ -1,7 +1,7 @@
 use sdl2::pixels::Color;
 
 use crate::engine::raymarching::RayMarchingObject;
-use crate::engine::utils::rendering::Sphereable;
+use crate::engine::utils::rendering::RaySphereable;
 use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
 use crate::geometry::vector3::Vector3;
 
@@ -58,7 +58,7 @@ impl Transformable for Sphere {
     }
 }
 
-impl Sphereable for Sphere {
+impl RaySphereable for Sphere {
     fn get_radius(&self) -> f64 {
         return self.r;
     }

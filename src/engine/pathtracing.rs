@@ -39,7 +39,7 @@ impl PathTracingScene {
     }
 
     pub fn get(&mut self, i : usize) -> &mut Box<dyn PathtracingObject + 'static + Send + Sync> {
-        return &mut self.objects[i];
+        &mut self.objects[i]
     }
 
     pub fn remove(&mut self, i : usize) {
