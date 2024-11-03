@@ -4,10 +4,11 @@ use sdl2::pixels::Color;
 
 use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, RaySphereable}, transformation::Transformable};
 use crate::engine::pathtracing::PathtracingObject;
+use crate::engine::simplex3d_sphere_tree::poly_tree_element::PolyTreeElement;
 use crate::geometry::face::{Face as F, UV};
 use crate::geometry::vector3::Vector3 as V3;
 use crate::geometry::simplex3d::Simplex3D;
-use crate::engine::polytree::poly_tree_element::PolyTreeElement;
+
 
 use super::poly_tree_utils::PolyTreeCollisionFeedback;
 

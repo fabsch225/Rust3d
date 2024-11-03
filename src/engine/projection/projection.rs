@@ -1,6 +1,17 @@
+/*
+ * Author     Fabian Schuller
+ * Version   0.1
+ * Date        2024
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use std::cmp::PartialEq;
 use sdl2::{render::Canvas, video::Window};
 use crate::engine::pathtracing::PathtracingObject;
+use crate::engine::projection::raster::Raster;
 use crate::engine::utils::virtual_canvas::{VirtualCanvas, Color};
 use crate::geometry::point::Point;
 use crate::math::matrix::MatrixND;
@@ -28,15 +39,20 @@ impl ProjectiveScene {
         for object in self.objects.iter() {
             rasters.push(object.project(projection_matrix).rasterize(width, height));
         }
+        //TODO this will not do for clipping!
         rasters = Self::sort_rasters(rasters);
         for raster in rasters {
             for x in raster.rec_start.0..raster.rec_end.0 {
                 for y in raster.rec_start.1..raster.rec_end.1 {
-                    let color = raster.get_color(x - raster.rec_start.0, y - raster.rec_start.1);
-                    if (color != Color::new(0,0,0,255)) {
-                        //println!("here");
+                    let color = raster.get((x - raster.rec_start.0) as i32, (y - raster.rec_start.1) as i32);
+                    //check bounds
+                    if (color == Color::new(0,0,0,255)) {
+                        continue;
                     }
                     canvas.draw_pixel(x, y, color);
+                    if (color != Color::new(255,255,0,55)) {
+                        continue;
+                    }
                 }
             }
         }
@@ -58,32 +74,4 @@ pub trait Projectable {
 //Todo [NEXTSTEP] implement struct LineProjection as trait Projection, and draw something 2d
 pub trait Projection {
     fn rasterize(&self, width: usize, height: usize) -> Raster;
-}
-
-/// Todo [THINK] Maybe draw the pixels differently i.e.
-/// struct Pixel {
-///     x: usize
-///     y: usize
-///     z: usize // z-index
-///     c: Color
-/// }
-///
-/// and then, render them by iterating the pixel-vector.
-/// maybe add another Raster -> SparseRaster that works this way
-
-#[derive(Clone, Debug)]
-pub struct Raster {
-    pub z: i32,
-    pub rec_start: (usize, usize),
-    pub rec_end: (usize, usize),
-    pub width: usize,
-    pub height: usize,
-    // field
-    pub pixels: Vec<Vec<Color>>
-}
-
-impl Raster {
-    pub fn get_color(&self, x: usize, y: usize) -> Color {
-        self.pixels[y][x]
-    }
 }

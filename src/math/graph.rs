@@ -3,7 +3,6 @@ use std::vec;
 use sdl2::pixels::Color;
 
 use crate::engine::pathtracing::{PathtracingObject, PathTracingScene};
-use crate::engine::polytree::poly_tree::PolyTree;
 use crate::engine::raymarching::{RayMarchingObject, RayMarchingScene};
 use crate::engine::utils::anker_label::AnkerLabel;
 use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable, Collision, RaySphereable}, transformation::Transformable};

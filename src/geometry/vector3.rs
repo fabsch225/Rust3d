@@ -1,5 +1,4 @@
 use std::cmp;
-use crate::math::optimization::float_ops::fast_square_root;
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Vector3 {

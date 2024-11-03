@@ -1,6 +1,10 @@
-use sdl2::pixels::Color;
-
-use crate::{engine::{polytree::poly_tree::PolyTree, utils::anker_label::AnkerLabel}, geometry::{face::{Face, UV}, vector3::Vector3, simplex3d::Simplex3D, quad::Quad}, math::functions::{FunctionR2ToR, FunctionRToR}};
+use crate::engine::simplex3d_sphere_tree::poly_tree::PolyTree;
+use crate::engine::utils::anker_label::AnkerLabel;
+use crate::geometry::face::{Face, UV};
+use crate::geometry::quad::Quad;
+use crate::geometry::simplex3d::Simplex3D;
+use crate::geometry::vector3::Vector3;
+use crate::math::functions::FunctionR2ToR;
 
 pub trait WithLabels {
     fn get_labels(&self) -> &Vec<AnkerLabel>;

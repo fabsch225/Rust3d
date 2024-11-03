@@ -50,6 +50,7 @@ const TURN_SPEED : f64 = 0.0035;
 /// - [x] rot_reverse is buggy for simplex3d_sphere_tree
 /// - [ ] think about simplex3d_sphere_tree with AABBs
 /// - [ ] replace the r_ etc. in the constructors with corrected names → M{r: r_} → M{r}.
+/// - [ ] Voxels -> *Simulations*
 
 pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;

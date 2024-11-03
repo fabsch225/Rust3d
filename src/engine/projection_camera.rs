@@ -1,5 +1,5 @@
 use sdl2::{pixels::Color, rect::Point, render::Canvas, video::Window};
-use crate::engine::projection::ProjectiveScene;
+use crate::engine::projection::projection::ProjectiveScene;
 use crate::engine::utils::rendering::RayRenderable;
 use crate::engine::utils::virtual_canvas::VirtualCanvas;
 use crate::math::matrix::MatrixND;
@@ -36,6 +36,7 @@ impl ProjectionCamera {
         for x in 0..self.width {
             for y in 0..self.height {
                 let color = vcanvas.get_sdl2_color(x, y);
+
                 canvas.set_draw_color(color);
                 canvas.draw_point(Point::new(x as i32, y as i32));
             }

@@ -1,5 +1,5 @@
-
-use crate::engine::projection::{ProjectiveScene, Raster};
+use crate::engine::projection::projection::ProjectiveScene;
+use crate::engine::projection::raster::Raster;
 
 impl ProjectiveScene {
     fn insertion_sort(vec: &mut [Raster]) {

@@ -4,7 +4,7 @@ use sdl2::{pixels::Color, render::{Canvas, Texture}, video::Window};
 use crate::{engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable}, geometry::sphere::Sphere, math::utils::graph_utils::WithLabels};
 use crate::geometry::vector3::Vector3 as V3;
 
-use super::{rendering::RaySphereable, renderung_ui::UiElement};
+use super::{rendering::RaySphereable, rendering_ui::UiElement};
 
 pub struct AnkerLabel {
     pub text: String,
