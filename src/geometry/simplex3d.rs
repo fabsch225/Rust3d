@@ -115,7 +115,7 @@ impl Simplex3D {
             }
         }
 
-        middle.mult(1.0 / vertices.len() as f64);
+        middle.scale(1.0 / vertices.len() as f64);
 
         let mut img = image::open(tf).unwrap();
 

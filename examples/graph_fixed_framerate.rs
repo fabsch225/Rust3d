@@ -14,10 +14,10 @@ use std::thread;
 use std::time::Duration;
 use std::time::Instant;
 
-use rust3d::engine::polytree::poly_tree::PolyTree;
+use rust3d::engine::simplex3d_sphere_tree::poly_tree::PolyTree;
 use rust3d::engine::raymarching::RayMarchingScene;
 use rust3d::engine::utils::rendering::RaySphereable;
-use rust3d::engine::utils::renderung_ui::UiElement;
+use rust3d::engine::utils::rendering_ui::UiElement;
 use rust3d::engine::utils::transformation::{PI, TWO_PI};
 use rust3d::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
 use rust3d::geometry::face::Face;

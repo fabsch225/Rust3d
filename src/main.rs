@@ -41,14 +41,14 @@ const TURN_SPEED : f64 = 0.0035;
 
 ///ToDo
 /// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
-/// - [ ] Refactor simplex3d_sphere_tree to be untextured and textured
+/// - [ ] make the texture Object more abstract (this may not be sensible for Raymarching-Objects)
 /// - [ ] Fix RM coloring
-/// - [ ] implement rectangular Face
+/// - [ ] implement rectangular Face -> call it SmartFace or smth
 /// - [x] implement rot_by for transformable
 /// - [x] maybe stop rendering when nothing changes
 /// - [ ] implement goto for transformable
 /// - [x] rot_reverse is buggy for simplex3d_sphere_tree
-/// - [ ] think about simplex3d_sphere_tree with AABBs
+/// - [ ] implement AABB Tree as drop-in Replacement for the sphere-tree -> BVH
 /// - [ ] replace the r_ etc. in the constructors with corrected names → M{r: r_} → M{r}.
 /// - [ ] Voxels -> *Simulations*
 

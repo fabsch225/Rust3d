@@ -1,5 +1,5 @@
-## Rust3D
-- This Engine is mainly used for experimenting with Computer Graphics Tech
+## Rust-Graphics
+- This Engine is mainly used for experimenting with Computer Graphics
 - With some exceptions, it is developed entirely from scratch
 - Ray-Marching and Pathtracing Engine on the Cpu
 - Using SDL2 for Media-Context

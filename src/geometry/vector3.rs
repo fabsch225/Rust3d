@@ -18,7 +18,7 @@ impl Vector3 {
 
 	pub fn normalize(&mut self) {
 		let len : f64 = f64::sqrt(self.x * self.x + self.y * self.y + self.z * self.z);
-		self.mult( 1f64 / len);
+		self.scale( 1f64 / len);
 	}
 
 	pub fn norm(self) -> f64 {
@@ -54,13 +54,13 @@ impl Vector3 {
 		self.z = self.z + p.z;
 	}
 	
-	pub fn subtr(&mut self, p : Vector3) {
+	pub fn subtract(&mut self, p : Vector3) {
 		self.x = self.x - p.x;
 		self.y = self.y - p.y;
 		self.z = self.z - p.z;
 	}
 	
-	pub fn mult(&mut self, x : f64) {
+	pub fn scale(&mut self, x : f64) {
 		self.x = self.x * x;
 		self.y = self.y * x;
 		self.z = self.z * x;
@@ -76,13 +76,13 @@ impl Vector3 {
 	}
 
 	pub fn rot_by(&mut self, p0 : Vector3, r: Vector3)  {
-		self.subtr(p0);
+		self.subtract(p0);
 		self.rotate(r);
 		self.add(p0);
 	}
 
 	pub fn rot_reverse_by(&mut self, p0 : Vector3, r: Vector3)  {
-		self.subtr(p0);
+		self.subtract(p0);
 		self.rot_reverse(r);
 		self.add(p0);
 	}

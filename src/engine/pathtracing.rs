@@ -73,6 +73,6 @@ impl RayRenderable for PathTracingScene {
 				}
 			}
 		}
-		return c;
+		c
 	}
 }

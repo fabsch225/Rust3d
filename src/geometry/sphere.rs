@@ -28,9 +28,9 @@ impl Sphere {
     pub fn nearest_point_to(self, p : Vector3) -> Vector3 {
         let mut v : Vector3 = self.m.clone();
         let mut res : Vector3 = self.m.clone();
-        v.subtr(p);
+        v.subtract(p);
         v.normalize();
-        v.mult(self.r);
+        v.scale(self.r);
         res.add(v);
 
         return res;

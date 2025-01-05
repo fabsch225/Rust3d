@@ -261,11 +261,11 @@ impl Quad {
         let mut y: Vector3 = self.x[0];
         let mut z: Vector3 = self.x[7];
 
-        pc.subtr(o);
+        pc.subtract(o);
 
-        x.subtr(o);
-        y.subtr(o);
-        z.subtr(o);
+        x.subtract(o);
+        y.subtract(o);
+        z.subtract(o);
 
         let mut tx: f64 = pc.dt(x) / x.norm_sq();
         let mut ty: f64 = pc.dt(y) / y.norm_sq();
@@ -293,9 +293,9 @@ impl Quad {
 				tz
 			};
 
-        x.mult(tx);
-        y.mult(ty);
-        z.mult(tz);
+        x.scale(tx);
+        y.scale(ty);
+        z.scale(tz);
 
         o.add(x);
         o.add(y);
@@ -323,11 +323,11 @@ impl Quad {
         let mut y: Vector3 = self.x[0];
         let mut z: Vector3 = self.x[7];
 
-        pc.subtr(o);
+        pc.subtract(o);
 
-        x.subtr(o);
-        y.subtr(o);
-        z.subtr(o);
+        x.subtract(o);
+        y.subtract(o);
+        z.subtract(o);
 
         let mut tx: f64 = pc.dt(x) / x.norm_sq();
         let mut ty: f64 = pc.dt(y) / y.norm_sq();
@@ -355,9 +355,9 @@ impl Quad {
             tz
         };
 
-        x.mult(tx);
-        y.mult(ty);
-        z.mult(tz);
+        x.scale(tx);
+        y.scale(ty);
+        z.scale(tz);
 
         o.add(x);
         o.add(y);
@@ -372,26 +372,26 @@ impl Quad {
         let cm: Vector3 = self.m.clone();
 
         for i in 0..8 {
-            self.x[i].subtr(self.m);
+            self.x[i].subtract(self.m);
             self.x[i].rot_reverse(p);
             self.x[i].add(self.m);
         }
 
         for i in 0..6 {
-            self.s[i].subtr(self.m);
+            self.s[i].subtract(self.m);
             self.s[i].rot_reverse(p);
             self.s[i].add(self.m);
         }
     }
     fn rot(&mut self, p: Vector3) {
         for i in 0..8 {
-            self.x[i].subtr(self.m);
+            self.x[i].subtract(self.m);
             self.x[i].rotate(p);
             self.x[i].add(self.m);
         }
 
         for i in 0..6 {
-            self.s[i].subtr(self.m);
+            self.s[i].subtract(self.m);
             self.s[i].rotate(p);
             self.s[i].add(self.m);
         }
@@ -420,7 +420,7 @@ impl Quad {
 
     fn scale(&mut self, p: Vector3) {
         for i in 0..8 {
-            self.x[i].subtr(self.m);
+            self.x[i].subtract(self.m);
             self.x[i].x *= p.x;
             self.x[i].y *= p.y;
             self.x[i].z *= p.z;
@@ -428,7 +428,7 @@ impl Quad {
         }
 
         for i in 0..6 {
-            self.s[i].subtr(self.m);
+            self.s[i].subtract(self.m);
             self.s[i].x *= p.x;
             self.s[i].y *= p.y;
             self.s[i].z *= p.z;

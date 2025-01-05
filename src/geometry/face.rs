@@ -39,13 +39,13 @@ impl Face {
 
     pub fn calculate_radius(m_: V3, r_: V3, a_: V3, b_: V3) -> f64 {
         let mut v : V3 = m_.clone();
-        v.subtr(r_);
+        v.subtract(r_);
         let a = v.norm();
         v = m_.clone();
-        v.subtr(a_);
+        v.subtract(a_);
         let b = v.norm();
         v = m_.clone();
-        v.subtr(b_);
+        v.subtract(b_);
         let c = v.norm();
         return f64::max(f64::max(a, b), c);
     }
@@ -54,15 +54,15 @@ impl Face {
         let mut v : V3 = a_.clone();
         v.add(r_);
         v.add(b_);
-        v.mult(1.0 / 3.0);
+        v.scale(1.0 / 3.0);
         return v;
     }
 
     pub fn calculate_norm(r_: V3, a_: V3, b_: V3) -> V3 {
         let mut v1 : V3 = a_.clone();
         let mut v2 : V3 = b_.clone();
-        v1.subtr(r_);
-        v2.subtr(r_);
+        v1.subtract(r_);
+        v2.subtract(r_);
         v1.cross(v2);
         return v1;
     }
@@ -105,9 +105,9 @@ impl Face {
     } 
 
     pub fn rot_reverse(&mut self, r_: V3, p: V3) {
-        self.r.subtr(p);
-        self.a.subtr(p);
-        self.b.subtr(p);
+        self.r.subtract(p);
+        self.a.subtract(p);
+        self.b.subtract(p);
 
         self.r.rot_reverse(r_);
         self.a.rot_reverse(r_);

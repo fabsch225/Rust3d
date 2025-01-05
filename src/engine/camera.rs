@@ -47,7 +47,7 @@ impl<'a> RayCamera {
 
 	pub fn rot(&mut self, p : V3) {
 		for i in 0..3 {
-			self.v[i].subtr(self.x);
+			self.v[i].subtract(self.x);
 			self.v[i].rotate(p);
 			self.v[i].add(self.x);
 		}

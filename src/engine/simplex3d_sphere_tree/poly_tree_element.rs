@@ -113,7 +113,7 @@ impl PolyTreeElement {
             for i in 0..self.children.len() {
                 mid.add(self.children[i].calulate_middle());
             }
-            mid.mult(1.0 / self.children.len() as f64);
+            mid.scale(1.0 / self.children.len() as f64);
             self.m = mid;
             mid
         }

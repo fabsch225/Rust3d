@@ -31,8 +31,8 @@ impl Line {
     pub fn nearest_point_to_(&self, p : Vector3) -> Vector3 {
         let mut v = self.e.clone();
         let mut pc = p.clone();
-        pc.subtr(self.s);
-        v.subtr(self.s);
+        pc.subtract(self.s);
+        v.subtract(self.s);
         let mut lin = v.dt(pc) / v.norm_sq();
         lin = if lin < 0.0 {
                 0.0
@@ -41,7 +41,7 @@ impl Line {
             } else {
                 lin
             };
-        v.mult(lin);
+        v.scale(lin);
         let mut proj = self.s.clone();
         proj.add(v);
         proj
@@ -66,7 +66,7 @@ impl Transformable for Line {
         self.e.rot_by(p, r);
         self.m = self.e.clone();
         self.m.add(self.s);
-        self.m.mult(0.5);
+        self.m.scale(0.5);
     }
     fn translate(&mut self, v : Vector3) {
         self.s.add(v);
@@ -74,8 +74,8 @@ impl Transformable for Line {
         self.m.add(v);
     }
     fn scale(&mut self, v : Vector3) {
-        self.s.subtr(self.m);
-        self.e.subtr(self.m);
+        self.s.subtract(self.m);
+        self.e.subtract(self.m);
         self.s.x = self.s.x * v.x;
         self.s.y = self.s.y * v.y;
         self.s.z = self.s.z * v.z;
@@ -116,9 +116,9 @@ impl PathtracingObject for Line {
 
     fn get_collision(&self, p0 : Vector3, p : Vector3) -> Collision {
         let mut pq = p0.clone();
-        pq.subtr(self.s);
+        pq.subtract(self.s);
         let mut v = self.e.clone();
-        v.subtr(self.s);
+        v.subtract(self.s);
         let mut n = p.clone();
         n.cross(v);
         let norm_n = n.norm();
@@ -126,7 +126,7 @@ impl PathtracingObject for Line {
        
         if (d < self.thickness && self.is_colliding(p0, p) && norm_n > 0.0) {
             let mut d_p0 = self.nearest_point_to_(p0);
-            d_p0.subtr(p0);
+            d_p0.subtract(p0);
 
             Collision {
                 d: d_p0.norm(),

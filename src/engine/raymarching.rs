@@ -63,7 +63,7 @@ impl RayMarchingScene {
 			l = l + 1f64; 
 		}
 
-		avg.mult(1f64 / l);
+		avg.scale(1f64 / l);
 		let new_d = p.d(avg);
 
 		if (trad_d < new_d * 0.5) {
@@ -134,11 +134,11 @@ impl RayMarchingScene {
 			let v = vals[i];
 
 			let mut vc: V3 = V3{x: c.r as f64, y: c.g as f64, z: c.b as f64};
-			vc.mult(v / ad);
+			vc.scale(v / ad);
             result.add(vc);
         }
 
-		result.mult(1.0 / l as f64);
+		result.scale(1.0 / l as f64);
 
 		return Color::RGB(result.x as u8, result.y as u8, result.z as u8);
 	}
