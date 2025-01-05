@@ -39,7 +39,7 @@ const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
 const TURN_SPEED : f64 = 0.0035;
 
-///ToDo
+/// ## TODO
 /// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
 /// - [ ] make the texture Object more abstract (this may not be sensible for Raymarching-Objects)
 /// - [ ] Fix RM coloring
@@ -50,7 +50,13 @@ const TURN_SPEED : f64 = 0.0035;
 /// - [x] rot_reverse is buggy for simplex3d_sphere_tree
 /// - [ ] implement AABB Tree as drop-in Replacement for the sphere-tree -> BVH
 /// - [ ] replace the r_ etc. in the constructors with corrected names → M{r: r_} → M{r}.
-/// - [ ] Voxels -> *Simulations*
+///
+/// ## Ideas / Directions for future development
+/// - [ ] Voxels ?
+/// - [ ] Physics ?
+/// - [ ] Single-Frame rendering mode -> then Raytracing
+/// - [ ] complete the line-drawing algorithms -> then the Projections -> then 4D Geometry
+/// - [ ] more complete Ray marching
 
 pub fn main() -> Result<(), String>{
     let sdl_context = sdl2::init()?;

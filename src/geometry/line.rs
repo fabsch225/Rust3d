@@ -158,11 +158,7 @@ impl PathtracingObject for Line {
 }
 
 impl RayMarchingObject for Line {
-    fn d(&self, p: Vector3) -> f64 {
-        return self.d_(p);
-    }
-
-    fn d_r(&self, p: Vector3) -> f64 {
+    fn sdf(&self, p: Vector3) -> f64 {
         return self.d_(p);
     }
 
@@ -171,10 +167,6 @@ impl RayMarchingObject for Line {
         //color.add(Point { x: self.find_s_index(p) as f64 * 10.0, y: (self.find_s_index(p) as f64 * 10.0), z: (self.find_s_index(p) as f64 * 10.0) });
 
         self.base_color //SdlColor::RGB(color.x as u8,  color.y as u8, color.z as u8); // + self.find_s_index(p) * 10
-    }
-
-    fn nearest_point(&self, p: Vector3) -> Vector3 {
-        return self.nearest_point_to_(p);
     }
 
     fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync> {

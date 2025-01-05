@@ -6,6 +6,7 @@ pub mod engine {
     pub mod projection_camera;
     pub mod pathtracing;
     pub mod raymarching;
+    pub mod lighting;
     pub mod projection {
         pub mod projection;
         pub mod raster;

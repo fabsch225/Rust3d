@@ -8,12 +8,14 @@ use sdl2::render::Canvas;
 use sdl2::video::Window;
 use rust3d::geometry::vector3::Vector3 as V;
 use rust3d::engine::camera::{RayCamera};
+use rust3d::engine::lighting::{Light, Material};
 use rust3d::engine::raymarching::{RayMarchingScene};
 use rust3d::engine::utils::rendering::{RayRenderScene};
+use rust3d::engine::utils::transformation::Transformable;
 use rust3d::geometry::sphere::Sphere;
 
-const W : usize = 1000;
-const H : usize = 1000;
+const W : usize = 300;
+const H : usize = 300;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 
@@ -31,6 +33,17 @@ pub fn main() -> Result<(), String> {
     let p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 1.0, Color::GREEN);
     let mut rm_objs : RayMarchingScene = RayMarchingScene::new(0.005);
     rm_objs.add(p2);
+    rm_objs.add_light(Light {
+        position: V{x: 2.0, y: 2.0, z: 5.0},
+        color: Color::YELLOW,
+        intensity: 1.0,
+    });
+    rm_objs.add_light(Light {
+        position: V{x: -2.0, y: 2.0, z: 3.0},
+        color: Color::BLUE,
+        intensity: 1.0,
+    });
+    rm_objs.add_material(Material{ color: Color::YELLOW, diffuse: 1.0 });
     let rm_objs = Arc::new(RwLock::new(rm_objs));
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -45,6 +58,7 @@ pub fn main() -> Result<(), String> {
         }
 
         let mut objs: RayRenderScene = RayRenderScene::new();
+        rm_objs.write().unwrap().lights[0].rot_by(V::new(2.0,1.0,1.0), V::new(0.1, 0.0, -0.15));
 
         objs.wrap(Box::new(RayMarchingScene::wrapup(&rm_objs.read().unwrap())));
         render_multi(&mut canvas, objs, camera, &W, &H);

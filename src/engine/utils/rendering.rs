@@ -103,17 +103,12 @@ impl RayRenderable for RayRenderScene {
                 let mut p2 = c_.p.clone();
                 p2.subtract(p0);
                 let d = p2.norm();
-                if (d != c_.d && c_.hit) {
-                    //println!("distance is {}", c_.d);
-                }
-                //assert_eq!(d, c_.d);
                 if (c_.d < bd) {
-                    //println!("distance is {}", c_.d);
                     c = c_;
                     bd = c_.d;
                 }
             }
         }
-        return c;
+        c
     }
 }

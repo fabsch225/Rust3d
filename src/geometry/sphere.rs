@@ -69,21 +69,13 @@ impl RaySphereable for Sphere {
 }
 
 impl RayMarchingObject for Sphere {
-	fn d(&self, p : Vector3) -> f64 {
-		return self.d_(p);
-	}
-
-    fn d_r(&self, p : Vector3) -> f64 {
+	fn sdf(&self, p : Vector3) -> f64 {
 		return self.d_(p);
 	}
 
 	fn color(&self, p : Vector3) -> Color {
 		return self.base_color; // + self.find_s_index(p) * 10
 	}
-
-    fn nearest_point(&self, p: Vector3) -> Vector3 {
-        return self.nearest_point_to(p)
-    }
 
     fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync> {
         return Box::new(Sphere {
