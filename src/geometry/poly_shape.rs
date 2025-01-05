@@ -115,7 +115,7 @@ impl Poly {
             }
         }
 
-        middle.mult(1.0 / vertices.len() as f64);
+        middle.scale(1.0 / vertices.len() as f64);
 
         let mut img = image::open(tf).unwrap();
 
@@ -150,14 +150,14 @@ impl Transformable for Poly {
         for f in self.x.iter_mut() {
             f.trans(p);
         }
-        self.m.trans(p.x, p.y, p.z);
+        self.m.transform(p.x, p.y, p.z);
     }
 
     fn scale(&mut self, p: V3) { 
         for f in self.x.iter_mut() {
             f.scale_by(p, self.m);
         }
-        self.m.trans(p.x, p.y, p.z);
+        self.m.transform(p.x, p.y, p.z);
     }
     
     fn rot_by(&mut self, p : V3, r : V3) {

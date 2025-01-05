@@ -19,7 +19,7 @@ impl Point {
 
 	pub fn normalize(&mut self) {
 		let len : f64 = f64::sqrt(self.x * self.x + self.y * self.y + self.z * self.z);
-		self.mult( 1f64 / len);
+		self.scale( 1f64 / len);
 	}
 
 	pub fn norm(self) -> f64 {
@@ -42,7 +42,7 @@ impl Point {
 		println!("{}, {}, {}", self.x.to_string(), self.y.to_string(), self.z.to_string());
 	}
 
-	pub fn trans(&mut self, x_: f64, y_: f64, z_: f64) {
+	pub fn transform(&mut self, x_: f64, y_: f64, z_: f64) {
 		self.x = self.x + x_;
 		self.y = self.y + y_;
 		self.z = self.z + z_;
@@ -54,13 +54,13 @@ impl Point {
 		self.z = self.z + p.z;
 	}
 	
-	pub fn subtr(&mut self, p : Point) {
+	pub fn subtract(&mut self, p : Point) {
 		self.x = self.x - p.x;
 		self.y = self.y - p.y;
 		self.z = self.z - p.z;
 	}
 	
-	pub fn mult(&mut self, x : f64) {
+	pub fn scale(&mut self, x : f64) {
 		self.x = self.x * x;
 		self.y = self.y * x;
 		self.z = self.z * x;
@@ -76,13 +76,13 @@ impl Point {
 	}
 
 	pub fn rot_by(&mut self, p0 : Point, r: Point)  {
-		self.subtr(p0);
+		self.subtract(p0);
 		self.rot(r);
 		self.add(p0);
 	}
 
 	pub fn rot_reverse_by(&mut self, p0 : Point, r: Point)  {
-		self.subtr(p0);
+		self.subtract(p0);
 		self.rot_reverse(r);
 		self.add(p0);
 	}

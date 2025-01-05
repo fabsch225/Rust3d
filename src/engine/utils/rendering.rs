@@ -48,7 +48,7 @@ pub trait Sphereable {
     fn is_colliding(&self, p0: V3, p: V3) -> bool {
         //is it behind me?
         let mut m = self.get_middle().clone();
-        m.subtr(p0);
+        m.subtract(p0);
         let proj = m.dt(p);
         if (proj < 0.0) {
             return false;
@@ -101,7 +101,7 @@ impl Renderable for RenderObjects {
             let c_ = po.get_collision(p0, p, radius);
             if (c_.hit) {
                 let mut p2 = c_.p.clone();
-                p2.subtr(p0);
+                p2.subtract(p0);
                 let d = p2.norm();
                 if (d != c_.d && c_.hit) {
                     //println!("distance is {}", c_.d);

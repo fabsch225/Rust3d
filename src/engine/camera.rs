@@ -30,7 +30,7 @@ impl<'a> Camera {
 
 		for i in 0..3 {
 			v_[i].rot(V3{x: rx_, y: ry_, z: rz_});
-			v_[i].trans(p.x, p.y, p.z);
+			v_[i].transform(p.x, p.y, p.z);
 		}
     	
         Camera {
@@ -47,7 +47,7 @@ impl<'a> Camera {
 
 	pub fn rot(&mut self, p : V3) {
 		for i in 0..3 {
-			self.v[i].subtr(self.x);
+			self.v[i].subtract(self.x);
 			self.v[i].rot(p);
 			self.v[i].add(self.x);
 		}

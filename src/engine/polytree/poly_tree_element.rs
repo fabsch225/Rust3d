@@ -94,12 +94,12 @@ impl PolyTreeElement {
             for i in 0..self.faces.len() {
                 self.faces[i].trans(p);
             }
-            self.m.trans(p.x, p.y, p.z);
+            self.m.transform(p.x, p.y, p.z);
         } else {
             for i in 0..self.children.len() {
                 self.children[i].trans(p);
             }
-            self.m.trans(p.x, p.y, p.z);
+            self.m.transform(p.x, p.y, p.z);
         }
     }
     pub fn calulate_middle(&mut self) -> V3 {
@@ -112,7 +112,7 @@ impl PolyTreeElement {
             for i in 0..self.children.len() {
                 mid.add(self.children[i].calulate_middle());
             }
-            mid.mult(1.0 / self.children.len() as f64);
+            mid.scale(1.0 / self.children.len() as f64);
             self.m = mid;
             mid
         }

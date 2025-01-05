@@ -28,9 +28,9 @@ impl Sphere {
     pub fn nearest_point_to(self, p : Point) -> Point {
         let mut v : Point = self.m.clone();
         let mut res : Point = self.m.clone();
-        v.subtr(p);
+        v.subtract(p);
         v.normalize();
-        v.mult(self.r);
+        v.scale(self.r);
         res.add(v);
 
         return res;
@@ -46,7 +46,7 @@ impl Transformable for Sphere {
     }
 
     fn translate(&mut self, p: Point) {
-    	self.m.trans(p.x, p.y, p.z);
+    	self.m.transform(p.x, p.y, p.z);
     }
 
     fn scale(&mut self, p : Point) {

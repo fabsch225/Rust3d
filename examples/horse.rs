@@ -39,7 +39,7 @@ const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
 const TURN_SPEED : f64 = 0.0035;
 
-pub fn main() -> Result<(), String>{
+pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("rust3d", W as u32, H as u32)
