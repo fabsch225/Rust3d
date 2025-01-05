@@ -201,7 +201,7 @@ impl PolyTree {
 
     pub fn goto(&mut self, p: V3) {
         let mut p_ = p;
-        p_.subtr(self.m);
+        p_.subtract(self.m);
         self.translate(p_);
     }
 
@@ -210,7 +210,7 @@ impl PolyTree {
         for i in 0..p.x.len() {
             middle.add(p.x[i].m);
         }
-        middle.mult(1.0 / p.x.len() as f64);
+        middle.scale(1.0 / p.x.len() as f64);
         middle
     }
 
@@ -223,7 +223,7 @@ impl PolyTree {
         for i in 0..x.len() {
             middle.add(x[i].m);
         }
-        middle.mult(1.0 / x.len() as f64);
+        middle.scale(1.0 / x.len() as f64);
         middle
     }
 
