@@ -8,16 +8,6 @@
  * You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
- * Author     Fabian Schuller
- * Version   0.1
- * Date        2024
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::EventPump;
@@ -78,7 +68,7 @@ impl<'a> PlayerMovementController<'a> {
             speed: 20.0,
             yaw: 0.0,
             pitch: 0.0,
-            sensitivity: 0.005
+            sensitivity: 0.001
         }
     }
 
@@ -93,8 +83,8 @@ impl<'a> PlayerMovementController<'a> {
                     match key {
                         k if k == self.input_map.forward => self.acceleration.x = self.speed,
                         k if k == self.input_map.backward => self.acceleration.x = -self.speed,
-                        k if k == self.input_map.left => self.acceleration.z = self.speed,
-                        k if k == self.input_map.right => self.acceleration.z = -self.speed,
+                        k if k == self.input_map.left => self.acceleration.z = -self.speed,
+                        k if k == self.input_map.right => self.acceleration.z = self.speed,
                         k if k == self.input_map.up => self.acceleration.y = self.speed,
                         k if k == self.input_map.down => self.acceleration.y = -self.speed,
                         k if k == self.input_map.rotate_left => self.yaw -= 0.1,
@@ -114,8 +104,8 @@ impl<'a> PlayerMovementController<'a> {
                     }
                 }
                 Event::MouseMotion { xrel, yrel, .. } => {
-                    self.yaw -= xrel as f64 * self.sensitivity;
-                    self.pitch += yrel as f64 * self.sensitivity;
+                    self.yaw += xrel as f64 * self.sensitivity;
+                    self.pitch -= yrel as f64 * self.sensitivity;
                     self.pitch = self.pitch.clamp(-1.57, 1.57); // Limit pitch to avoid flipping
 
                     self.camera.set_rot(V { x: 0.0, y: self.yaw, z: self.pitch });
@@ -127,9 +117,31 @@ impl<'a> PlayerMovementController<'a> {
             }
         }
 
-        self.velocity.x += self.acceleration.x / self.mass;
-        self.velocity.y += self.acceleration.y / self.mass;
-        self.velocity.z += self.acceleration.z / self.mass;
+        /*let forward = V {
+            x: self.yaw.sin() * self.pitch.cos(),
+            y: self.pitch.sin(),
+            z: self.yaw.cos() * self.pitch.cos()
+        };*/
+        let forward = V {
+            x: self.yaw.cos(),
+            y: 0.0,
+            z: self.yaw.sin()
+        };
+        let right = V {
+            x: self.yaw.sin(),
+            y: 0.0,
+            z: -self.yaw.cos()
+        };
+
+        let movement = V {
+            x: forward.x * self.acceleration.x + right.x * self.acceleration.z,
+            y: self.acceleration.y,
+            z: forward.z * self.acceleration.x + right.z * self.acceleration.z
+        };
+
+        self.velocity.x += movement.x / self.mass;
+        self.velocity.y += movement.y / self.mass;
+        self.velocity.z += movement.z / self.mass;
 
         self.velocity.x *= 1.0 - self.friction;
         self.velocity.y *= 1.0 - self.friction;
@@ -139,7 +151,7 @@ impl<'a> PlayerMovementController<'a> {
         self.camera.position.y += self.velocity.y;
         self.camera.position.z += self.velocity.z;
 
-        println!("V: {:?} A: {:?}", self.velocity.norm(), self.acceleration);
+        println!("pitch: {:?} yaw: {:?}", self.pitch, self.yaw);
 
         false
     }

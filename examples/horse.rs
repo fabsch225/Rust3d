@@ -43,10 +43,16 @@ const TURN_SPEED : f64 = 0.0035;
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
-    let window = video_subsystem.window("rust3d", W as u32, H as u32)
+    let mut window = video_subsystem.window("rust3d", W as u32, H as u32)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
+
+    let mouse = sdl_context.mouse();
+    mouse.set_relative_mouse_mode(true);
+    mouse.show_cursor(false);
+    window.set_grab(true);
+
     let mut canvas = window.into_canvas().build()
         .expect("could not make a canvas");
     let mut event_pump = sdl_context.event_pump()?;
@@ -65,7 +71,7 @@ pub fn main() -> Result<(), String> {
 
     let pa_objs = Arc::new(RwLock::new(pa_objs));   
     
-	let mut camera : RayCamera = RayCamera::new(V{x: 1.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
+	let mut camera : RayCamera = RayCamera::new(V{x: 0.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
     let mut movement_handler = PlayerMovementController::new(&mut event_pump, &mut camera, MovementInputMap::get_default());
     'running: loop {
         if movement_handler.handle_input() {

@@ -95,7 +95,6 @@ impl<'a> RayCamera {
 		}
 	}
 
-
 	pub fn render_modulus<R : RayRenderable>(&self, obj: &R, w: usize, h : usize, index : usize, n : usize) -> Vec<Color> {
 		//let mut pos : usize = 0;
 		let mut pixels: Vec<Color> = Vec::new();
