@@ -11,14 +11,15 @@ use crate::geometry::face::Face;
 
 pub trait RayMarchingObject : Transformable {
     fn sdf(&self, p: V3) -> f64;
-	fn color(&self, p: V3) -> Color;
+	//fn color(&self, p: V3) -> Color;
 	fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync>;
+	fn get_material(&self) -> &Material;
 }
 
 pub struct RayMarchingScene {
     pub objects: Vec<Box<dyn RayMarchingObject + Send + Sync>>,
 	pub lights: Vec<Light>,
-	pub materials: Vec<Material>,
+	//pub materials: Vec<Material>,
 	pub epsilon: f64,
 }
 
@@ -26,7 +27,6 @@ impl RayMarchingScene {
 	pub fn new(epsilon: f64) -> Self {
 		RayMarchingScene {
 			objects: Vec::new(),
-			materials: Vec::new(),
 			lights: Vec::new(),
 			epsilon,
 		}
@@ -40,7 +40,6 @@ impl RayMarchingScene {
         RayMarchingScene {
 			epsilon: old.epsilon,
             objects: objects_vec,
-			materials: old.materials.clone(),
 			lights: old.lights.clone(),
 		}
     }
@@ -55,10 +54,6 @@ impl RayMarchingScene {
 
 	pub fn add_light(&mut self, light: Light) {
 		self.lights.push(light);
-	}
-
-	pub fn add_material(&mut self, material: Material) {
-		self.materials.push(material);
 	}
 
     pub fn nearest_distance(&self, p : V3) -> f64{
@@ -121,7 +116,7 @@ impl RayMarchingScene {
 		for (i, component) in self.objects.iter().enumerate() {
 			let cd = component.sdf(p);
 			if cd < bd {
-				let material = &self.materials[i];
+				let material = component.get_material();
 				result_color = self.diffuse_lighting(p, material);
 				bd = cd;
 			}

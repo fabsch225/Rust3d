@@ -10,68 +10,59 @@ use super::utils::{anker_label::AnkerLabel, rendering::RaySphereable, rendering_
 
 #[derive(Copy, Clone)]
 pub struct RayCamera {
-	pub v: [V3; 3],
+	pub rotation: V3,
 	pub zoom: f64,
-	pub x: V3,
-	pub rx: f64,
-	pub ry: f64,
-	pub rz: f64,
+	pub position: V3,
 	pub epsilon: f64,
 	pub view_distance: f64,
+	pub fov_pitch: f64,
+	pub fov_yaw: f64,
 }
 
 impl<'a> RayCamera {
-	pub fn new(p: V3, rx_: f64, ry_: f64, rz_: f64) -> Self {
-		let mut v_ : [V3; 3] = [
-	    		V3{x: 1.0, y: -0.5, z: -0.5},
-	    		V3{x: 1.0, y: 0.5, z: -0.5},
-	    		V3{x: 1.0, y: -0.5, z: 0.5}
-	    	];
-
-		for i in 0..3 {
-			v_[i].rotate(V3{x: rx_, y: ry_, z: rz_});
-			v_[i].translate(p.x, p.y, p.z);
-		}
-    	
+	pub fn new(position: V3, pitch: f64, yaw: f64, roll: f64) -> Self {
         RayCamera {
-	        v: v_,
-        	x: p,
-            rx: rx_,
-            ry: ry_,
-            rz: rz_,
+            rotation: V3 {
+                x: roll,
+                y: yaw,
+                z: pitch,
+            },
+            position,
             zoom: 1.0,
-			epsilon: 0.8f64,
-			view_distance: 100.0,
+            fov_pitch: 60.0f64.to_radians(),
+            fov_yaw: 90.0f64.to_radians(),
+            epsilon: 0.8f64,
+            view_distance: 100.0,
         }
     }
 
-	pub fn rot(&mut self, p : V3) {
-		for i in 0..3 {
-			self.v[i].subtract(self.x);
-			self.v[i].rotate(p);
-			self.v[i].add(self.x);
-		}
-	}
+	pub fn rot(&mut self, delta: V3) {
+        self.rotation.add(delta);
+    }
+
+    pub fn set_rot(&mut self, new_rot: V3) {
+        self.rotation = new_rot;
+    }
 
     fn get_ray_vec(&self, j: usize, i : usize, w: usize, h : usize) -> V3 {
         let vxp : f64 = j as f64 / w as f64;
         let vyp : f64 = i as f64 / h as f64;
         
-        let b : V3 = V3{x: self.v[0].x - self.x.x, y: self.v[0].y - self.x.y, z: self.v[0].z - self.x.z};
+		let ray_pitch = vyp * self.fov_pitch / 2.0;
+        let ray_yaw = vxp * self.fov_yaw / 2.0;
+        
+        let mut ray = V3::new(1.0, 0.0, 0.0);
+        
+        ray.rotate(V3::new(
+            self.rotation.x,
+            ray_yaw + self.rotation.y,
+			ray_pitch + self.rotation.z
+        ));
 
-        let mut v : V3 = V3{
-            x: b.x,
-            y: b.y + (self.v[1].y - self.v[0].y) * vyp + (self.v[2].y - self.v[0].y) * vxp,
-            z: b.z + (self.v[1].z - self.v[0].z) * vyp + (self.v[2].z - self.v[0].z) * vxp
-        };
-
-		v.norm();
-
-		//if (v.z == 0.0) { v.z = 0.0001; }
 		//TODO: Implement this mathematically correct. It somehow worked on the other Axis
-		if (v.y == 0.0) { v.y = 0.00000001; }
+		if (ray.y == 0.0) { ray.y = 0.00000001; }
 
-		v
+		ray
     }
 
 	pub fn render_and_draw_modulus_block<R : RayRenderable>(&self, canvas : &mut Canvas<Window>, obj: &R, blocksize : usize, index: usize, n : usize, w: usize, h : usize) {
@@ -79,7 +70,7 @@ impl<'a> RayCamera {
 			if ((j / blocksize) % n == index) {
 				for i in (0..h).step_by(blocksize) {
 					let mut v = self.get_ray_vec(j, i, w, h);
-					let coll = obj.get_collision(self.x, v, 100.0);
+					let coll = obj.get_collision(self.position, v, 100.0);
 					let color = coll.c;
 					canvas.set_draw_color(color);
 					canvas.fill_rect(sdl2::rect::Rect::new(j as i32, i as i32, blocksize as u32, blocksize as u32));
@@ -113,7 +104,7 @@ impl<'a> RayCamera {
 			if (j % n == index) {
 				for i in 0..h {
 					let mut v = self.get_ray_vec(j, i, w, h);
-					let c = obj.get_collision(self.x, v, 100.0);
+					let c = obj.get_collision(self.position, v, 100.0);
 					pixels.push(c.c);
 				}
 			}
@@ -130,7 +121,7 @@ impl<'a> RayCamera {
 			if (j % n == index) {
 				for i in 0..h {
 					let v = self.get_ray_vec(j, i, w, h);
-					let c = obj.get_collision(self.x, v, 100.0);
+					let c = obj.get_collision(self.position, v, 100.0);
 					pixels.push(c.c);
 				}
 			}
@@ -161,7 +152,7 @@ impl<'a> RayCamera {
 		for i in i1..i2 {
 			for j in j1..j2 {
 				let v = self.get_ray_vec(j, i, w, h);
-				let c = obj.get_collision(self.x, v, 100.0);
+				let c = obj.get_collision(self.position, v, 100.0);
 				if (c.hit) {
 					section.push(c.c);
 				}
@@ -176,7 +167,7 @@ impl<'a> RayCamera {
 
     pub fn render_pixel_at(&self, j: usize, i : usize, canvas : &mut Canvas<Window>, obj: &dyn RayRenderable, w: usize, h : usize,) {
         let v = self.get_ray_vec(j, i, w, h);
-        let mut c = obj.get_collision(self.x, v, 100.0);
+        let mut c = obj.get_collision(self.position, v, 100.0);
     
         canvas.set_draw_color(c.c);
         
@@ -197,7 +188,7 @@ impl<'a> RayCamera {
 		for j in 0..w {
 			for i in 0..h {
 				let v = self.get_ray_vec(j, i, w, h);
-				if (a.is_colliding(self.x, v)) {
+				if (a.is_colliding(self.position, v)) {
 					a.render(canvas, j as i32, i as i32);
 					return;
 				}

@@ -1,6 +1,7 @@
 use sdl2::pixels::Color as SdlColor;
 
 use crate::engine::{pathtracing::PathtracingObject, raymarching::RayMarchingObject, utils::{rendering::RaySphereable, transformation::Transformable}};
+use crate::engine::lighting::Material;
 use crate::engine::projection::projection::{Projectable, Projection};
 use crate::engine::utils::rendering::Collision;
 use crate::engine::utils::virtual_canvas::Color;
@@ -162,13 +163,10 @@ impl RayMarchingObject for Line {
         return self.d_(p);
     }
 
-    fn color(&self, p: Vector3) -> SdlColor {
-        //let mut color : Point = Point{x: self.base_color.r as f64, y: self.base_color.g as f64, z: self.base_color.b as f64};
-        //color.add(Point { x: self.find_s_index(p) as f64 * 10.0, y: (self.find_s_index(p) as f64 * 10.0), z: (self.find_s_index(p) as f64 * 10.0) });
-
-        self.base_color //SdlColor::RGB(color.x as u8,  color.y as u8, color.z as u8); // + self.find_s_index(p) * 10
+    fn get_material(&self) -> &Material {
+        todo!()
     }
-
+    
     fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync> {
         //this is necessary so the dynamic trait is preserved
         Box::new(Line {

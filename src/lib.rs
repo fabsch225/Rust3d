@@ -7,6 +7,9 @@ pub mod engine {
     pub mod pathtracing;
     pub mod raymarching;
     pub mod lighting;
+    pub mod gameplay {
+        pub mod movement;
+    }
     pub mod projection {
         pub mod projection;
         pub mod raster;

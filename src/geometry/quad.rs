@@ -1,5 +1,5 @@
 use sdl2::pixels::Color;
-
+use crate::engine::lighting::Material;
 use crate::engine::raymarching::RayMarchingObject;
 use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
 use crate::geometry::vector3::Vector3;
@@ -446,13 +446,6 @@ impl RayMarchingObject for Quad {
         return self.d_(p);
     }
 
-    fn color(&self, p: Vector3) -> Color {
-        //let mut color : Point = Point{x: self.base_color.r as f64, y: self.base_color.g as f64, z: self.base_color.b as f64};
-        //color.add(Point { x: self.find_s_index(p) as f64 * 10.0, y: (self.find_s_index(p) as f64 * 10.0), z: (self.find_s_index(p) as f64 * 10.0) });
-
-        return self.base_color; //Color::RGB(color.x as u8,  color.y as u8, color.z as u8); // + self.find_s_index(p) * 10
-    }
-
     fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync> {
         return Box::new(Quad {
             x: self.x,
@@ -465,5 +458,9 @@ impl RayMarchingObject for Quad {
             rz: self.rz,
             base_color: self.base_color,
         });
+    }
+
+    fn get_material(&self) -> &Material {
+        todo!()
     }
 }

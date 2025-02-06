@@ -7,6 +7,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+
 use sdl2::pixels::Color;
 use crate::engine::utils::transformation::Transformable;
 use crate::geometry::vector3::Vector3 as V3;
@@ -40,7 +41,7 @@ impl Transformable for Light {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Material {
     pub color: Color,
     pub diffuse: f64,

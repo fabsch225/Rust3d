@@ -1,21 +1,20 @@
 use std::sync::{mpsc, Arc, RwLock};
 use std::thread;
 use std::time::Instant;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use rust3d::geometry::vector3::Vector3 as V;
 use rust3d::engine::camera::{RayCamera};
+use rust3d::engine::gameplay::movement::{MovementInputMap, PlayerMovementController};
 use rust3d::engine::lighting::{Light, Material};
 use rust3d::engine::raymarching::{RayMarchingScene};
 use rust3d::engine::utils::rendering::{RayRenderScene};
 use rust3d::engine::utils::transformation::Transformable;
 use rust3d::geometry::sphere::Sphere;
 
-const W : usize = 300;
-const H : usize = 300;
+const W : usize = 800;
+const H : usize = 800;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 
@@ -29,8 +28,8 @@ pub fn main() -> Result<(), String> {
     let mut canvas = window.into_canvas().build()
         .expect("could not make a canvas");
     let mut event_pump = sdl_context.event_pump()?;
-    let camera : RayCamera = RayCamera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
-    let p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 1.0, Color::GREEN);
+    let mut camera: RayCamera = RayCamera::new(V{x: -3.0, y: 0.0, z: 0.0}, 0.0, 0.0, 0.0);
+    let p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 1.0, Material{ color: Color::WHITE, diffuse: 1.0 });
     let mut rm_objs : RayMarchingScene = RayMarchingScene::new(0.005);
     rm_objs.add(p2);
     rm_objs.add_light(Light {
@@ -43,25 +42,17 @@ pub fn main() -> Result<(), String> {
         color: Color::BLUE,
         intensity: 1.0,
     });
-    rm_objs.add_material(Material{ color: Color::YELLOW, diffuse: 1.0 });
     let rm_objs = Arc::new(RwLock::new(rm_objs));
+    let mut movement_handler = PlayerMovementController::new(&mut event_pump, &mut camera, MovementInputMap::get_default());
     'running: loop {
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => break 'running,
-                _ => {}
-            }
+        if movement_handler.handle_input() {
+            break 'running;
         }
-
         let mut objs: RayRenderScene = RayRenderScene::new();
         rm_objs.write().unwrap().lights[0].rot_by(V::new(2.0,1.0,1.0), V::new(0.1, 0.0, -0.15));
 
         objs.wrap(Box::new(RayMarchingScene::wrapup(&rm_objs.read().unwrap())));
-        render_multi(&mut canvas, objs, camera, &W, &H);
+        render_multi(&mut canvas, objs, movement_handler.get_camera(), &W, &H);
         canvas.present();
     }
     Ok(())

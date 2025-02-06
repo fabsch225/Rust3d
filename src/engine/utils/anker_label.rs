@@ -2,6 +2,7 @@ use fontdue::{layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle}, Fon
 use sdl2::{pixels::Color, render::{Canvas, Texture}, video::Window};
 
 use crate::{engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable}, geometry::sphere::Sphere, math::utils::graph_utils::WithLabels};
+use crate::engine::lighting::Material;
 use crate::geometry::vector3::Vector3 as V3;
 
 use super::{rendering::RaySphereable, rendering_ui::UiElement};
@@ -103,7 +104,7 @@ impl AnkerLabel {
 
         AnkerLabel {
             text: text_,
-            sphere: Sphere::new(V3{x: x_,y: y_,z: z_}, 0.005, Color::RGB(0, 0, 0)),
+            sphere: Sphere::new(V3{x: x_,y: y_,z: z_}, 0.005, Material{ color: Color::YELLOW, diffuse: 1.0 }),
             visible: true,
             texture: texture,
             texture_size: ((max_x - min_x) as u32, (max_y - min_y) as u32),

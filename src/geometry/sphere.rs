@@ -1,5 +1,5 @@
 use sdl2::pixels::Color;
-
+use crate::engine::lighting::Material;
 use crate::engine::raymarching::RayMarchingObject;
 use crate::engine::utils::rendering::RaySphereable;
 use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
@@ -9,15 +9,15 @@ use crate::geometry::vector3::Vector3;
 pub struct Sphere {
 	m: Vector3,
     r: f64,
-    base_color: Color
+    mat: Material
 }
 
 impl Sphere {
-    pub fn new(p: Vector3, r_: f64, c: Color) -> Self {
+    pub fn new(p: Vector3, r_: f64, mat_: Material) -> Self {
         Sphere {
             m: p,
             r: r_,
-            base_color: c
+            mat: mat_
         }
     }
 
@@ -72,16 +72,14 @@ impl RayMarchingObject for Sphere {
 	fn sdf(&self, p : Vector3) -> f64 {
 		return self.d_(p);
 	}
-
-	fn color(&self, p : Vector3) -> Color {
-		return self.base_color; // + self.find_s_index(p) * 10
-	}
-
+    fn get_material(&self) -> &Material {
+        &self.mat
+    }
     fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync> {
-        return Box::new(Sphere {
+        Box::new(Sphere {
             m: self.m,
             r: self.r,
-            base_color: self.base_color
-        });
+            mat: self.mat
+        })
     }
 }
