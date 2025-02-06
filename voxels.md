@@ -8,6 +8,3 @@
 - Implement 2 Major Optimizations
   1. Only Render Voxels that are on the surface
   2. Implement a spacial Tree (similar to the 3d sphere tree)
-- Fix some perspective Issues with the Raymarching Camera
-- Implement Player-Movement etc
-- do a minecraft clone as a example for Voxels (?)

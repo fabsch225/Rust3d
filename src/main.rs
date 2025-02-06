@@ -41,6 +41,7 @@ const TURN_SPEED : f64 = 0.0035;
 
 /// ## TODO
 /// - [ ] Camera should have w and h as parameters and map them to the canvas obj.
+/// - [ ] Fix Camera -> try out playermovement with horse.rs
 /// - [ ] make the texture Object more abstract (this may not be sensible for Raymarching-Objects)
 /// - [ ] Fix RM coloring
 /// - [ ] implement rectangular Face -> call it SmartFace or smth
