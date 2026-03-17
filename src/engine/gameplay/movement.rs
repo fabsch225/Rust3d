@@ -108,7 +108,7 @@ impl<'a> PlayerMovementController<'a> {
                     self.pitch -= yrel as f64 * self.sensitivity;
                     self.pitch = self.pitch.clamp(-1.57, 1.57); // Limit pitch to avoid flipping
 
-                    self.camera.set_rot(V { x: 0.0, y: self.yaw, z: self.pitch });
+                    //self.camera.set_rot(V { x: 0.0, y: self.yaw, z: self.pitch });
                 }
                 Event::Quit { .. } => {
                     return true;

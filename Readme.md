@@ -13,6 +13,17 @@
 ```shell
 sudo apt install -y libsdl2-dev
 ```
+- on mac
+```shell
+brew install sdl2
+```
+and
+```shell
+export HOMEBREW_PREFIX="$(brew --prefix)"
+export PKG_CONFIG_PATH="$HOMEBREW_PREFIX/opt/sdl2/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LIBRARY_PATH="$HOMEBREW_PREFIX/opt/sdl2/lib:$LIBRARY_PATH"
+export CPATH="$HOMEBREW_PREFIX/opt/sdl2/include:$CPATH"
+```
 - This Program is licensed under the GNU GPL-3.0 License: https://www.gnu.org/licenses/gpl-3.0.html
 
 ## Showcase
@@ -22,6 +33,8 @@ sudo apt install -y libsdl2-dev
 ![](./showcase/teseract.gif)
 
 ![](./showcase/graph_sine.png)
+
+![](./showcase/raymarching.gif)
 
 ## Flamegraph
 - For insights into the Internals so far, look at the flamegraph

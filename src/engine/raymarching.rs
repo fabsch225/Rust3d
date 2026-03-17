@@ -18,6 +18,7 @@ pub trait RayMarchingObject : Transformable {
 
 pub struct RayMarchingScene {
     pub objects: Vec<Box<dyn RayMarchingObject + Send + Sync>>,
+	pub negative_objects: Vec<Box<dyn RayMarchingObject + Send + Sync>>,
 	pub lights: Vec<Light>,
 	//pub materials: Vec<Material>,
 	pub epsilon: f64,
@@ -28,6 +29,7 @@ impl RayMarchingScene {
 	pub fn new(epsilon: f64) -> Self {
 		RayMarchingScene {
 			objects: Vec::new(),
+			negative_objects: Vec::new(),
 			lights: Vec::new(),
 			epsilon,
 			flat_color: false,
@@ -39,9 +41,14 @@ impl RayMarchingScene {
         for i in 0..old.objects.len() {
             objects_vec.push(old.objects[i].clone());
         }
+        let mut negative_objects_vec: Vec<Box<dyn RayMarchingObject + Send + Sync>> = Vec::new();
+        for i in 0..old.negative_objects.len() {
+            negative_objects_vec.push(old.negative_objects[i].clone());
+        }
         RayMarchingScene {
 			epsilon: old.epsilon,
             objects: objects_vec,
+			negative_objects: negative_objects_vec,
 			lights: old.lights.clone(),
 			flat_color: old.flat_color,
 		}
@@ -59,6 +66,10 @@ impl RayMarchingScene {
 		self.objects.push(Box::new(obj));
 	}
 
+	pub fn add_negative(&mut self, obj: impl RayMarchingObject + 'static + Send + Sync) {
+		self.negative_objects.push(Box::new(obj));
+	}
+
 	pub fn add_light(&mut self, light: Light) {
 		self.lights.push(light);
 	}
@@ -72,6 +83,11 @@ impl RayMarchingScene {
 				result = cd;
 			}
         }
+
+		for component in self.negative_objects.iter() {
+			let cd = component.sdf(p);
+			result = f64::max(result, -cd);
+		}
 
 		result
     }
@@ -142,10 +158,16 @@ impl Transformable for RayMarchingScene {
 		for component in self.objects.iter_mut() {
 			component.rot_reverse(r_);
 		}
+		for component in self.negative_objects.iter_mut() {
+			component.rot_reverse(r_);
+		}
 	}
 
 	fn rot(&mut self, r_: V3) {
 		for component in self.objects.iter_mut() {
+			component.rot(r_);
+		}
+		for component in self.negative_objects.iter_mut() {
 			component.rot(r_);
 		}
 	}
@@ -154,10 +176,16 @@ impl Transformable for RayMarchingScene {
 		for component in self.objects.iter_mut() {
 			component.rot_by(p, r);
 		}
+		for component in self.negative_objects.iter_mut() {
+			component.rot_by(p, r);
+		}
 	}
 
 	fn translate(&mut self, p_: V3) {
 		for component in self.objects.iter_mut() {
+			component.translate(p_);
+		}
+		for component in self.negative_objects.iter_mut() {
 			component.translate(p_);
 		}
 	}
