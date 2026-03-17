@@ -27,7 +27,7 @@ impl ProjectionCamera {
     }
 
     pub fn draw(&self, canvas : &mut Canvas<Window>, scene: &ProjectiveScene) {
-        let matrix = MatrixND::projection3d2d(self.fov, self.aspect_ratio, self.near, self.far);
+        let matrix = MatrixND::camera_projection(self.fov, self.aspect_ratio, self.near, self.far);
         let mut vcanvas = VirtualCanvas::new(self.width, self.height);
         //ToDO translate
 

@@ -27,16 +27,18 @@ impl ProjectiveScene {
     }
 
     fn quicksort(vec: &mut [Raster], low: usize, high: usize) {
+        if low >= high {
+            return;
+        }
+
         if high - low + 1 < 20 {
             ProjectiveScene::insertion_sort(&mut vec[low..=high]);
         } else {
-            if low < high {
-                let pi = ProjectiveScene::qs_partition(vec, low, high);
-                if pi > 0 {
-                    ProjectiveScene::quicksort(vec, low, pi - 1);
-                }
-                ProjectiveScene::quicksort(vec, pi + 1, high);
+            let pi = ProjectiveScene::qs_partition(vec, low, high);
+            if pi > 0 {
+                ProjectiveScene::quicksort(vec, low, pi - 1);
             }
+            ProjectiveScene::quicksort(vec, pi + 1, high);
         }
     }
 

@@ -14,10 +14,11 @@ use std::thread;
 use std::time::Duration;
 use std::time::Instant;
 
-use rust3d::engine::polytree::poly_tree::PolyTree;
+use rust3d::engine::simplex3d_sphere_tree::poly_tree::PolyTree;
+use rust3d::engine::lighting::Material;
 use rust3d::engine::raymarching::RayMarchingScene;
 use rust3d::engine::utils::rendering::RaySphereable;
-use rust3d::engine::utils::renderung_ui::UiElement;
+use rust3d::engine::utils::rendering_ui::UiElement;
 use rust3d::engine::utils::transformation::{PI, TWO_PI};
 use rust3d::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
 use rust3d::geometry::face::Face;
@@ -32,8 +33,8 @@ use rust3d::geometry::line::Line;
 use rust3d::math::functions::FunctionR2ToR;
 use rust3d::math::graph::Graph3D;
  
-const W : usize = 1500;
-const H : usize = 1500;
+const W : usize = 500;
+const H : usize = 500;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
 const VARIABLE_RENDER_SPEED : u8 = 35;
@@ -78,7 +79,7 @@ pub fn main() -> Result<(), String>{
     println!("Starting to parse objects");
 
     let mut p1 = Quad::new(V{x: 0.0, y: 0.0, z: 0.0}, V{x: 1., y: 2., z: 1.}, Color::RED);
-    let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Color::GREEN);
+    let mut p2 = Sphere::new(V{x: 2.0, y: 1.0, z: 1.0}, 0.01, Material::new(Color::GREEN, 1.0));
 
     let mut t1 = Simplex3D::parse_wavefront(&String::from("demo_assets/models/horse.obj"), &String::from("demo_assets/models/horse_tex.png"));
     //let mut t1 = Poly::parse_wavefront(&String::from("demo_assets/models/eagle.obj"), &String::from("demo_assets/models/orzel-mat_Diffuse.jpg"));
@@ -99,7 +100,7 @@ pub fn main() -> Result<(), String>{
 
     //pa_objs.add(f1);
     let mut line1 = Line::new(p1.x[7], p1.x[6], 0.01);
-    let mut p2 = Sphere::new(p1.x[6], 0.1, Color::GREEN);
+    let mut p2 = Sphere::new(p1.x[6], 0.1, Material::new(Color::GREEN, 1.0));
     //rm_objs.add(line1);
     //rm_objs.add(p2);
     t1.goto(V{x: 1.0, y: 0.0, z: 0.0});
@@ -110,7 +111,7 @@ pub fn main() -> Result<(), String>{
     let mut g1 = Graph3D::new(p1, FunctionR2ToR::new(Box::new(|x, y| - x*x -  y*y + 1.0)), vec!["x", "y", "z"]);
     g1.rot(V{x: PI / 2., y: 0.0, z: 0.0});
     let root = p1.x[7];
-    let mut label1 = rust3d::engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), &font, Color::RED, Color::WHITE);
+    let mut label1 = rust3d::engine::utils::anker_label::AnkerLabel::new(root.x, root.y, root.z, String::from("Root"), &font, 24.0, Color::RED, Color::WHITE);
 
     //let s2 = Sphere::new(p1.x[5], 0.12, Color::BLUE);
     //rm_objs.add(s1);

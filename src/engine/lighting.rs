@@ -29,15 +29,17 @@ impl Transformable for Light {
     }
 
     fn translate(&mut self, p: V3) {
-        todo!()
+        self.position.add(p);
     }
 
     fn scale(&mut self, p: V3) {
-        todo!()
+        self.position.x *= p.x;
+        self.position.y *= p.y;
+        self.position.z *= p.z;
     }
 
     fn transform(&mut self) -> Box<&mut dyn Transformable> {
-        todo!()
+        Box::new(self)
     }
 }
 

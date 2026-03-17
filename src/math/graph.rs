@@ -2,6 +2,7 @@ use std::vec;
 
 use sdl2::pixels::Color;
 
+use crate::engine::lighting::Material;
 use crate::engine::pathtracing::{PathtracingObject, PathTracingScene};
 use crate::engine::raymarching::{RayMarchingObject, RayMarchingScene};
 use crate::engine::utils::anker_label::AnkerLabel;
@@ -30,9 +31,17 @@ impl Graph3D {
         let fg_ = Color::RED;
         let bg_ = Color::GRAY;
 
-        let line1 = Line::new(bounds.x[7], bounds.x[6], 0.05);
-        let line2 = Line::new(bounds.x[7], bounds.x[4], 0.05);
-        let line3 = Line::new(bounds.x[7], bounds.x[3], 0.05);
+        let mut line1 = Line::new(bounds.x[7], bounds.x[6], 0.025);
+        let mut line2 = Line::new(bounds.x[7], bounds.x[4], 0.025);
+        let mut line3 = Line::new(bounds.x[7], bounds.x[3], 0.025);
+
+        // Explicit axis colors/materials so they remain visible.
+        line1.base_color = Color::RGB(255, 80, 80);
+        line2.base_color = Color::RGB(80, 255, 120);
+        line3.base_color = Color::RGB(80, 160, 255);
+        line1.material = Material::new(line1.base_color, 1.0);
+        line2.material = Material::new(line2.base_color, 1.0);
+        line3.material = Material::new(line3.base_color, 1.0);
 
         let font = include_bytes!("../../demo_assets/fonts/NotoSansMath-Regular.ttf") as &[u8];
         let font = fontdue::Font::from_bytes(font, fontdue::FontSettings::default()).unwrap();
@@ -49,12 +58,13 @@ impl Graph3D {
                 skel.push(Line::new(bounds.x[i], bounds.x[j], 0.01));
             }
         }
-        let mut axis_ = RayMarchingScene::new(0.02);
+        let mut axis_ = RayMarchingScene::new(0.01);
+        axis_.set_flat_color(true);
         axis_.add(line1);
         axis_.add(line2);
         axis_.add(line3);
         Graph3D {
-            content: f.create_graph(bounds, 0.01),
+            content: f.create_graph(bounds, 0.05),
             bounds,
             m : bounds.m,
             color: Color::WHITE,
@@ -86,11 +96,11 @@ impl WithLabels for Graph3D {
 
 impl RayRenderable for Graph3D {
     fn get_collision(&self, p0: V3, p: V3, radius: f64) -> Collision {
+        let axis_collision = self.axis.get_collision(p0, p, radius);
         let mut collisions = vec![
             self.content.get_collision(p0, p)
         ];
-        
-        collisions.push(self.axis.get_collision(p0, p, radius));
+        collisions.push(axis_collision);
         
         for a in self.grid.iter() {
             collisions.push(a.get_collision(p0, p));

@@ -17,7 +17,7 @@ pub trait Textured {
     fn get_uv_map(&self) -> Vec<UV>;
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Collision {
     pub d: f64,
     pub p: V3,

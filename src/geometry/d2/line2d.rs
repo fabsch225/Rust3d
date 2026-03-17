@@ -30,41 +30,39 @@ impl Line2D {
             color,
         }
     }
-    // Helper to convert floating point coordinates to integer grid coordinates
-    fn to_grid_coords(&self, width: usize, height: usize) -> ((i32, i32), (i32, i32)) {
-        let start_x = self.start.x as i32;
-        let start_y = self.start.y as i32;
-        let end_x = self.end.x as i32;
-        let end_y = self.end.y as i32;
-        ((start_x, start_y), (end_x, end_y))
-    }
-
-    fn to_raster_coords(&self, width: usize, height: usize) -> ((i32, i32), (i32, i32)) {
-        let start_x = self.start.x as i32 - (self.width / 2.0) as i32;
-        let start_y = self.start.y as i32 - (self.width / 2.0) as i32;;
-        let end_x = self.end.x as i32 + (self.width / 2.0) as i32;
-        let end_y = self.end.y as i32 + (self.width / 2.0) as i32;
-        ((start_x, start_y), (end_x, end_y))
-    }
 }
 
 impl Projectable for Line2D {
     fn project(&self, mat: &MatrixND) -> Box<&dyn Projection> {
-        Box::new(self.clone())
+        Box::new(self as &dyn Projection)
     }
 }
 
 impl Projection for Line2D {
     fn rasterize(&self, width: usize, height: usize) -> Raster {
-        let (start, end) = self.to_grid_coords(width, height);
-        let (raster_start, raster_end) = self.to_raster_coords(width, height);
-        let raster_width = i32::abs(raster_start.0 - raster_end.0) as usize;
-        let raster_height = i32::abs(raster_start.1 - raster_end.1) as usize;
-        let half_width = (self.width / 2.0) as i32;
+        let thickness = self.width.round().max(1.0) as i32;
+        let half_width = thickness / 2;
+
+        let start = (self.start.x as i32, self.start.y as i32);
+        let end = (self.end.x as i32, self.end.y as i32);
+
+        let min_x = i32::min(start.0, end.0) - half_width;
+        let min_y = i32::min(start.1, end.1) - half_width;
+        let max_x = i32::max(start.0, end.0) + half_width;
+        let max_y = i32::max(start.1, end.1) + half_width;
+
+        let rec_start_x = min_x.clamp(0, width as i32);
+        let rec_start_y = min_y.clamp(0, height as i32);
+        let rec_end_x = (max_x + 1).clamp(0, width as i32);
+        let rec_end_y = (max_y + 1).clamp(0, height as i32);
+
+        let raster_width = (rec_end_x - rec_start_x).max(0) as usize;
+        let raster_height = (rec_end_y - rec_start_y).max(0) as usize;
+
         let mut raster = Raster {
             z: 0,
-            rec_start: (i32::min(raster_start.0, raster_end.0) as usize, i32::min(raster_start.1, raster_end.1) as usize),
-            rec_end: (i32::max(raster_start.0, raster_end.0) as usize, i32::max(raster_start.1, raster_end.1) as usize),
+            rec_start: (rec_start_x as usize, rec_start_y as usize),
+            rec_end: (rec_end_x as usize, rec_end_y as usize),
             screen_width: width,
             screen_height: height,
             raster_height,
@@ -72,8 +70,15 @@ impl Projection for Line2D {
             pixels: vec![vec![Color::new(0, 0, 0, 255); raster_width]; raster_height],
         };
 
+        if raster_width == 0 || raster_height == 0 {
+            return raster;
+        }
+
+        let local_start = (start.0 - rec_start_x, start.1 - rec_start_y);
+        let local_end = (end.0 - rec_start_x, end.1 - rec_start_y);
+
         //this is because the raster-bounds are fit around the line
-        Drawing::bresenham_line_single_color_width((half_width, half_width), (self.end.x as i32 - self.start.x as i32, self.end.y as i32 - self.start.y as i32), self.width as i32, &self.color, &mut raster);
+        Drawing::bresenham_line_single_color_width(local_start, local_end, thickness, &self.color, &mut raster);
         //Drawing::bresenham_line_single_color((half_width, half_width), (self.end.x as i32 - self.start.x as i32, self.end.y as i32 - self.start.y as i32), &self.color, &mut raster);
         raster
     }

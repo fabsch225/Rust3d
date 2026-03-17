@@ -32,11 +32,11 @@ use rust3d::geometry::line::Line;
 use rust3d::math::functions::FunctionR2ToR;
 use rust3d::math::graph::Graph3D;
 
-const W : usize = 1200;
-const H : usize = 1200;
+const W : usize = 500;
+const H : usize = 500;
 const FRAMERATE : u32 = 60;
 const NANOS : u32 = 1_000_000_000 / FRAMERATE;
-const VARIABLE_RENDER_SPEED : u8 = 35;
+const VARIABLE_RENDER_SPEED : u8 = 28;
 const TURN_SPEED : f64 = 0.0035;
 
 pub fn main() -> Result<(), String>{
@@ -92,7 +92,7 @@ pub fn main() -> Result<(), String>{
             let rot_y = TURN_SPEED * state.x() as f64;
             if (rot_y != 0.0) { //rot_z != 0.0 ||
                 motion = true;
-                block_size = 10;
+                block_size = 8;
             }
             if (rot_y > 0.0) {
                 g1.rot(V{x: 0.0, y: rot_y, z: 0.0});
@@ -121,10 +121,10 @@ pub fn main() -> Result<(), String>{
             stage += 1;
             if (stage >= modulus_size / block_size) {
                 stage = 0;
-                if (block_size > 1) {
+                if (block_size > 4) {
                     block_size /= 4;
-                    if block_size < 1 {
-                        block_size = 1;
+                    if block_size < 4 {
+                        block_size = 4;
                         if (change_modulus > 0) {
                             modulus_size += VARIABLE_RENDER_SPEED as usize;
                         }

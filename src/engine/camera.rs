@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, sync::{Arc, Mutex}};
+use std::{borrow::Borrow, sync::{Arc, Mutex, mpsc}, thread};
 
 use sdl2::{pixels::Color, rect::Point, render::Canvas, video::Window};
 
@@ -128,6 +128,42 @@ impl<'a> RayCamera {
 
 		pixels
 	}	
+
+	pub fn render_frame_multi<R: RayRenderable + 'static>(&self, obj: Arc<R>, w: usize, h: usize, threads: usize) -> Vec<Color> {
+		let n = if threads == 0 { 1 } else { threads };
+		let (tx, rx) = mpsc::channel::<(usize, Vec<Color>)>();
+
+		for i in 0..n {
+			let camera = *self;
+			let tx = tx.clone();
+			let obj = Arc::clone(&obj);
+
+			thread::spawn(move || {
+				let section = camera.render_modulus_multi(obj, w, h, i, n);
+				let _ = tx.send((i, section));
+			});
+		}
+
+		let mut sections: Vec<Vec<Color>> = vec![Vec::new(); n];
+		for _ in 0..n {
+			if let Ok((idx, section)) = rx.recv() {
+				sections[idx] = section;
+			}
+		}
+
+		let mut counters: Vec<usize> = vec![0; n];
+		let mut pixels: Vec<Color> = Vec::with_capacity(w * h);
+		for j in 0..w {
+			let idx = j % n;
+			for _i in 0..h {
+				let p = sections[idx][counters[idx]];
+				counters[idx] += 1;
+				pixels.push(p);
+			}
+		}
+
+		pixels
+	}
 
 	pub fn draw_section(&self, p: &Vec<Color>, canvas : &mut Canvas<Window>, i1: usize, j1 : usize, i2: usize, j2 : usize) {
 		let mut pos : usize = 0;

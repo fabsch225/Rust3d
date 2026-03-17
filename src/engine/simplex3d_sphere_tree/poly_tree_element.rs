@@ -133,11 +133,16 @@ impl PolyTreeElement {
             radius
         }
     }
-    pub fn get_collision(&self, p0: V3, p: V3) -> Vec<PolyTreeCollisionFeedback> {
+    pub fn get_collision(&self, p0: V3, p: V3) -> Vec<PolyTreeCollisionFeedback<'_>> {
         if (self.leaf) {
             let mut bd: f64 = f64::MAX;
             let mut i_: usize = 0;
             let mut pc: V3 = V3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            };
+            let mut n: V3 = V3 {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
@@ -173,6 +178,7 @@ impl PolyTreeElement {
                             bg = bg_;
                             bd = d;
                             i_ = i;
+                            n = self.faces[i].n;
                             did_hit = true;
                         }
                     }
@@ -183,6 +189,7 @@ impl PolyTreeElement {
                     hit: true,
                     p: pc,
                     uv: &self.uvs[i_],
+                    n,
                     bg,
                 }];
             } else {

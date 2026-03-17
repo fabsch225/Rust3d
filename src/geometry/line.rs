@@ -15,6 +15,7 @@ pub struct Line {
     pub m : Vector3,
     pub thickness : f64,
     pub base_color : SdlColor,
+    pub material: Material,
 }
 
 impl Line {
@@ -25,7 +26,8 @@ impl Line {
             e,
             m,
             thickness,
-            base_color: SdlColor::BLUE
+            base_color: SdlColor::BLUE,
+            material: Material::new(SdlColor::BLUE, 1.0),
         }
     }
 
@@ -153,7 +155,8 @@ impl PathtracingObject for Line {
             e: self.e.clone(),
             m: self.m.clone(),
             thickness: self.thickness,
-            base_color: self.base_color
+            base_color: self.base_color,
+            material: self.material,
         })
     }
 }
@@ -164,7 +167,7 @@ impl RayMarchingObject for Line {
     }
 
     fn get_material(&self) -> &Material {
-        todo!()
+        &self.material
     }
     
     fn clone(&self) -> Box<dyn RayMarchingObject + Send + Sync> {
@@ -174,7 +177,8 @@ impl RayMarchingObject for Line {
             e: self.e.clone(),
             m: self.m.clone(),
             thickness: self.thickness,
-            base_color: self.base_color
+            base_color: self.base_color,
+            material: self.material,
         })
     }
 }

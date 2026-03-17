@@ -18,7 +18,7 @@ impl MatrixND {
     /// * `aspect_ratio` - aspect ratio
     /// * `near` - NEAR value
     /// * `far` - FAR value
-    pub fn projection3d2d(fov: f64, aspect_ratio: f64, near: f64, far: f64) -> Self {
+    pub fn camera_projection(fov: f64, aspect_ratio: f64, near: f64, far: f64) -> Self {
         let mut mat = MatrixND::new(4, 4);
         mat.set(0, 0, aspect_ratio * fov);
         mat.set(1, 1, fov);

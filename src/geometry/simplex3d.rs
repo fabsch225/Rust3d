@@ -202,13 +202,13 @@ impl PathtracingObject for Simplex3D {
                         bg = bg_;
                         bd = d; 
                         i = i_;
-                        c = Collision{d, p: pc, hit: true, c: Color::RED};
+                        c = Collision{d, p: pc, hit: true, c: self.base_color};
                     }
                 }
             }
         }
 
-        if (c.hit && false) {   
+        if (c.hit && self.has_t) {   
             
             let uv = self.tm[i];
             let y = (uv.r.0 + bg.0 * (uv.a.0 - uv.r.0) + bg.1 * (uv.b.0 - uv.r.0));
@@ -234,5 +234,60 @@ impl PathtracingObject for Simplex3D {
         }
 
         return c;
+    }
+
+    fn get_collision_with_normal(&self, p0: V3, p: V3) -> (Collision, Option<V3>) {
+        let mut c : Collision = Collision::empty();
+        let mut bd : f64 = f64::MAX;
+        let mut i : usize = 0;
+        let mut bg : (f64, f64) = (0.0, 0.0);
+        let mut n: Option<V3> = None;
+
+        for (i_, f) in self.x.iter().enumerate() {
+            if (f.is_colliding(p0, p)) {
+                let bg_ = f.get_beta_gamma(p0, p);
+                if (bg_.0 <= 1.0 && bg_.0 >= 0.0 && bg_.1 <= 1.0 && bg_.1 >= 0.0  && bg_.0 + bg_.1 <= 1.0) {
+                    let pc: V3 = V3{
+                        x: f.r.x + bg_.0 * (f.a.x - f.r.x) + bg_.1 * (f.b.x - f.r.x),
+                        y: f.r.y + bg_.0 * (f.a.y - f.r.y) + bg_.1 * (f.b.y - f.r.y),
+                        z: f.r.z + bg_.0 * (f.a.z - f.r.z) + bg_.1 * (f.b.z - f.r.z)
+                    };
+                    let d : f64 = pc.d(p0);
+
+                    if (d < bd) {
+                        bg = bg_;
+                        bd = d;
+                        i = i_;
+                        c = Collision{d, p: pc, hit: true, c: self.base_color};
+                        n = Some(f.n);
+                    }
+                }
+            }
+        }
+
+        if (c.hit && self.has_t) {
+
+            let uv = self.tm[i];
+            let y = (uv.r.0 + bg.0 * (uv.a.0 - uv.r.0) + bg.1 * (uv.b.0 - uv.r.0));
+            let x = 1.0 - (uv.r.1 + bg.0 * (uv.a.1 - uv.r.1) + bg.1 * (uv.b.1 - uv.r.1));
+
+            let ty = (x * self.th as f64) as u32;
+            let tx = (y * self.tw as f64) as u32;
+
+            let pos = ((tx + ty * self.th) * 3) as usize;
+
+            if pos >= self.tf.len() {
+                c.c = Color::RED;
+            }
+            else {
+                let r = self.tf[pos];
+                let g = self.tf[pos + 1];
+                let b = self.tf[pos + 2];
+
+                c.c = Color::RGB(r, g, b);
+            }
+        }
+
+        (c, n)
     }
 }

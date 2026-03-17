@@ -1,7 +1,8 @@
 use sdl2::pixels::Color;
 use crate::engine::lighting::Material;
+use crate::engine::pathtracing::RaytracingObject;
 use crate::engine::raymarching::RayMarchingObject;
-use crate::engine::utils::{rendering::{RayRenderScene, RayRenderable}, transformation::Transformable};
+use crate::engine::utils::{rendering::{Collision, RayRenderScene, RayRenderable}, transformation::Transformable};
 use crate::geometry::vector3::Vector3;
 
 #[derive(Copy, Clone, Debug)]
@@ -462,5 +463,177 @@ impl RayMarchingObject for Quad {
 
     fn get_material(&self) -> &Material {
         todo!()
+    }
+}
+
+impl RaytracingObject for Quad {
+    fn d(&self, p: Vector3) -> f64 {
+        self.d_(p)
+    }
+
+    fn color(&self, _p: Vector3) -> Color {
+        self.base_color
+    }
+
+    fn is_colliding(&mut self, p0: Vector3, p: Vector3) -> bool {
+        self.get_collision(p0, p).hit
+    }
+
+    fn get_collision(&self, p0: Vector3, p: Vector3) -> Collision {
+        self.get_collision_with_normal(p0, p).0
+    }
+
+    fn get_collision_with_normal(&self, p0: Vector3, p: Vector3) -> (Collision, Option<Vector3>) {
+        // Build local OBB frame from current transformed vertices.
+        let mut ux = self.x[2];
+        ux.subtract(self.x[3]);
+        let ex = ux.norm() * 0.5;
+        ux.normalize();
+
+        let mut uy = self.x[0];
+        uy.subtract(self.x[3]);
+        let ey = uy.norm() * 0.5;
+        uy.normalize();
+
+        let mut uz = self.x[7];
+        uz.subtract(self.x[3]);
+        let ez = uz.norm() * 0.5;
+        uz.normalize();
+
+        // Ray in OBB local coordinates centered at self.m.
+        let mut o = p0;
+        o.subtract(self.m);
+
+        let ox = o.dt(ux);
+        let oy = o.dt(uy);
+        let oz = o.dt(uz);
+
+        let dx = p.dt(ux);
+        let dy = p.dt(uy);
+        let dz = p.dt(uz);
+
+        let mut tmin = -f64::INFINITY;
+        let mut tmax = f64::INFINITY;
+        let mut n_enter_local = Vector3::new(0.0, 0.0, 0.0);
+
+        // X slab
+        if dx.abs() < 1e-12 {
+            if ox < -ex || ox > ex {
+                return (Collision::empty(), None);
+            }
+        } else {
+            let inv = 1.0 / dx;
+            let mut t1 = (-ex - ox) * inv;
+            let mut t2 = (ex - ox) * inv;
+            let mut n1 = Vector3::new(-1.0, 0.0, 0.0);
+            let mut n2 = Vector3::new(1.0, 0.0, 0.0);
+            if t1 > t2 {
+                std::mem::swap(&mut t1, &mut t2);
+                std::mem::swap(&mut n1, &mut n2);
+            }
+            if t1 > tmin {
+                tmin = t1;
+                n_enter_local = n1;
+            }
+            tmax = tmax.min(t2);
+            if tmin > tmax {
+                return (Collision::empty(), None);
+            }
+        }
+
+        // Y slab
+        if dy.abs() < 1e-12 {
+            if oy < -ey || oy > ey {
+                return (Collision::empty(), None);
+            }
+        } else {
+            let inv = 1.0 / dy;
+            let mut t1 = (-ey - oy) * inv;
+            let mut t2 = (ey - oy) * inv;
+            let mut n1 = Vector3::new(0.0, -1.0, 0.0);
+            let mut n2 = Vector3::new(0.0, 1.0, 0.0);
+            if t1 > t2 {
+                std::mem::swap(&mut t1, &mut t2);
+                std::mem::swap(&mut n1, &mut n2);
+            }
+            if t1 > tmin {
+                tmin = t1;
+                n_enter_local = n1;
+            }
+            tmax = tmax.min(t2);
+            if tmin > tmax {
+                return (Collision::empty(), None);
+            }
+        }
+
+        // Z slab
+        if dz.abs() < 1e-12 {
+            if oz < -ez || oz > ez {
+                return (Collision::empty(), None);
+            }
+        } else {
+            let inv = 1.0 / dz;
+            let mut t1 = (-ez - oz) * inv;
+            let mut t2 = (ez - oz) * inv;
+            let mut n1 = Vector3::new(0.0, 0.0, -1.0);
+            let mut n2 = Vector3::new(0.0, 0.0, 1.0);
+            if t1 > t2 {
+                std::mem::swap(&mut t1, &mut t2);
+                std::mem::swap(&mut n1, &mut n2);
+            }
+            if t1 > tmin {
+                tmin = t1;
+                n_enter_local = n1;
+            }
+            tmax = tmax.min(t2);
+            if tmin > tmax {
+                return (Collision::empty(), None);
+            }
+        }
+
+        let t_hit = if tmin > 1e-6 {
+            tmin
+        } else if tmax > 1e-6 {
+            // inside box: exit intersection
+            tmax
+        } else {
+            return (Collision::empty(), None);
+        };
+
+        let mut hit = p;
+        hit.scale(t_hit);
+        hit.add(p0);
+
+        // Local normal -> world normal
+        let mut n_world = Vector3::new(0.0, 0.0, 0.0);
+        if n_enter_local.x != 0.0 {
+            n_world = ux;
+            n_world.scale(n_enter_local.x);
+        } else if n_enter_local.y != 0.0 {
+            n_world = uy;
+            n_world.scale(n_enter_local.y);
+        } else if n_enter_local.z != 0.0 {
+            n_world = uz;
+            n_world.scale(n_enter_local.z);
+        }
+
+        // Ensure outward against ray direction
+        if n_world.dt(p) > 0.0 {
+            n_world.scale(-1.0);
+        }
+
+        (
+            Collision {
+                d: t_hit,
+                p: hit,
+                hit: true,
+                c: self.base_color,
+            },
+            Some(n_world),
+        )
+    }
+
+    fn clone(&self) -> Box<dyn RaytracingObject + Send + Sync> {
+        Box::new(*self)
     }
 }

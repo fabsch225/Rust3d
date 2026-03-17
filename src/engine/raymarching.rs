@@ -21,6 +21,7 @@ pub struct RayMarchingScene {
 	pub lights: Vec<Light>,
 	//pub materials: Vec<Material>,
 	pub epsilon: f64,
+	pub flat_color: bool,
 }
 
 impl RayMarchingScene {
@@ -29,6 +30,7 @@ impl RayMarchingScene {
 			objects: Vec::new(),
 			lights: Vec::new(),
 			epsilon,
+			flat_color: false,
 		}
 	}
 
@@ -41,8 +43,13 @@ impl RayMarchingScene {
 			epsilon: old.epsilon,
             objects: objects_vec,
 			lights: old.lights.clone(),
+			flat_color: old.flat_color,
 		}
     }
+
+	pub fn set_flat_color(&mut self, flat_color: bool) {
+		self.flat_color = flat_color;
+	}
 
 	pub fn get(&mut self, i: usize) -> &mut Box<dyn RayMarchingObject + 'static + Send + Sync>{
 		&mut self.objects[i]
@@ -117,7 +124,11 @@ impl RayMarchingScene {
 			let cd = component.sdf(p);
 			if cd < bd {
 				let material = component.get_material();
-				result_color = self.diffuse_lighting(p, material);
+				if self.flat_color || self.lights.is_empty() {
+					result_color = material.color;
+				} else {
+					result_color = self.diffuse_lighting(p, material);
+				}
 				bd = cd;
 			}
 		}
