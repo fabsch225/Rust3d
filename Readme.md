@@ -1,10 +1,8 @@
 # Rust-Graphics
 - This Engine is mainly used for experimenting with Computer Graphics
-- written entirely from scratch
-- Ray-Marching and Pathtracing Engine on the Cpu
-- Using SDL2 for Media-Context
+- written entirely from scratch (except for window-management and io via sdl2)
+- Ray-Marching, Raytracing and Projection on the Cpu
 - Supports wavefront files (only triangles, one texture)
-
 
 
 - For Windows, SDL2 is bundled. For Linux / MacOS you need to install it yourself:
