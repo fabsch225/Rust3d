@@ -3,7 +3,7 @@
 - written entirely from scratch (except for window-management and io via sdl2)
 - Ray-Marching, Raytracing and Projection on the Cpu
 - Supports wavefront files (only triangles, one texture)
-
+- Some 2D Drawing Algorithms
 
 - For Windows, SDL2 is bundled. For Linux / MacOS you need to install it yourself:
 [SDL2](http://www.libsdl.org/)
