@@ -1,6 +1,6 @@
 # Rust-Graphics
 - This Engine is mainly used for experimenting with Computer Graphics
-- With some exceptions, it is developed entirely from scratch
+- written entirely from scratch
 - Ray-Marching and Pathtracing Engine on the Cpu
 - Using SDL2 for Media-Context
 - Supports wavefront files (only triangles, one texture)
